@@ -1,0 +1,341 @@
+---
+title: "Processing phenotypic data"
+highlighter: prettify
+output: 
+  html_document:
+    code_folding: show
+    theme: readable
+    includes:
+      after_body: footer.html   
+---
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+
+
+
+```{r setup, include=F,echo=F}
+require(knitr)
+opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+```
+
+$$\\[0.5in]$$
+
+Here we prepare phenotypic data to be used in the genome-wide association study. We include European participants where T1 images were used in conjunction with T2 FLAIR (item 26500). We control the GWAS phenotypes for acquisition site (item 54), and head position (X,Y,Z coordinates, items 25756, 25757, 25758), time of year and time of day (item 53), and 20 genetic principal components to adjust for population stratification. Extreme outliers outside of 4 standard deviations are excluded. These phenotypes are also used for comparison between phenoypic and genetic networks later in the study.
+
+***
+
+$$\\[0.1in]$$
+
+
+
+Based on this script, the final sample used for analyses consisted of *N* =  participants.
+
+```{r Edinburgh_server, eval=F,echo=T}
+### phenotypic analysis on Edinburgh server
+
+# save output
+sink("/Cluster_Filespace/Ritchie_Group/Anna/pheno_decomposition_console.out")
+
+# load dependencies
+library(data.table)
+
+# read in UKB file
+setwd("/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/40837")
+file<-list.files(pattern=".csv")
+file<-fread(file,header=T,data.table=F)
+
+# 1. identify which columnames belong to our variables of interest and save in document
+# read in region codes
+setwd("/Cluster_Filespace/Ritchie_Group/Anna/")
+ref<-fread("region_codes.txt",data.table=F)
+
+# 2. re-name them accordning to their brain area
+
+for(i in 1:nrow(ref)){
+	number<-paste0(ref$No[i],"-2.0")
+	#number<-ref$No[i]
+	region<-ref$Region[i]
+	names(file)[grep(number,colnames(file))]<-region
+}
+
+# only keep columns of interest
+keep<-names(file)[grepl("Right",names(file))|grepl("Left",names(file))|grepl("Brain_stem",names(file))]
+keep<-append("eid",keep)
+file<-file[,keep]
+dim(file)
+# [1] 502506     84
+
+# show missing values per column
+print("Number of missing values")
+colSums(is.na(file))
+# 
+
+print("Number of non-missing values")
+colSums(!is.na(file))
+#[1] "Number of non-missing values"
+#                             eid                       Brain_stem 
+#                          502506                            40055 
+#            Left_thalamus_proper                     Left_caudate 
+#                           40054                            40055 
+#                    Left_putamen                    Left_pallidum 
+#                           40055                            40055 
+#                Left_hippocampus                    Left_amygdala 
+#                           40055                            40055 
+
+########## merge with file containing age_correlations
+# read in age file
+setwd("/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/25136/")
+age_file<-list.files(pattern=".csv")
+age_file<-fread(age_file,header=T,data.table=F)
+dim(age_file)
+#[1] 502540  10900
+
+# keep British ancestry item 21000 and delete those from other background
+names(age_file)[grep("21000.0",colnames(age_file))]<-"ancestry"
+age_file$british<-ifelse(age_file$ancestry == 1001 | age_file$ancestry == 1002 | age_file$ancestry == 1003,1,0)
+sum(age_file$british,na.rm=T)
+#[1] 472159
+age_file<-age_file[-which(age_file$british==0),]
+dim(age_file)
+#[1] 473057  10901
+
+
+# keep only age relevant rows 
+names(age_file)[grep("21003.2.0",colnames(age_file))]<-"age_neuroimaging"
+names(age_file)[grep("52.0.0",colnames(age_file))]<-"birth_month"
+names(age_file)[grep("53.2.0",colnames(age_file))]<-"date_imaging"
+names(age_file)[grep("21003.0.0",colnames(age_file))]<-"age_assessment"
+names(age_file)[grep("53.0.0",colnames(age_file))]<-"date_assessment"
+
+
+length(age_file$age_neuroimaging)
+#[1] 473057
+summary(age_file$age_neuroimaging)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+#   45.0    57.0    64.0    63.3    69.0    81.0  442747 
+length(age_file$birth_month)
+#[1] 473057
+summary(age_file$birth_month)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  1.000   3.000   6.000   6.408   9.000  12.000
+
+# only keep columns of interest
+age_file<-age_file[,c("eid","birth_month","date_imaging","age_neuroimaging","age_assessment","date_assessment")]
+
+# work out month in which participant attended imaging
+age_file$attendance_month<-as.numeric(substr(age_file$date_imaging,6,7))
+# difference between attendance and birth month
+age_file$add_months<-(age_file$attendance_month)-(age_file$birth_month)
+
+age_file$add_months<-ifelse(age_file$add_months<0,(12+age_file$add_months),ifelse(age_file$add_months==0,0,age_file$add_months))
+# if any remaining fields are now above 11 or below 0, something must have gone wrong and we delete
+age_file$add_months<-ifelse(age_file$add_months>11|age_file$add_months<0,NA,age_file$add_months)
+
+# descriptives months to add
+summary(age_file$add_months)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+#   0.0     3.0     5.0     5.5     8.0    11.0  442747
+
+# add extra months to age in months
+age_file$age_in_months<-(age_file$age_neuroimaging*12)+age_file$add_months
+
+# whoever didn't indicate birth_month would have missing values, use age at neuoroimaging visit in months
+age_file$age_in_months<-ifelse(is.na(age_file$age_in_months),age_file$age_neuroimaging*12,age_file$age_in_months)
+
+# with this definition we have 8000 people without age (whoever is left with NA now had no data in both items age_at_assement and birth_month)
+# try to rescue using data from first assessment and imput lag using Simons definition
+
+age_file$date1 <- as.Date(age_file$date_assessment, format="%Y-%m-%d")
+age_file$date3 <- as.Date(age_file$date_imaging, format="%Y-%m-%d")
+age_file$lag1to3 <- as.vector(age_file$date3 - age_file$date1)
+age_file$lag_in_years<-age_file$lag1to3/365.25
+#hist(age_file$lag1to3)
+# make a variable to add lag to age at assessment
+age_file$age_inferred_assessment_months<-(age_file$age_assessment +age_file$lag_in_years)*12
+
+#if there is a missing value: use age at assessment without lag inferred
+age_file$age_inferred_assessment_months<-ifelse(is.na(age_file$age_inferred_assessment_months),(age_file$age_assessment*12),age_file$age_inferred_assessment_months)
+
+
+age_file$age_in_months<-ifelse(is.na(age_file$age_in_months),age_file$age_inferred_assessment_months,age_file$age_in_months)
+
+#descriptives for age_in_months including added months
+print("age in months")
+summary(age_file$age_in_months)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  444.0   612.0   708.0   687.7   768.0   982.0 
+
+print("age in years")
+summary(age_file$age_in_months/12)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  37.00   51.00   59.00   57.31   64.00   81.83 
+
+# merge by eid with file
+dim(age_file)
+#[1] 473057     14
+
+dim(file)
+# [1] 502506     84
+
+# onlykeep rows that are present in both, because age_file includes the ethnicity exclusions
+file<-merge(file,age_file[,c("eid","age_in_months")],by="eid",all=F)
+dim(file)
+#[1] 473024     85
+
+print("Number of non-missing values")
+colSums(!is.na(file))
+#                             eid                       Brain_stem 
+#                          473024                            38753 
+#            Left_thalamus_proper                     Left_caudate 
+#                           38752                            38753 
+#                    Left_putamen                    Left_pallidum 
+#                           38753                            38753 
+#                Left_hippocampus                    Left_amygdala 
+#                           38753                            38753 
+#             Left_accumbens_area                          Left_DC 
+#                           38753                            38753 
+#           Right_thalamus_proper                    Right_caudate 
+#                           38752                            38753 
+#                   Right_putamen                   Right_pallidum 
+#                           38753                            38753 
+#               Right_hippocampus                   Right_amygdala 
+#                           38753                            38753 
+#            Right_accumbens_area                         Right_DC 
+#                           38753                            38753 
+#                   Left_bankssts   Left_caudal_anterior_cingulate 
+#                           38753                            38753 
+#      Left_caudal_middle_frontal                      Left_cuneus 
+#                           38753                            38753 
+#                 Left_entorhinal                    Left_fusiform 
+#                           38753                            38753 
+#          Left_inferior_parietal           Left_inferior_temporal 
+#                           38753                            38753 
+#          Left_isthmus_cingulate           Left_lateral_occipital 
+#                           38753                            38753 
+#      Left_lateral_orbitofrontal                     Left_lingual 
+#                           38753                            38753 
+#       Left_medial_orbitofrontal             Left_middle_temporal 
+#                           38753                            38753 
+#            Left_parahippocampal                 Left_paracentral 
+#                           38753                            38753 
+#           Left_pars_opercularis              Left_pars_orbitalis 
+#                           38753                            38753 
+#          Left_pars_triangularis               Left_pericalcarine 
+#                           38753                            38753 
+#                Left_postcentral         Left_posterior_cingulate 
+#                           38753                            38753 
+#                 Left_precentral                   Left_precuneus 
+#                           38753                            38753 
+# Left_rostral_anterior_cingulate      Left_rostral_middle_frontal 
+#                           38753                            38753 
+#           Left_superior_frontal           Left_superior_parietal 
+#                           38753                            38753 
+#          Left_superior_temporal               Left_supramarginal 
+#                           38753                            38753 
+#               Left_frontal_pole         Left_transverse_temporal 
+#                           38753                            38753 
+#                     Left_insula                   Right_bankssts 
+#                           38753                            38753 
+# Right_caudal_anterior_cingulate      Right_caudal_middle_frontal 
+#                           38753                            38753 
+#                    Right_cuneus                 Right_entorhinal 
+#                           38753                            38753 
+#                  Right_fusiform          Right_inferior_parietal 
+#                           38753                            38753 
+#         Right_inferior_temporal          Right_isthmus_cingulate 
+ #                          38753                            38753 
+#         Right_lateral_occipital      Right_lateral_orbitofrontal 
+#                           38753                            38753 
+#                   Right_lingual       Right_medial_orbitofrontal 
+#                           38753                            38753 
+#           Right_middle_temporal            Right_parahippocampal 
+#                           38753                            38753 
+#               Right_paracentral           Right_pars_opercularis 
+#                           38753                            38753 
+#            Right_pars_orbitalis          Right_pars_triangularis 
+#                           38753                            38753 
+#             Right_pericalcarine                Right_postcentral 
+#                           38753                            38753 
+#       Right_posterior_cingulate                 Right_precentral 
+#                           38753                            38753 
+#                 Right_precuneus Right_rostral_anterior_cingulate 
+#                           38753                            38753 
+#    Right_rostral_middle_frontal           Right_superior_frontal 
+#                           38753                            38753 
+#         Right_superior_parietal          Right_superior_temporal 
+#                           38753                            38753 
+#             Right_supramarginal               Right_frontal_pole 
+#                           38753                            38753 
+#       Right_transverse_temporal                     Right_insula 
+#                           38753                            38753 
+#                   age_in_months 
+#                         473024 
+
+#########################################################################
+
+
+# calculate correlation matrix between all brain areas
+cor_matrix<-cor(file[,-which(names(file)%in%c("eid","age_in_months"))],use="pairwise.complete.obs")
+dim(cor_matrix) # should be 83 for all brain_areas
+#[1] 83 83
+
+# confirm the brain areas included
+dimnames(cor_matrix)[1]
+
+
+# 5. caclulate values and vectors
+eigenvalues<-eigen(cor_matrix)$values 
+eigenvectors<-eigen(cor_matrix)$vectors
+	rownames(eigenvectors)<-dimnames(cor_matrix)[[2]]
+	colnames(eigenvectors)<-dimnames(cor_matrix)[[2]]
+
+# calculate explained variance
+explained_variance<-eigenvalues/sum(eigenvalues)*100
+
+# calculate eigenvalues and format them
+stand_loadings<-eigenvectors%*%sqrt(diag(eigenvalues))
+stand_loadings<-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
+names(stand_loadings)<-c("Regions","stand_loadings")
+head(stand_loadings)
+#                Regions stand_loadings
+#1:           Brain_stem     -0.6685657
+#2: Left_thalamus_proper     -0.7353249
+#3:         Left_caudate     -0.5235884
+#4:         Left_putamen     -0.6449436
+#5:        Left_pallidum     -0.6213252
+#6:     Left_hippocampus     -0.6796167
+
+#########################################################################
+
+# calculate age correlations and save in table
+age_cor<-as.data.frame(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor(x,file$age_in_months,use="pairwise.complete.obs",method="pearson")))
+age_cor<-cbind(age_cor,rownames(age_cor))
+rownames(age_cor)<-NULL
+names(age_cor)<-c("age_cor","Region")
+head(age_cor)
+#      age_cor               Region
+#1 -0.05236820           Brain_stem
+#2 -0.25331778 Left_thalamus_proper
+#3  0.00343390         Left_caudate
+#4 -0.15066448         Left_putamen
+#5 -0.09292321        Left_pallidum
+#6 -0.26023714     Left_hippocampus
+
+# print all correlations with full statistics
+print(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor.test(x,file$age_in_months,method="pearson",na.action=na.omit)))
+
+
+# 6. name rows and columns 
+setwd("/Cluster_Filespace/Ritchie_Group/Anna/")
+
+save(list = c("cor_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "pheno_decomposition.RData")
+
+sink()
+# 7. copy results into dropbox
+```

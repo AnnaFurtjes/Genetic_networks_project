@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Descriptive statistics</title>
+
+<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h2 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h3 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h4 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h5 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h6 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://www.kcl.ac.uk/">
+    <span class=" KCL_logo.jpg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Descriptive statistics</h1>
+
+</div>
+
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+<img src="data:image/jpeg;base64,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" alt="logo" style="position:absolute; top:0; right:110px; padding:20px;"/>
+<p><span class="math display">\[\\[0.5in]\]</span></p>
+<p><em>Here we calculate descriptive statistics.</em></p>
+<p><span class="math display">\[\\[1in]\]</span></p>
+<hr />
+<p><br> <br></p>
+<div id="phenotyic-brain-networks" class="section level1">
+<h1>Phenotyic brain networks</h1>
+<div id="eigendecomposition" class="section level2">
+<h2>Eigendecomposition</h2>
+<pre class="r"><code># set wd to where region names per network are saved
+workingd&lt;-getwd()
+temporarywd&lt;-paste0(workingd,&quot;/Scripts/Genetic_networks_project_May2020/3Perform_ldsc&quot;)
+setwd(temporarywd)
+
+# load files containing region names
+central_exec_regions&lt;-read.table(&quot;central_executive_areas.txt&quot;)$V1
+cingulo_regions&lt;-read.table(&quot;cingulo_opercular_areas.txt&quot;)$V1
+default_regions&lt;-read.table(&quot;default_mode_areas.txt&quot;)$V1
+hippocampal_regions&lt;-read.table(&quot;hippocampal_diencephalic_areas.txt&quot;)$V1
+multiple_demand_regions&lt;-read.table(&quot;multiple_demand_areas.txt&quot;)$V1
+p_fit_regions&lt;-read.table(&quot;p_fit_areas.txt&quot;)$V1
+salience_regions&lt;-read.table(&quot;salience_areas.txt&quot;)$V1
+sensori_regions&lt;-read.table(&quot;sensorimotor_areas.txt&quot;)$V1
+temporo_regions&lt;-read.table(&quot;temporo_amygdala_orbitofrontal_areas.txt&quot;)$V1
+
+# list the files
+region_files&lt;-ls(pattern=&quot;regions&quot;)
+
+# create a dataframe to hold results
+library(stringr)
+descriptives_pheno_networks&lt;-data.frame(networks=str_replace(region_files,pattern=&quot;_regions&quot;,replacement = &quot;&quot;))
+
+# load phenotypic correlation matrix
+temporarywd_pheno&lt;-paste0(workingd,&quot;/data_Smith/phenotypic/&quot;)
+setwd(temporarywd_pheno)
+
+load(&quot;pheno_decomposition.RData&quot;)
+
+
+for(i in region_files){
+  #print(i)
+  regions&lt;-get(i)
+  
+  # get network specific matrix
+  matrix&lt;-cor_matrix[regions,regions]
+
+  #calculate eigenvectors, eigenvalues and explained variances
+  eigenvectors&lt;-eigen(matrix)$vectors
+  eigenvalues&lt;-eigen(matrix)$values
+  explained_variance&lt;-round(eigenvalues/sum(eigenvalues)*100,digits = 3)
+  #print(explained_variance)
+  
+  # save explained variance in object &quot;descriptives_pheno_networks&quot; in the appropriate row for each network
+  network_name&lt;-str_replace(i,pattern=&quot;_regions&quot;,replacement = &quot;&quot;)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;R2&quot;]&lt;-explained_variance[1]
+  
+  # calculate standardised PC loadings 
+  stand_loadings&lt;-eigenvectors%*%sqrt(diag(eigenvalues))
+  stand_loadings&lt;-stand_loadings[,1]
+  
+  # switch sign of stand loadings if median is negative
+  if(sign(median(stand_loadings))==-1){
+    stand_loadings&lt;-stand_loadings*(-1)
+  } else {
+    stand_loadings&lt;-stand_loadings
+  }
+  
+  # save stand loadings for plot
+  name_to_save&lt;-paste0(network_name,&quot;_pheno_loadings&quot;)
+  assign(name_to_save,stand_loadings)
+  
+  # calculate mean,sd,median,min,max and save in object
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;mean&quot;]&lt;-mean(stand_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;SD&quot;]&lt;-sd(stand_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;median&quot;]&lt;-median(stand_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;max&quot;]&lt;-max(stand_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;min&quot;]&lt;-min(stand_loadings)
+  
+  #calculate mode
+    d&lt;-density(stand_loadings)
+    descriptives_pheno_networks[which(descriptives_pheno_networks$networks == network_name),&quot;mode&quot;]&lt;-d$x[which.max(d$y)]
+}
+
+# add empty row to descriptives_pheno_networks
+descriptives_pheno_networks[nrow(descriptives_pheno_networks)+1,]&lt;-NA
+descriptives_pheno_networks[which(is.na(descriptives_pheno_networks$networks)),&quot;networks&quot;]&lt;-&quot;whole_brain&quot;
+
+# eigendecomposition for the whole brain 
+eigenvectors&lt;-eigen(cor_matrix)$vectors
+eigenvalues&lt;-eigen(cor_matrix)$values
+explained_variance&lt;-round(eigenvalues/sum(eigenvalues)*100,digits = 3)
+descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;R2&quot;]&lt;-explained_variance[1]
+
+# calculate standardised PC loadings 
+  stand_loadings&lt;-eigenvectors%*%sqrt(diag(eigenvalues))
+  whole_brain_pheno_loadings&lt;-stand_loadings[,1]*(-1)
+
+# descriptive stats for the whole brain 
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;mean&quot;]&lt;-mean(whole_brain_pheno_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;SD&quot;]&lt;-sd(whole_brain_pheno_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;median&quot;]&lt;-median(whole_brain_pheno_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;max&quot;]&lt;-max(whole_brain_pheno_loadings)
+  descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;min&quot;]&lt;-min(whole_brain_pheno_loadings)
+
+  #calculate mode
+    d&lt;-density(whole_brain_pheno_loadings)
+    descriptives_pheno_networks[which(descriptives_pheno_networks$networks == &quot;whole_brain&quot;),&quot;mode&quot;]&lt;-d$x[which.max(d$y)]
+
+kable(descriptives_pheno_networks, digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">networks</th>
+<th align="right">R2</th>
+<th align="right">mean</th>
+<th align="right">SD</th>
+<th align="right">median</th>
+<th align="right">max</th>
+<th align="right">min</th>
+<th align="right">mode</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec</td>
+<td align="right">62.44</td>
+<td align="right">0.79</td>
+<td align="right">0.05</td>
+<td align="right">0.80</td>
+<td align="right">0.84</td>
+<td align="right">0.70</td>
+<td align="right">0.83</td>
+</tr>
+<tr class="even">
+<td align="left">cingulo</td>
+<td align="right">46.63</td>
+<td align="right">0.66</td>
+<td align="right">0.19</td>
+<td align="right">0.77</td>
+<td align="right">0.84</td>
+<td align="right">0.34</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="odd">
+<td align="left">default</td>
+<td align="right">45.17</td>
+<td align="right">0.66</td>
+<td align="right">0.14</td>
+<td align="right">0.69</td>
+<td align="right">0.82</td>
+<td align="right">0.39</td>
+<td align="right">0.75</td>
+</tr>
+<tr class="even">
+<td align="left">hippocampal</td>
+<td align="right">45.66</td>
+<td align="right">0.67</td>
+<td align="right">0.11</td>
+<td align="right">0.67</td>
+<td align="right">0.80</td>
+<td align="right">0.53</td>
+<td align="right">0.56</td>
+</tr>
+<tr class="odd">
+<td align="left">multiple_demand</td>
+<td align="right">47.64</td>
+<td align="right">0.67</td>
+<td align="right">0.16</td>
+<td align="right">0.72</td>
+<td align="right">0.82</td>
+<td align="right">0.36</td>
+<td align="right">0.72</td>
+</tr>
+<tr class="even">
+<td align="left">p_fit</td>
+<td align="right">43.81</td>
+<td align="right">0.65</td>
+<td align="right">0.12</td>
+<td align="right">0.66</td>
+<td align="right">0.81</td>
+<td align="right">0.32</td>
+<td align="right">0.66</td>
+</tr>
+<tr class="odd">
+<td align="left">salience</td>
+<td align="right">53.45</td>
+<td align="right">0.70</td>
+<td align="right">0.22</td>
+<td align="right">0.76</td>
+<td align="right">0.87</td>
+<td align="right">0.28</td>
+<td align="right">0.83</td>
+</tr>
+<tr class="even">
+<td align="left">sensori</td>
+<td align="right">54.08</td>
+<td align="right">0.73</td>
+<td align="right">0.06</td>
+<td align="right">0.73</td>
+<td align="right">0.83</td>
+<td align="right">0.67</td>
+<td align="right">0.69</td>
+</tr>
+<tr class="odd">
+<td align="left">temporo</td>
+<td align="right">41.10</td>
+<td align="right">0.63</td>
+<td align="right">0.14</td>
+<td align="right">0.64</td>
+<td align="right">0.80</td>
+<td align="right">0.35</td>
+<td align="right">0.73</td>
+</tr>
+<tr class="even">
+<td align="left">whole_brain</td>
+<td align="right">41.03</td>
+<td align="right">0.63</td>
+<td align="right">0.12</td>
+<td align="right">0.64</td>
+<td align="right">0.81</td>
+<td align="right">0.31</td>
+<td align="right">0.70</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+</div>
+<div id="plot-density-distribution-of-standardised-loadings" class="section level2">
+<h2>Plot density distribution of standardised loadings</h2>
+<pre class="r"><code>data_pheno&lt;-data.frame(matrix(ncol=2))
+colnames(data_pheno)&lt;-c(&quot;stand_loadings&quot;,&quot;network&quot;)
+
+rm(&quot;regions_pheno_loadings&quot;)
+loadings_pheno&lt;-ls(pattern=&quot;pheno_loadings&quot;)
+#names&lt;-str_remove(loadings_pheno, pattern=&quot;_pheno_loadings&quot;)
+#data_pheno$network&lt;-names
+
+for(i in loadings_pheno){
+  df&lt;-get(i)
+  df&lt;-unlist(df)
+  #print(df)
+  network&lt;-str_remove(i, pattern=&quot;_pheno_loadings&quot;)
+  #print(network)
+  df&lt;-cbind(df,network)
+  colnames(df)&lt;-c(&quot;stand_loadings&quot;,&quot;network&quot;)
+  #print(df)
+  #assign(i,df)
+  data_pheno&lt;-rbind(data_pheno,df)
+}
+
+# remove empty first row
+data_pheno&lt;-data_pheno[-1,]
+
+# print full names for networks
+data_pheno$network[which(data_pheno$network == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-orbitofrontal&quot;
+data_pheno$network[which(data_pheno$network == &quot;sensori&quot;)]&lt;-&quot;Sensorimotor&quot;
+data_pheno$network[which(data_pheno$network == &quot;salience&quot;)]&lt;-&quot;Salience&quot;
+data_pheno$network[which(data_pheno$network == &quot;p_fit&quot;)]&lt;-&quot;P-FIT&quot;
+data_pheno$network[which(data_pheno$network == &quot;multiple_demand&quot;)]&lt;-&quot;Multiple demand&quot;
+data_pheno$network[which(data_pheno$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic&quot;
+data_pheno$network[which(data_pheno$network == &quot;default&quot;)]&lt;-&quot;Default mode&quot;
+data_pheno$network[which(data_pheno$network == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular&quot;
+data_pheno$network[which(data_pheno$network == &quot;central_exec&quot;)]&lt;-&quot;Central executive&quot;
+data_pheno$network[which(data_pheno$network == &quot;whole_brain&quot;)]&lt;-&quot;Whole brain&quot;
+
+# adjust data structure
+data_pheno$network&lt;-as.factor(data_pheno$network)
+data_pheno$stand_loadings&lt;-as.numeric(data_pheno$stand_loadings)
+
+library(ggplot2)
+library(RColorBrewer)
+library(ggridges)
+
+# Define the number of colors you want
+nb.cols &lt;- 10
+mycolors &lt;- colorRampPalette(brewer.pal(8, &quot;Pastel1&quot;))(nb.cols)
+
+# save plot
+
+#tiff(&quot;PC_pheno_loadings.tiff&quot;, width = 6.25, height = 5, units = &#39;in&#39;, res=1000)
+
+ loadings_pheno_plot&lt;-ggplot(data_pheno, aes(x=stand_loadings,y=network))+
+              geom_density_ridges(rel_min_height = 0.005,aes(fill=as.factor(network))) +
+              theme_ridges()+
+              #scale_fill_brewer(values = mycolors)+
+              scale_fill_manual(values=mycolors,guide=FALSE)+
+              scale_x_continuous(n.breaks = 5)+
+              xlab(&quot;PC loadings&quot;)+ylab(&quot;&quot;)+
+              theme(legend.position = &quot;none&quot;,
+                    axis.text.x = element_text(size=24),
+                    axis.text.y = element_text(size=24),
+                    axis.title.x = element_text(size=26),
+                    panel.background = element_blank(), 
+                    axis.line = element_line(color=&quot;black&quot;), 
+                    axis.line.x = element_line(color=&quot;black&quot;))+theme_bw() 
+loadings_pheno_plot</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/pheno_PC_plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#dev.off()</code></pre>
+<hr />
+<p><br> <br></p>
+</div>
+</div>
+<div id="genetic-brain-networks" class="section level1">
+<h1>Genetic brain networks</h1>
+<div id="eigendecomposition-1" class="section level2">
+<h2>Eigendecomposition</h2>
+<pre class="r"><code>### eigen decomposition of networks
+rm(list=ls())
+library(stringr)
+library(data.table)
+
+# set wd where ldsc_output is saved
+workingd&lt;-getwd()
+temporarywd&lt;-paste0(workingd,&quot;/data_Smith/ldsc_output/&quot;)
+setwd(temporarywd)
+
+# list available results in this directory
+networks&lt;-list.files(pattern=&quot;.RData&quot;)
+network_names&lt;-str_replace(networks,pattern=&quot;.RData&quot;,replacement = &quot;&quot;)
+
+# load results and name them after their corresponding network
+for(i in 1:length(networks)){
+  load(networks[i])
+  name&lt;-network_names[i]
+  assign(name,LDSCoutput)
+}
+
+# name rows and columns in matrices after their corresponding brain area
+for(i in network_names){
+  output&lt;-get(i)
+  dimnames(output$S_Stand)[[1]]&lt;-dimnames(output$S)[[2]]
+  dimnames(output$S_Stand)[[2]]&lt;-dimnames(output$S)[[2]]
+  name&lt;-i
+  assign(name,output)
+  output$S_Stand&lt;-round(output$S_Stand,digits = 2)
+  name_cor&lt;-paste0(&quot;cor_&quot;,i)
+  assign(name_cor,output$S_Stand)
+}
+
+# list matrices of interest
+matrices&lt;-ls(pattern=&quot;cor_&quot;)
+
+#create data frame with names of ldscoutput and names of correlation matrices
+networks&lt;-data.frame(cbind(matrices,network_names))
+
+#######################################################
+##### networks
+#######################################################
+
+for(i in 1:nrow(networks)){
+    #### calculate eigenvectors
+    # get correlation matrix of interest
+    cormatrix&lt;-get(matrices[i])
+    
+    # extract eigenvectors
+    eigenvectors&lt;-eigen(cormatrix)$vectors
+    
+    # get ldsc_output as it contains correct names (columns named after brain areas)
+    noi&lt;-get(network_names[i])
+    
+    # rename rows and columns with brain areas
+    rownames(eigenvectors)&lt;-dimnames(noi$S)[[2]]
+    colnames(eigenvectors)&lt;-dimnames(noi$S)[[2]]
+    
+    # save to network-specific variable name &quot;eigenvectors&quot;
+    name&lt;-paste0(&quot;eigenvectors_&quot;,network_names[i])
+    assign(name,eigenvectors)
+    
+    ### calculate eigenvalues
+    # extract eigenvalues
+    eigenvalues&lt;-eigen(cormatrix)$values
+    
+    # save to network-specific variable name &quot;eigenvalues&quot;
+    name&lt;-paste0(&quot;eigenvalues_&quot;,network_names[i])
+    assign(name,eigenvalues)
+
+    ### calculate explained_variances
+    explained_variance&lt;-round(eigenvalues/sum(eigenvalues)*100,digits = 3)
+    name&lt;-paste0(&quot;explained_var_&quot;,network_names[i])
+    assign(name,explained_variance)
+    
+    ### calculate standardised loadings on first PC
+    stand_loadings&lt;-eigenvectors%*%sqrt(diag(eigenvalues))
+    stand_loadings&lt;-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
+    names(stand_loadings)&lt;-c(&quot;Regions&quot;,&quot;stand_loadings&quot;)
+  
+    ### flip the loadings if median loadings are negative
+    median_loadings&lt;-median(stand_loadings$stand_loadings)
+    mean_direction&lt;-sign(median_loadings)
+    if(mean_direction == -1){
+    stand_loadings$stand_loadings&lt;-stand_loadings$stand_loadings*(-1)
+    } else {
+    stand_loadings$stand_loadings&lt;-stand_loadings$stand_loadings}
+
+    name&lt;-paste0(&quot;stand_loadings_&quot;,network_names[i])
+    assign(name,stand_loadings)
+    
+    #the calculation of the standardised loadings throws an error message because the eigenvalue of the last PC has a negative value. R cannot take the sqrt of that value
+}
+
+rm(&quot;stand_loadings&quot;)
+loadings_all_traits&lt;-ls(pattern=&quot;stand_loadings&quot;)
+
+rm(&quot;explained_variance&quot;)
+explained_all_traits&lt;-ls(pattern=&quot;explained_var&quot;)</code></pre>
+<pre class="r"><code>workingd&lt;-getwd()
+temporarywd&lt;-paste0(workingd,&quot;/data/ldsc_output/whole_brain/&quot;)
+setwd(temporarywd)
+
+load(&quot;whole_brain.RData&quot;)
+ldscoutput&lt;-LDSCoutput_wholebrain
+
+dimnames(ldscoutput$S_Stand)[[1]]&lt;-dimnames(ldscoutput$S)[[2]]
+dimnames(ldscoutput$S_Stand)[[2]]&lt;-dimnames(ldscoutput$S)[[2]]
+ldscoutput$S_Stand&lt;-ldscoutput$S_Stand
+
+# extract eigenvectors
+eigenvectors_whole_brain&lt;-eigen(ldscoutput$S_Stand)$vectors
+rownames(eigenvectors_whole_brain)&lt;-dimnames(ldscoutput$S)[[2]]
+colnames(eigenvectors_whole_brain)&lt;-dimnames(ldscoutput$S)[[2]]
+
+
+### in case only interested in 1 hemisphere use the next line
+# ldscoutput$S_Stand&lt;-ldscoutput$S_Stand[grep(&quot;Left_&quot;, colnames(matrix)),grep(&quot;Left_&quot;, rownames(matrix))]
+
+
+eigenvalues_whole_brain&lt;-eigen(ldscoutput$S_Stand)$values
+explained_variance_whole_brain&lt;-eigenvalues_whole_brain/sum(eigenvalues_whole_brain)*100
+
+# values and brain areas next to each other
+stand_loadings_whole_brain&lt;-eigenvectors_whole_brain%*%sqrt(diag(eigenvalues_whole_brain))
+stand_loadings_whole_brain&lt;-setDT(as.data.frame(stand_loadings_whole_brain), keep.rownames = TRUE)[,1:2]
+names(stand_loadings_whole_brain)&lt;-c(&quot;Regions&quot;,&quot;stand_loadings&quot;)
+stand_loadings_whole_brain$stand_loadings&lt;-stand_loadings_whole_brain$stand_loadings*(-1)
+## brain are with smallest loading
+## stand_loadings_whole_brain[which(stand_loadings_whole_brain$stand_loadings == min(stand_loadings_whole_brain$stand_loadings)),]</code></pre>
+<pre class="r"><code># display the results in a table
+library(knitr)
+
+# create new dataframe with network names in one row
+table&lt;-data.frame(networks=&quot;test&quot;,matrix(nrow=9))[1]
+table$networks&lt;-str_replace(loadings_all_traits,pattern=&quot;stand_loadings_&quot;,replacement=&quot;&quot;)
+
+for(i in 1:length(loadings_all_traits)){
+    
+    # store explained var by first PC in every network
+    explained&lt;-get(explained_all_traits[i])
+    table$explained[i]&lt;-explained[1]
+    
+    # calculate summary data and store in dataframe
+    loadings&lt;-get(loadings_all_traits[i])
+    table$min[i]&lt;-min(loadings$stand_loadings)
+    table$mean[i]&lt;-mean(loadings$stand_loadings)
+    table$sd[i]&lt;-sd(loadings$stand_loadings)
+    table$median[i]&lt;-median(loadings$stand_loadings)
+    
+    #calculate mode
+    d&lt;-density(loadings$stand_loadings)
+    table$mode[i]&lt;-d$x[which.max(d$y)]  
+    
+    table$max[i]&lt;-max(loadings$stand_loadings)
+    
+
+}
+
+table[10,&quot;networks&quot;]&lt;-&quot;whole_brain&quot;
+table[10,&quot;explained&quot;]&lt;-explained_variance_whole_brain[1]
+table[10,&quot;min&quot;]&lt;-min(stand_loadings_whole_brain$stand_loadings)
+table[10,&quot;mean&quot;]&lt;-mean(stand_loadings_whole_brain$stand_loadings)
+table[10,&quot;sd&quot;]&lt;-sd(stand_loadings_whole_brain$stand_loadings)
+table[10,&quot;median&quot;]&lt;-median(stand_loadings_whole_brain$stand_loadings)
+
+d&lt;-density(stand_loadings_whole_brain$stand_loadings)
+table[10,&quot;mode&quot;]&lt;-d$x[which.max(d$y)]
+
+table[10,&quot;max&quot;]&lt;-max(stand_loadings_whole_brain$stand_loadings)
+
+table$number_included&lt;-c(8,10,16,12,12,36,10,12,30,83)
+
+
+kable(table,caption=&quot;Explained variance and loadings on first PC&quot;,format=&quot;markdown&quot;,digits=3,row.names = F)</code></pre>
+<table>
+<caption>Explained variance and loadings on first PC</caption>
+<thead>
+<tr class="header">
+<th align="left">networks</th>
+<th align="right">explained</th>
+<th align="right">min</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">median</th>
+<th align="right">mode</th>
+<th align="right">max</th>
+<th align="right">number_included</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec</td>
+<td align="right">39.130</td>
+<td align="right">0.362</td>
+<td align="right">0.604</td>
+<td align="right">0.174</td>
+<td align="right">0.614</td>
+<td align="right">0.752</td>
+<td align="right">0.795</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">cingulo</td>
+<td align="right">34.460</td>
+<td align="right">0.308</td>
+<td align="right">0.557</td>
+<td align="right">0.195</td>
+<td align="right">0.525</td>
+<td align="right">0.474</td>
+<td align="right">0.867</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="left">default_mode</td>
+<td align="right">32.531</td>
+<td align="right">0.172</td>
+<td align="right">0.538</td>
+<td align="right">0.196</td>
+<td align="right">0.582</td>
+<td align="right">0.619</td>
+<td align="right">0.843</td>
+<td align="right">16</td>
+</tr>
+<tr class="even">
+<td align="left">hippocampal</td>
+<td align="right">34.173</td>
+<td align="right">0.333</td>
+<td align="right">0.563</td>
+<td align="right">0.165</td>
+<td align="right">0.589</td>
+<td align="right">0.697</td>
+<td align="right">0.754</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">multiple</td>
+<td align="right">34.275</td>
+<td align="right">0.205</td>
+<td align="right">0.563</td>
+<td align="right">0.167</td>
+<td align="right">0.575</td>
+<td align="right">0.638</td>
+<td align="right">0.793</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">p_fit</td>
+<td align="right">24.277</td>
+<td align="right">0.152</td>
+<td align="right">0.480</td>
+<td align="right">0.114</td>
+<td align="right">0.478</td>
+<td align="right">0.469</td>
+<td align="right">0.641</td>
+<td align="right">36</td>
+</tr>
+<tr class="odd">
+<td align="left">salience</td>
+<td align="right">35.428</td>
+<td align="right">0.135</td>
+<td align="right">0.521</td>
+<td align="right">0.303</td>
+<td align="right">0.578</td>
+<td align="right">0.759</td>
+<td align="right">0.868</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">sensori</td>
+<td align="right">39.433</td>
+<td align="right">0.164</td>
+<td align="right">0.563</td>
+<td align="right">0.291</td>
+<td align="right">0.685</td>
+<td align="right">0.751</td>
+<td align="right">0.892</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">temporo</td>
+<td align="right">23.840</td>
+<td align="right">0.147</td>
+<td align="right">0.462</td>
+<td align="right">0.161</td>
+<td align="right">0.505</td>
+<td align="right">0.539</td>
+<td align="right">0.742</td>
+<td align="right">30</td>
+</tr>
+<tr class="even">
+<td align="left">whole_brain</td>
+<td align="right">14.559</td>
+<td align="right">-0.776</td>
+<td align="right">-0.222</td>
+<td align="right">0.312</td>
+<td align="right">-0.304</td>
+<td align="right">-0.352</td>
+<td align="right">0.651</td>
+<td align="right">83</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plot-density-distribution-of-stansardised-loadings" class="section level2">
+<h2>Plot density distribution of stansardised loadings</h2>
+<pre class="r"><code># all networks are saved in loadings_all_traits
+
+# add a column indicating network name to each df containing standardised loadings and volume names 
+# and save all in the same df called data_ridges
+data_ridges&lt;-data.frame(matrix(ncol=3))
+colnames(data_ridges)&lt;-c(&quot;Regions&quot;,&quot;stand_loadings&quot;,&quot;network&quot;)
+
+for(i in loadings_all_traits){
+  df&lt;-get(i)
+  name&lt;-str_remove(i, pattern=&quot;stand_loadings_&quot;)
+  df$network&lt;-name
+  #assign(i,df)
+  data_ridges&lt;-rbind(data_ridges,df)
+}
+
+# do the same for whole brain 
+stand_loadings_whole_brain$network&lt;-&quot;Whole brain&quot;
+
+# merge all networks with whole brain
+data_ridges&lt;-rbind(data_ridges,stand_loadings_whole_brain)
+# remove empty first row
+data_ridges&lt;-data_ridges[-1,]
+
+# print full names for networks
+data_ridges$network[which(data_ridges$network == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-orbitofrontal&quot;
+data_ridges$network[which(data_ridges$network == &quot;sensori&quot;)]&lt;-&quot;Sensorimotor&quot;
+data_ridges$network[which(data_ridges$network == &quot;salience&quot;)]&lt;-&quot;Salience&quot;
+data_ridges$network[which(data_ridges$network == &quot;p_fit&quot;)]&lt;-&quot;P-FIT&quot;
+data_ridges$network[which(data_ridges$network == &quot;multiple&quot;)]&lt;-&quot;Multiple demand&quot;
+data_ridges$network[which(data_ridges$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic&quot;
+data_ridges$network[which(data_ridges$network == &quot;default_mode&quot;)]&lt;-&quot;Default mode&quot;
+data_ridges$network[which(data_ridges$network == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular&quot;
+data_ridges$network[which(data_ridges$network == &quot;central_exec&quot;)]&lt;-&quot;Central executive&quot;
+
+data_ridges$network&lt;-as.factor(data_ridges$network)
+
+library(ggplot2)
+library(RColorBrewer)
+library(ggridges)
+
+# Define the number of colors you want
+nb.cols &lt;- 10
+mycolors &lt;- colorRampPalette(brewer.pal(8, &quot;Pastel1&quot;))(nb.cols)
+
+# save plot
+
+#tiff(&quot;PC_loadings.tiff&quot;, width = 6.25, height = 5, units = &#39;in&#39;, res=1000)
+
+ loadings_plot&lt;-ggplot(data_ridges, aes(x=stand_loadings,y=network))+
+              geom_density_ridges(rel_min_height = 0.041, aes(fill=as.factor(network)),stat=&quot;density_ridges&quot;, position = &quot;identity&quot;, quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_ridges),bandwidth=0.065) +
+              theme_ridges()+
+              #scale_fill_brewer(values = mycolors)+
+              scale_fill_manual(values=mycolors,guide=FALSE)+
+              scale_x_continuous(n.breaks = 5)+
+              xlab(&quot;PC loadings&quot;)+ylab(&quot;&quot;)+
+              theme(legend.position = &quot;none&quot;,
+                    axis.text.x = element_text(size=24),
+                    axis.text.y = element_text(size=24),
+                    axis.title.x = element_text(size=26),
+                    panel.background = element_blank(), 
+                    axis.line = element_line(color=&quot;black&quot;), 
+                    axis.line.x = element_line(color=&quot;black&quot;))+theme_bw() 
+loadings_plot</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/plot_density_stand_loadings-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#dev.off()</code></pre>
+<hr />
+<p><br> <br></p>
+</div>
+<div id="parallel-analysis-for-genetic-networks" class="section level2">
+<h2>Parallel analysis for genetic networks</h2>
+<p>We test whether genetic PCs explain more variance than 95% of the corresponding PCs generated under a null model in a parallel analysis. We developed a version of parallel analysis to generate null distributions of eigenvalues by simulating null correlation matrices sampled from a diagonal population matrix, where the multivariate sampling distribution is specified to take the form of the sampling distribution of the standardized empirical genetic correlation matrix (V_Stand = sampling correlation matrix; S_Stand = genetic correlation matrix, as estimated using the ldsc function in GenomicSEM). This sampling correlation matrix (V_stand) serves as an index of the precision of and dependencies among genetic correlations when generating the random null data sets. We specify 1,000 replications to simulate the null correlation matrices and use a 95% threshold for distinguishing true eigenvalues from noise.</p>
+<pre class="r"><code># load dependencies
+library(stringr)
+
+# load Javiers function
+workingd&lt;-getwd()
+temporarywd&lt;-paste0(workingd,&quot;/Scripts/Genetic_networks_project_May2020/5Eigendecomp/&quot;)
+setwd(temporarywd)
+
+source(&quot;Parallel_Anallysis_paLDSC_JF.R&quot;)
+
+# load data and name it according to network
+temporarywd&lt;-paste0(workingd,&quot;/data/ldsc_output&quot;)
+setwd(temporarywd)
+
+networks&lt;-list.files(pattern=&quot;.RData&quot;)
+network_names&lt;-str_replace(networks,pattern=&quot;.RData&quot;,replacement = &quot;&quot;)
+
+for(i in 1:length(networks)){
+load(networks[i])
+  name&lt;-network_names[i]
+  assign(name,LDSCoutput)
+}
+
+temporarywd&lt;-paste0(workingd,&quot;/data/parallel_analysis_output&quot;)
+setwd(temporarywd)
+
+
+for(i in network_names){
+        ldsc_output&lt;-get(i)
+        paLDSC(S_Stand = ldsc_output$S_Stand, V_Stand = ldsc_output$V_Stand, r = 1000, p = .95, diag = F, fa = F, fm = &quot;minres&quot;, save.pdf = T)
+        name&lt;-paste0(&quot;Parallel_analysis_&quot;,i,&quot;.pdf&quot;)
+        file.rename(&quot;PCA_PA_LDSC.pdf&quot;,name)
+}</code></pre>
+<div class="figure" style="text-align: center">
+<img src="C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/central_executive_PA.png" alt="Central Executive" width="80%" />
+<p class="caption">
+Central Executive
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/cingulo_PA.png" alt="Cingulo-opercular" width="80%" />
+<p class="caption">
+Cingulo-opercular
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/default_mode.png" alt="Default Mode" width="80%" />
+<p class="caption">
+Default Mode
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/whole_brain_PA.png" alt="Whole brain" width="80%" />
+<p class="caption">
+Whole brain
+</p>
+</div>
+</div>
+</div>
+<div id="exploratory-analyses" class="section level1">
+<h1>Exploratory analyses</h1>
+<div id="the-first-pc-of-larger-networks-explains-less-variance-than-the-pc-of-smaller-networks" class="section level2">
+<h2>The first PC of larger networks explains less variance than the PC of smaller networks</h2>
+<pre class="r"><code>networks&lt;-c(&quot;central&quot;,&quot;cingulo&quot;,&quot;default&quot;,&quot;hippo&quot;,&quot;multiple&quot;,&quot;pfit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+volumes&lt;-table$number_included
+explained_var&lt;-table$explained
+
+
+cor.test(volumes,explained_var)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  volumes and explained_var
+## t = -7.2064, df = 8, p-value = 9.188e-05
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.9838568 -0.7278105
+## sample estimates:
+##        cor 
+## -0.9308679</code></pre>
+<pre class="r"><code>plot(volumes,explained_var,ylab=&quot;Explained variance by first PC&quot;,xlab=&quot;Number of included volumes&quot;)
+abline(lm(explained_var~volumes),col=&quot;red&quot;)</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="parallel-analysis-suggests-to-extract-more-pcs-for-larger-networks" class="section level2">
+<h2>Parallel analysis suggests to extract more PCs for larger networks</h2>
+<pre class="r"><code>networks&lt;-c(&quot;central&quot;,&quot;cingulo&quot;,&quot;default&quot;,&quot;hippo&quot;,&quot;multiple&quot;,&quot;pfit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+volumes&lt;-table$number_included
+components&lt;-c(3,4,4,3,4,8,4,5,7,15)
+
+test&lt;-cbind(networks,volumes,components)
+
+cor.test(volumes,components,data=test)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  volumes and components
+## t = 18.198, df = 8, p-value = 8.544e-08
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.9488320 0.9972912
+## sample estimates:
+##       cor 
+## 0.9881362</code></pre>
+<pre class="r"><code>plot(volumes,components,ylab=&quot;PCs with eigenvalues above chance&quot;,xlab=&quot;Number of included volumes&quot;)
+abline(lm(components~volumes),col=&quot;red&quot;)</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/pa-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="a-priori-networks-explain-more-variance-than-networks-with-randomly-included-volumes" class="section level2">
+<h2>A priori networks explain more variance than networks with randomly included volumes</h2>
+<p>We added this analysis to formally test whether explained variances by the first underlying PC were larger for a priori networks than they were for networks including random volumes. The simulations are repeated for different amounts of randomly included volumes (800 times each), as the first PC of a network with fewer volumes generally explains less variance compared with networks including more volumes.</p>
+<p>We ask this question, because it may invalidate a priori network characterisations if we obtain the same amounts of explained variances for random network characterisations.</p>
+<pre class="r"><code># read in genetic correlation matrix - whole brain 
+workingd&lt;-getwd()
+temporarywd&lt;-paste0(workingd,&quot;/data/ldsc_output/whole_brain/&quot;)
+setwd(temporarywd)
+
+load(&quot;whole_brain.RData&quot;)
+ldscoutput&lt;-LDSCoutput_wholebrain
+
+# name cells in genetic correlation matrix
+dimnames(ldscoutput$S_Stand)[[1]]&lt;-dimnames(ldscoutput$S)[[2]]
+dimnames(ldscoutput$S_Stand)[[2]]&lt;-dimnames(ldscoutput$S)[[2]]
+ldscoutput$S_Stand&lt;-ldscoutput$S_Stand
+
+# randomly sample brain volumes to be included in a network
+all_names&lt;-dimnames(ldscoutput$S)[[2]]
+
+# make table to save output
+save_random&lt;-data.frame(matrix(ncol=2))
+colnames(save_random)&lt;-c(&quot;number_included&quot;,&quot;random_R2&quot;)
+
+# set seed for replicability
+set.seed(1234)
+
+# simulate for each number of included volumes in a priori networks
+number_included&lt;-c(8,10,12,16,30,36)
+
+# set number of repititions per numver of included volumes
+reps&lt;-800
+
+for(j in number_included){
+    i&lt;-0
+
+      # repeat reps for each number of included volumes until reps is reached
+      repeat{
+        i&lt;-i+1
+
+        # determine row to be printed in 
+        row&lt;-ifelse(nrow(save_random) == 0, 1,nrow(save_random)+1)
+
+        # save number of volumes included
+        save_random[row,&quot;number_included&quot;]&lt;-j 
+        
+        # randomly select volumes 
+        random_names&lt;-sample(all_names, size=j)
+
+        # eigendecomposition
+        matrix&lt;-ldscoutput$S_Stand[random_names,random_names]
+        eigenvectors&lt;-eigen(matrix)$vectors
+        eigenvalues&lt;-eigen(matrix)$values
+        random_R2&lt;-(eigenvalues/sum(eigenvalues)*100)[1]
+        
+        #save in table called save_random
+        save_random[row,&quot;random_R2&quot;]&lt;-random_R2
+    
+          if(i&gt;=reps){
+            break
+          }
+      }
+        
+}
+
+# calculate statistics per number of included volumes
+
+# mean
+results_mean&lt;-aggregate(save_random$random_R2, list(save_random$number_included), mean)
+colnames(results_mean)&lt;-c(&quot;number_included&quot;,&quot;random_R2_mean&quot;)
+
+#sd
+results_sd&lt;-aggregate(save_random$random_R2, list(save_random$number_included), sd)
+colnames(results_sd)&lt;-c(&quot;number_included&quot;,&quot;random_R2_sd&quot;)
+results&lt;-merge(results_mean,results_sd,by=&quot;number_included&quot;)
+
+#se
+results_se&lt;-cbind(number_included=results_sd$number_included, random_R2_se=results_sd$random_R2_sd/sqrt(reps))
+results&lt;-merge(results,results_se,by=&quot;number_included&quot;)
+
+# confidence intervals
+results$lower_ci&lt;-with(results, random_R2_mean-(1.96*random_R2_se))
+results$upper_ci&lt;-with(results, random_R2_mean+(1.96*random_R2_se))
+
+# round and merge confidence intervals for display
+results$lower_ci&lt;-round(results$lower_ci,digits = 2)
+results$upper_ci&lt;-round(results$upper_ci,digits = 2)
+
+results$CI&lt;-paste(results$lower_ci,results$upper_ci,sep=&quot; - &quot;)
+
+# merge with empirical results
+random_empirical&lt;-merge(results[,c(&quot;number_included&quot;,&quot;random_R2_mean&quot;,&quot;CI&quot;)],table[,c(&quot;networks&quot;,&quot;explained&quot;,&quot;number_included&quot;)],by=&quot;number_included&quot;)
+
+kable(random_empirical,digits = 2,caption=&quot;Mean explained variance and 95% confidence intervals for networks with randomly included volumes&quot;)</code></pre>
+<table>
+<caption>Mean explained variance and 95% confidence intervals for networks with randomly included volumes</caption>
+<thead>
+<tr class="header">
+<th align="right">number_included</th>
+<th align="right">random_R2_mean</th>
+<th align="left">CI</th>
+<th align="left">networks</th>
+<th align="right">explained</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">26.28</td>
+<td align="left">26.02 - 26.55</td>
+<td align="left">central_exec</td>
+<td align="right">39.13</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">23.94</td>
+<td align="left">23.7 - 24.18</td>
+<td align="left">salience</td>
+<td align="right">35.43</td>
+</tr>
+<tr class="odd">
+<td align="right">10</td>
+<td align="right">23.94</td>
+<td align="left">23.7 - 24.18</td>
+<td align="left">cingulo</td>
+<td align="right">34.46</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="right">22.18</td>
+<td align="left">21.97 - 22.39</td>
+<td align="left">hippocampal</td>
+<td align="right">34.17</td>
+</tr>
+<tr class="odd">
+<td align="right">12</td>
+<td align="right">22.18</td>
+<td align="left">21.97 - 22.39</td>
+<td align="left">multiple</td>
+<td align="right">34.27</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="right">22.18</td>
+<td align="left">21.97 - 22.39</td>
+<td align="left">sensori</td>
+<td align="right">39.43</td>
+</tr>
+<tr class="odd">
+<td align="right">16</td>
+<td align="right">19.92</td>
+<td align="left">19.74 - 20.1</td>
+<td align="left">default_mode</td>
+<td align="right">32.53</td>
+</tr>
+<tr class="even">
+<td align="right">30</td>
+<td align="right">16.83</td>
+<td align="left">16.7 - 16.96</td>
+<td align="left">temporo</td>
+<td align="right">23.84</td>
+</tr>
+<tr class="odd">
+<td align="right">36</td>
+<td align="right">16.21</td>
+<td align="left">16.1 - 16.32</td>
+<td align="left">p_fit</td>
+<td align="right">24.28</td>
+</tr>
+</tbody>
+</table>
+<p>All nine <em>a priori</em> networks explain more variance than networks with randomly selected volumes. Comparisons must be made for matching numbers of included volumes (i.e. the 39% explained variance by the central executive network should be compared with the mean explained variance for networks with 8 randomly selected regional volumes).</p>
+</div>
+</div>
+
+&nbsp;
+<hr />
+<p style="text-align: center;">By Anna Elisabeth Fürtjes</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>anna.furtjes@kcl.ac.uk</em></span></p>
+
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Add font awesome icons -->
+<p style="text-align: center;">
+    <a href="https://twitter.com/Anna_Furtjes" class="fa fa-twitter"></a>
+</p>
+
+&nbsp;
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

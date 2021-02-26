@@ -1,0 +1,7 @@
+name: "Example"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - icon: KCL_logo.jpg
+      href: https://www.kcl.ac.uk/

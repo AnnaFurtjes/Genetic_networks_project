@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Processing phenotypic data</title>
+
+<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h2 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h3 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h4 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h5 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h6 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://www.kcl.ac.uk/">
+    <span class=" KCL_logo.jpg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Processing phenotypic data</h1>
+
+</div>
+
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+<p><span class="math display">\[\\[0.5in]\]</span></p>
+<p>Here we prepare phenotypic data to be used in the genome-wide association study. We include European participants where T1 images were used in conjunction with T2 FLAIR (item 26500). We control the GWAS phenotypes for acquisition site (item 54), and head position (X,Y,Z coordinates, items 25756, 25757, 25758), time of year and time of day (item 53), and 20 genetic principal components to adjust for population stratification. Extreme outliers outside of 4 standard deviations will be excluded. These phenotypes will also be used for comparison between phenoypic and genetic networks later in the study.</p>
+<hr />
+<p><span class="math display">\[\\[0.1in]\]</span></p>
+<p>Based on this script, the final sample used for analyses consisted of <em>N</em> = participants.</p>
+<pre class="r"><code>### phenotypic analysis on Edinburgh server
+
+# save output
+sink(&quot;/Cluster_Filespace/Ritchie_Group/Anna/pheno_decomposition_console.out&quot;)
+
+# load dependencies
+library(data.table)
+
+# read in UKB file
+setwd(&quot;/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/40837&quot;)
+file&lt;-list.files(pattern=&quot;.csv&quot;)
+file&lt;-fread(file,header=T,data.table=F)
+
+# 1. identify which columnames belong to our variables of interest and save in document
+# read in region codes
+setwd(&quot;/Cluster_Filespace/Ritchie_Group/Anna/&quot;)
+ref&lt;-fread(&quot;region_codes.txt&quot;,data.table=F)
+
+# 2. re-name them accordning to their brain area
+
+for(i in 1:nrow(ref)){
+    number&lt;-paste0(ref$No[i],&quot;-2.0&quot;)
+    #number&lt;-ref$No[i]
+    region&lt;-ref$Region[i]
+    names(file)[grep(number,colnames(file))]&lt;-region
+}
+
+# only keep columns of interest
+keep&lt;-names(file)[grepl(&quot;Right&quot;,names(file))|grepl(&quot;Left&quot;,names(file))|grepl(&quot;Brain_stem&quot;,names(file))]
+keep&lt;-append(&quot;eid&quot;,keep)
+file&lt;-file[,keep]
+dim(file)
+# [1] 502506     84
+
+# show missing values per column
+print(&quot;Number of missing values&quot;)
+colSums(is.na(file))
+# 
+
+print(&quot;Number of non-missing values&quot;)
+colSums(!is.na(file))
+#[1] &quot;Number of non-missing values&quot;
+#                             eid                       Brain_stem 
+#                          502506                            40055 
+#            Left_thalamus_proper                     Left_caudate 
+#                           40054                            40055 
+#                    Left_putamen                    Left_pallidum 
+#                           40055                            40055 
+#                Left_hippocampus                    Left_amygdala 
+#                           40055                            40055 
+
+########## merge with file containing age_correlations
+# read in age file
+setwd(&quot;/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/25136/&quot;)
+age_file&lt;-list.files(pattern=&quot;.csv&quot;)
+age_file&lt;-fread(age_file,header=T,data.table=F)
+dim(age_file)
+#[1] 502540  10900
+
+# keep British ancestry item 21000 and delete those from other background
+names(age_file)[grep(&quot;21000.0&quot;,colnames(age_file))]&lt;-&quot;ancestry&quot;
+age_file$british&lt;-ifelse(age_file$ancestry == 1001 | age_file$ancestry == 1002 | age_file$ancestry == 1003,1,0)
+sum(age_file$british,na.rm=T)
+#[1] 472159
+age_file&lt;-age_file[-which(age_file$british==0),]
+dim(age_file)
+#[1] 473057  10901
+
+
+# keep only age relevant rows 
+names(age_file)[grep(&quot;21003.2.0&quot;,colnames(age_file))]&lt;-&quot;age_neuroimaging&quot;
+names(age_file)[grep(&quot;52.0.0&quot;,colnames(age_file))]&lt;-&quot;birth_month&quot;
+names(age_file)[grep(&quot;53.2.0&quot;,colnames(age_file))]&lt;-&quot;date_imaging&quot;
+names(age_file)[grep(&quot;21003.0.0&quot;,colnames(age_file))]&lt;-&quot;age_assessment&quot;
+names(age_file)[grep(&quot;53.0.0&quot;,colnames(age_file))]&lt;-&quot;date_assessment&quot;
+
+
+length(age_file$age_neuroimaging)
+#[1] 473057
+summary(age_file$age_neuroimaging)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+#   45.0    57.0    64.0    63.3    69.0    81.0  442747 
+length(age_file$birth_month)
+#[1] 473057
+summary(age_file$birth_month)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  1.000   3.000   6.000   6.408   9.000  12.000
+
+# only keep columns of interest
+age_file&lt;-age_file[,c(&quot;eid&quot;,&quot;birth_month&quot;,&quot;date_imaging&quot;,&quot;age_neuroimaging&quot;,&quot;age_assessment&quot;,&quot;date_assessment&quot;)]
+
+# work out month in which participant attended imaging
+age_file$attendance_month&lt;-as.numeric(substr(age_file$date_imaging,6,7))
+# difference between attendance and birth month
+age_file$add_months&lt;-(age_file$attendance_month)-(age_file$birth_month)
+
+age_file$add_months&lt;-ifelse(age_file$add_months&lt;0,(12+age_file$add_months),ifelse(age_file$add_months==0,0,age_file$add_months))
+# if any remaining fields are now above 11 or below 0, something must have gone wrong and we delete
+age_file$add_months&lt;-ifelse(age_file$add_months&gt;11|age_file$add_months&lt;0,NA,age_file$add_months)
+
+# descriptives months to add
+summary(age_file$add_months)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+#   0.0     3.0     5.0     5.5     8.0    11.0  442747
+
+# add extra months to age in months
+age_file$age_in_months&lt;-(age_file$age_neuroimaging*12)+age_file$add_months
+
+# whoever didn&#39;t indicate birth_month would have missing values, use age at neuoroimaging visit in months
+age_file$age_in_months&lt;-ifelse(is.na(age_file$age_in_months),age_file$age_neuroimaging*12,age_file$age_in_months)
+
+# with this definition we have 8000 people without age (whoever is left with NA now had no data in both items age_at_assement and birth_month)
+# try to rescue using data from first assessment and imput lag using Simons definition
+
+age_file$date1 &lt;- as.Date(age_file$date_assessment, format=&quot;%Y-%m-%d&quot;)
+age_file$date3 &lt;- as.Date(age_file$date_imaging, format=&quot;%Y-%m-%d&quot;)
+age_file$lag1to3 &lt;- as.vector(age_file$date3 - age_file$date1)
+age_file$lag_in_years&lt;-age_file$lag1to3/365.25
+#hist(age_file$lag1to3)
+# make a variable to add lag to age at assessment
+age_file$age_inferred_assessment_months&lt;-(age_file$age_assessment +age_file$lag_in_years)*12
+
+#if there is a missing value: use age at assessment without lag inferred
+age_file$age_inferred_assessment_months&lt;-ifelse(is.na(age_file$age_inferred_assessment_months),(age_file$age_assessment*12),age_file$age_inferred_assessment_months)
+
+
+age_file$age_in_months&lt;-ifelse(is.na(age_file$age_in_months),age_file$age_inferred_assessment_months,age_file$age_in_months)
+
+#descriptives for age_in_months including added months
+print(&quot;age in months&quot;)
+summary(age_file$age_in_months)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  444.0   612.0   708.0   687.7   768.0   982.0 
+
+print(&quot;age in years&quot;)
+summary(age_file$age_in_months/12)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  37.00   51.00   59.00   57.31   64.00   81.83 
+
+# merge by eid with file
+dim(age_file)
+#[1] 473057     14
+
+dim(file)
+# [1] 502506     84
+
+# onlykeep rows that are present in both, because age_file includes the ethnicity exclusions
+file&lt;-merge(file,age_file[,c(&quot;eid&quot;,&quot;age_in_months&quot;)],by=&quot;eid&quot;,all=F)
+dim(file)
+#[1] 473024     85
+
+print(&quot;Number of non-missing values&quot;)
+colSums(!is.na(file))
+#                             eid                       Brain_stem 
+#                          473024                            38753 
+#            Left_thalamus_proper                     Left_caudate 
+#                           38752                            38753 
+#                    Left_putamen                    Left_pallidum 
+#                           38753                            38753 
+#                Left_hippocampus                    Left_amygdala 
+#                           38753                            38753 
+#             Left_accumbens_area                          Left_DC 
+#                           38753                            38753 
+#           Right_thalamus_proper                    Right_caudate 
+#                           38752                            38753 
+#                   Right_putamen                   Right_pallidum 
+#                           38753                            38753 
+#               Right_hippocampus                   Right_amygdala 
+#                           38753                            38753 
+#            Right_accumbens_area                         Right_DC 
+#                           38753                            38753 
+#                   Left_bankssts   Left_caudal_anterior_cingulate 
+#                           38753                            38753 
+#      Left_caudal_middle_frontal                      Left_cuneus 
+#                           38753                            38753 
+#                 Left_entorhinal                    Left_fusiform 
+#                           38753                            38753 
+#          Left_inferior_parietal           Left_inferior_temporal 
+#                           38753                            38753 
+#          Left_isthmus_cingulate           Left_lateral_occipital 
+#                           38753                            38753 
+#      Left_lateral_orbitofrontal                     Left_lingual 
+#                           38753                            38753 
+#       Left_medial_orbitofrontal             Left_middle_temporal 
+#                           38753                            38753 
+#            Left_parahippocampal                 Left_paracentral 
+#                           38753                            38753 
+#           Left_pars_opercularis              Left_pars_orbitalis 
+#                           38753                            38753 
+#          Left_pars_triangularis               Left_pericalcarine 
+#                           38753                            38753 
+#                Left_postcentral         Left_posterior_cingulate 
+#                           38753                            38753 
+#                 Left_precentral                   Left_precuneus 
+#                           38753                            38753 
+# Left_rostral_anterior_cingulate      Left_rostral_middle_frontal 
+#                           38753                            38753 
+#           Left_superior_frontal           Left_superior_parietal 
+#                           38753                            38753 
+#          Left_superior_temporal               Left_supramarginal 
+#                           38753                            38753 
+#               Left_frontal_pole         Left_transverse_temporal 
+#                           38753                            38753 
+#                     Left_insula                   Right_bankssts 
+#                           38753                            38753 
+# Right_caudal_anterior_cingulate      Right_caudal_middle_frontal 
+#                           38753                            38753 
+#                    Right_cuneus                 Right_entorhinal 
+#                           38753                            38753 
+#                  Right_fusiform          Right_inferior_parietal 
+#                           38753                            38753 
+#         Right_inferior_temporal          Right_isthmus_cingulate 
+ #                          38753                            38753 
+#         Right_lateral_occipital      Right_lateral_orbitofrontal 
+#                           38753                            38753 
+#                   Right_lingual       Right_medial_orbitofrontal 
+#                           38753                            38753 
+#           Right_middle_temporal            Right_parahippocampal 
+#                           38753                            38753 
+#               Right_paracentral           Right_pars_opercularis 
+#                           38753                            38753 
+#            Right_pars_orbitalis          Right_pars_triangularis 
+#                           38753                            38753 
+#             Right_pericalcarine                Right_postcentral 
+#                           38753                            38753 
+#       Right_posterior_cingulate                 Right_precentral 
+#                           38753                            38753 
+#                 Right_precuneus Right_rostral_anterior_cingulate 
+#                           38753                            38753 
+#    Right_rostral_middle_frontal           Right_superior_frontal 
+#                           38753                            38753 
+#         Right_superior_parietal          Right_superior_temporal 
+#                           38753                            38753 
+#             Right_supramarginal               Right_frontal_pole 
+#                           38753                            38753 
+#       Right_transverse_temporal                     Right_insula 
+#                           38753                            38753 
+#                   age_in_months 
+#                         473024 
+
+#########################################################################
+
+
+# calculate correlation matrix between all brain areas
+cor_matrix&lt;-cor(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],use=&quot;pairwise.complete.obs&quot;)
+dim(cor_matrix) # should be 83 for all brain_areas
+#[1] 83 83
+
+# confirm the brain areas included
+dimnames(cor_matrix)[1]
+
+
+# 5. caclulate values and vectors
+eigenvalues&lt;-eigen(cor_matrix)$values 
+eigenvectors&lt;-eigen(cor_matrix)$vectors
+    rownames(eigenvectors)&lt;-dimnames(cor_matrix)[[2]]
+    colnames(eigenvectors)&lt;-dimnames(cor_matrix)[[2]]
+
+# calculate explained variance
+explained_variance&lt;-eigenvalues/sum(eigenvalues)*100
+
+# calculate eigenvalues and format them
+stand_loadings&lt;-eigenvectors%*%sqrt(diag(eigenvalues))
+stand_loadings&lt;-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
+names(stand_loadings)&lt;-c(&quot;Regions&quot;,&quot;stand_loadings&quot;)
+head(stand_loadings)
+#                Regions stand_loadings
+#1:           Brain_stem     -0.6685657
+#2: Left_thalamus_proper     -0.7353249
+#3:         Left_caudate     -0.5235884
+#4:         Left_putamen     -0.6449436
+#5:        Left_pallidum     -0.6213252
+#6:     Left_hippocampus     -0.6796167
+
+#########################################################################
+
+# calculate age correlations and save in table
+age_cor&lt;-as.data.frame(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],function(x) cor(x,file$age_in_months,use=&quot;pairwise.complete.obs&quot;,method=&quot;pearson&quot;)))
+age_cor&lt;-cbind(age_cor,rownames(age_cor))
+rownames(age_cor)&lt;-NULL
+names(age_cor)&lt;-c(&quot;age_cor&quot;,&quot;Region&quot;)
+head(age_cor)
+#      age_cor               Region
+#1 -0.05236820           Brain_stem
+#2 -0.25331778 Left_thalamus_proper
+#3  0.00343390         Left_caudate
+#4 -0.15066448         Left_putamen
+#5 -0.09292321        Left_pallidum
+#6 -0.26023714     Left_hippocampus
+
+# print all correlations with full statistics
+print(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],function(x) cor.test(x,file$age_in_months,method=&quot;pearson&quot;,na.action=na.omit)))
+
+
+# 6. name rows and columns 
+setwd(&quot;/Cluster_Filespace/Ritchie_Group/Anna/&quot;)
+
+save(list = c(&quot;cor_matrix&quot;,&quot;eigenvalues&quot;,&quot;eigenvectors&quot;,&quot;explained_variance&quot;,&quot;stand_loadings&quot;,&quot;age_cor&quot;), file = &quot;pheno_decomposition.RData&quot;)
+
+sink()
+# 7. copy results into dropbox</code></pre>
+
+&nbsp;
+<hr />
+<p style="text-align: center;">By Anna Elisabeth Fürtjes</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>anna.furtjes@kcl.ac.uk</em></span></p>
+
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Add font awesome icons -->
+<p style="text-align: center;">
+    <a href="https://twitter.com/Anna_Furtjes" class="fa fa-twitter"></a>
+</p>
+
+&nbsp;
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
