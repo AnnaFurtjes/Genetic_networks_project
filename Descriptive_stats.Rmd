@@ -20,12 +20,6 @@ body{
 </style>
 
 
-```{r, echo=FALSE}
-htmltools::img(src = knitr::image_uri(file.path("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/", "KCL_logo.jpg")), 
-               alt = 'logo', 
-               style = 'position:absolute; top:0; right:110px; padding:20px;')
-```
-
 ```{r setup, include=F,echo=F}
 require(knitr)
 opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")

@@ -1,7 +1,11 @@
 name: "Example"
 output_dir: "."
 navbar:
-  title: "Home"
+  left: 
+   - text: "Home"
+     icon: fa-home
+     href: index.html
   right:
-    - icon: KCL_logo.jpg
-      href: https://www.kcl.ac.uk/
+    - icon: fa-hand-spock-o
+      href: https://osf.io/7n4qj
+

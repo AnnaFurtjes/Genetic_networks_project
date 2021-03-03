@@ -15,6 +15,7 @@ body{
 }
 </style>
 
+
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri(file.path("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/", "KCL_logo.jpg")), 
                alt = 'logo', 
@@ -69,3 +70,9 @@ $$\\[0.1in]$$
 ![Brain Networks of interest](BrainNet_images.jpg){width=100%}
 </center>
 
+<br>
+<br>
+
+### Acknowledgements
+
+I learned the basics of how to create websites on GitHub in a tutorial by Dr. Oliver Pain (KCL). Some of the design was inspired by [this awesome website by Yan Holtz](https://holtzy.github.io/Pimp-my-rmd/). Thank you!
