@@ -1,0 +1,148 @@
+---
+title: "Genetic quality control"
+highlighter: prettify
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    theme: readable
+    includes:
+      after_body: footer.html   
+---
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+
+
+Genetic quality control was done by adapting the general SGDP pipeline for genetic QC, which can be found [here](SGDP_pipeline.html).
+A previous publication by Joni Coleman using the same approach can be found [here](https://www.nature.com/articles/s41380-019-0546-6).
+
+<br/>
+
+This pipeline outlines:
+
+  - A wrapper script for genetic quality control 
+  - A script to determine European ancestry as determined by 4-means clustering on the first two genetic principal components 
+  - The script for genetic quality control that is called by the wrapper script (Genotyped_Data_QC_JRIC_240119.bash)
+  - A script to thin imputed data
+  
+
+
+```{r setup, include=F,echo=F}
+require(knitr)
+opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+```
+
+$$\\[0.5in]$$
+
+<br/>
+
+***
+
+
+## Preparation
+
+Before I ran this quality control pipeline, I reduced the full UKB genetic data set to the 39,947 participants with complete phenotypic data. 
+```{bash, eval = F}
+plink \
+--bed /ukb_binary_v2.bed  \
+--bim /ukb_binary_v2.bim \
+--fam /wukb18177_cal_chr1_v2_s488264.fam \
+--make-bed \
+--keep /participants_of_interest_QC.txt \
+--out /wukb18177_input_neuroimaging
+
+```
+
+<br/>
+
+***
+
+## Wrapper script used in this analysis 
+
+This wrapper script allows to run the SGDP genetic QC pipeline outlined at the top of this document.
+
+```{sh wrapper, eval =F}
+#!/bin/bash -l
+
+#SBATCH --output=/geno_qc_UKB18177.out
+#SBATCH --job-name=geno_qc_UKB
+#SBATCH --mem=30G
+
+module add apps/plink/1.9.0b6.10
+module add apps/flashpca/2.0
+
+bash ~/Genotyped_Data_QC_JRIC_240119.sh \
+-b wukb18177_input_neuroimaging.bed \
+-j wukb18177_input_neuroimaging.bim \
+-f wukb18177_input_neuroimaging.fam \
+-m 0.01 \
+-v 0.02 \
+-s 0.02 \
+-a 1 \
+-q 1 \
+-e ukb1817_het_miss_excl_rows_v3.txt \
+-g 1 \
+-x ukb1817_reported_sex_from_sqc_v2.txt \
+-r 0.044 \
+-l ukb1817_rel_pairs.txt \
+-t 0 \
+-u participants_of_interest_QC.txt \
+-h 0.00000001 \
+-d 0 \
+-p 1 \
+-c ukb1817_Caucasians_4Means_PLINK.txt \
+-o geneticQC_UKB_15042021_
+
+```
+
+
+$$\\[0.5in]$$
+
+## Outcome genotype quality control 
+
+Based on genetic quality control, the following participants and variants have been excluded: 
+
+Out of 39,947 participants, we retain a total of 36,778 participants.
+
+|Process|Removed|Remaining|
+|---|---|---|
+|No genetic data|990|38,957|
+|European clustering|919|38,038|
+|Quality assurance by UKB|72|37,966|
+|Missingness rates|204|37,762|
+|Relatedness|956|36,806|
+|Sex check|28|36,778
+
+<br/>
+
+Out of 805,426 variants, we retained a total of 587,583 variants. 
+
+
+|Process|Removed|Remaining|
+|---|---|---|
+|Missing genotype data|104,771|700,655|
+|Hardy-Weinberg exact test|9,935|690,720|
+|Minor allele frequency|103,137|587,583|
+
+<br/>
+
+
+***
+
+
+<br/>
+
+
+## Cleaning imputed data
+
+Refer to the last script in the [SGDP quality control pipeline](SGDP_pipeline.html) for the code used to clean imputed genotype data.
+
+UKBB data as received is vast and larger than most users will use for common-variant analyses. Thin the UKBB data to MAF >= 0.01 and INFO >= 0.4.
+

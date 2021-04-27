@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Joni Coleman" />
+
+
+<title>SGDP_Central_Genotype_QC</title>
+
+<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fas fa-home"></span>
+     
+    Home
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://osf.io/7n4qj">
+    <span class="fas fa-hand-spock-o"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">SGDP_Central_Genotype_QC</h1>
+<h4 class="author">Joni Coleman</h4>
+<h4 class="date">20/04/2020</h4>
+
+</div>
+
+
+<div id="notes" class="section level2">
+<h2>Notes</h2>
+<p>This RMarkdown is written as a self-contained codebook for the centralised quality control of the genetic data downloaded from the UK Biobank at the Social, Genetic and Developmental Psychiatry [SGDP] Centre, King’s College London [KCL]. The output of this centralised quality control produces cleaned datasets for use by multiple analysts across KCL. The scripts are constructed to be usable for the different projects run from KCL, and so are generalisable to UKBB projects overall. Developments of this code were used in the R package ukbtools [<a href="https://cran.r-project.org/web/packages/ukbtools/index.html" class="uri">https://cran.r-project.org/web/packages/ukbtools/index.html</a>] - credit: Ken Hanscombe This document should not be run as a R script itself, but is rather a single document to list all code. All code was run on the King’s College London / National Institute of Health Research Maudsley Biomedical Research Centre high performance computing cluster “Rosalind”, unless otherwise stated.</p>
+<p>Scripts have been simplified by removing paths to files and renaming certain files to more widely-understandable names where relevant</p>
+</div>
+<div id="dependencies" class="section level2">
+<h2>Dependencies</h2>
+<p>No previous scripts UKBB genotype and imputed genetic data PLINK 1.9 (see below) FlashPCA2 (see below) GreedyRelated (see below) bgenix (see below)</p>
+</div>
+<div id="credit" class="section level2">
+<h2>Credit</h2>
+<p>Contributions to the logic of this code were made by numerous analysts at the SGDP. The code itself was written by Jonathan Coleman and Sam Choi. Additional programs are the credit of their authors: PLINK[<a href="https://www.cog-genomics.org/plink/1.9/" class="uri">https://www.cog-genomics.org/plink/1.9/</a>] Chris Chang, Shaun Purcell FlashPCA2[<a href="https://github.com/gabraham/flashpca" class="uri">https://github.com/gabraham/flashpca</a>] Gad Abraham GreedyRelated[<a href="https://github.com/choishingwan/GreedyRelated" class="uri">https://github.com/choishingwan/GreedyRelated</a>] Sam Choi bgenix[<a href="https://bitbucket.org/gavinband/bgen/wiki/bgenix" class="uri">https://bitbucket.org/gavinband/bgen/wiki/bgenix</a>] Gavin Band</p>
+<div id="genotype-data-code" class="section level3">
+<h3>Genotype data code</h3>
+</div>
+</div>
+<div id="wrapper-for-genotype-qc" class="section level2">
+<h2>Wrapper for genotype QC</h2>
+<pre class="sh"><code>
+## Note - text in square brackets below should be replaced with suitable file name (don&#39;t put the square brackets around the files!)
+
+Rscript Make_UKBB_Caucasians_By_4_Means_Clustering.R \
+[File containing the IDs and the 40 UKBB PCs extracted from ...sqc_v2.txt - e.g. ukb1657_40PCs_ID_from_sqc_v2.txt] \
+[k for k-means clustering, e.g. 4] \
+[Full path to output root, e.g. to/UKBB_Data_Ancestry. Example output will be to/UKBB_Data_Ancestry.txt, to/UKBB_Data_Ancestry.pdf, to/UKBB_Data_Ancestry_PLINK.txt]
+
+bash Genotyped_Data_QC_JRIC_240119.bash \
+-b /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.bed  \
+-j /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.bim \
+-f /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.fam \
+-m 0.01 \
+-v 0.02 \
+-s 0.02 \
+-a 1 \
+-q 1 \
+-e /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_het_miss_excl_rows_v3.txt \
+-g 1 \
+-x /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_reported_sex_from_sqc_v2.txt \
+-r 0.044 \
+-l /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_rel_pairs.txt \
+-t 1 \
+-u /mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/participants_of_interest.txt \ # this file will have header: ID Pheno
+-h 0.00000001 \
+-d 0 \
+-p 1 \
+-c /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_Caucasians_4Means_PLINK.txt \
+-o /mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/genetic_qc_UKB
+</code></pre>
+</div>
+<div id="identify-white-western-european-individuals" class="section level2">
+<h2>Identify White Western European Individuals</h2>
+<pre class="r"><code>##Load dependencies
+library(data.table)
+library(ggplot2)
+
+args&lt;-commandArgs(trailingOnly=TRUE)
+
+if(length(args)==0){
+    stop(&quot;Please provide an input file containing an ID column and all PCs (full path), K for k-means clustering, and an output file path&quot;, call.=FALSE)
+}
+
+##Read in PCs, remove NAs, rename
+PCs&lt;-fread(args[1], data.table=F)
+PCs&lt;-na.omit(PCs)
+names(PCs)&lt;-c(&quot;ID&quot;,&quot;PC.1&quot;,&quot;PC.2&quot;,&quot;PC.3&quot;,&quot;PC.4&quot;,&quot;PC.5&quot;,&quot;PC.6&quot;,&quot;PC.7&quot;,&quot;PC.8&quot;,&quot;PC.9&quot;,&quot;PC.10&quot;,&quot;PC.11&quot;,&quot;PC.12&quot;,&quot;PC.13&quot;,&quot;PC.14&quot;,&quot;PC.15&quot;,&quot;PC.16&quot;,&quot;PC.17&quot;,&quot;PC.18&quot;,&quot;PC.19&quot;,&quot;PC.20&quot;,&quot;PC.21&quot;,&quot;PC.22&quot;,&quot;PC.23&quot;,&quot;PC.24&quot;,&quot;PC.25&quot;,&quot;PC.26&quot;,&quot;PC.27&quot;,&quot;PC.28&quot;,&quot;PC.29&quot;,&quot;PC.30&quot;,&quot;PC.31&quot;,&quot;PC.32&quot;,&quot;PC.33&quot;,&quot;PC.34&quot;,&quot;PC.35&quot;,&quot;PC.36&quot;,&quot;PC.37&quot;,&quot;PC.38&quot;,&quot;PC.39&quot;,&quot;PC.40&quot;)
+
+##Set seed
+
+set.seed(1204688)
+
+##K means clustering on each PC
+
+K_MEAN&lt;-as.numeric(args[2])
+
+PC1_K&lt;-kmeans(PCs$PC.1, K_MEAN)
+PC2_K&lt;-kmeans(PCs$PC.2, K_MEAN)
+
+##Add clusters to PC dataframe
+PCs$PC1.Cluster&lt;-PC1_K$cluster
+PCs$PC2.Cluster&lt;-PC2_K$cluster
+PCs$Clusters&lt;-as.factor(paste(PC1_K$cluster,PC2_K$cluster,sep=&quot;.&quot;))
+
+##WWE group is the majority
+
+MAX_PC1&lt;-ifelse(match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster)) %% K_MEAN == 0, K_MEAN, match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster)) %% K_MEAN)
+
+MAX_PC2&lt;-ceiling(match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster))/K_MEAN)
+
+##Make lists of WWE IDs
+WWE&lt;-as.data.frame(PCs[PCs$PC1.Cluster == MAX_PC1 &amp; PCs$PC2.Cluster == MAX_PC2,1])
+names(WWE)&lt;-&quot;ID&quot;
+
+WWE_PLINK&lt;-as.data.frame(cbind(WWE,WWE))
+names(WWE_PLINK)&lt;-c(&quot;FID&quot;,&quot;IID&quot;)
+
+##Write to file
+write.table(WWE, file=paste(args[3],&quot;.txt&quot;,sep=&quot;&quot;), row.names=F, col.names=T, quote = F)
+write.table(WWE_PLINK, file=paste(args[3],&quot;_PLINK.txt&quot;,sep=&quot;&quot;), row.names=F, col.names=T, quote = F)
+
+##Plot
+pdf(paste(args[3], &quot;.pdf&quot;, sep=&quot;&quot;))
+with(PCs, print(qplot(PC.1, PC.2, colour=Clusters)))
+dev.off()</code></pre>
+</div>
+<div id="qc-genotyped-data" class="section level2">
+<h2>QC genotyped data</h2>
+<pre class="bash"><code>
+#Check inputs are suitable
+
+while getopts &quot;:b:j:f:m:v:s:a:q:e:g:x:r:l:t:u:h:d:p:c:o:&quot; opt
+do
+    case $opt in
+    b) INPUT_BED=&quot;$OPTARG&quot;
+    ;;
+    j) INPUT_BIM=&quot;$OPTARG&quot;
+    ;;
+    f) INPUT_FAM=&quot;$OPTARG&quot;
+    ;;
+        m) MAF=&quot;$OPTARG&quot;
+        ;;
+        v) GENO=&quot;$OPTARG&quot;
+        ;;
+        s) MIND=&quot;$OPTARG&quot;
+        ;;
+        a) CAUC=&quot;$OPTARG&quot;
+    ;;
+    q) QA=&quot;$OPTARG&quot;
+    ;;
+    e) QA_FILE=&quot;$OPTARG&quot;
+    ;;
+    g) GENDER=&quot;$OPTARG&quot;
+    ;;
+    x) SEX_FILE=&quot;$OPTARG&quot;
+    ;;
+    r) RELATEDNESS=&quot;$OPTARG&quot;
+    ;;
+    l) RELATE_FILE=&quot;$OPTARG&quot;
+    ;;
+    t) RELATE_PHENO=&quot;$OPTARG&quot;
+    ;;
+    u) RELATE_PHENO_FILE=&quot;$OPTARG&quot;
+    ;;
+        h) HWE=&quot;$OPTARG&quot;
+        ;;
+    p) PRUNE=&quot;$OPTARG&quot;
+    ;;
+    d) SEXSPLIT=&quot;$OPTARG&quot;
+    ;;
+    c) CAUCASIANS_FILE=&quot;$OPTARG&quot;
+    ;;
+    o) OUTPUT=&quot;$OPTARG&quot;
+    ;;
+        \?) echo &quot;Invalid option -$OPTARG&quot; &gt;&amp;2
+        ;;
+    esac
+done
+
+if [ $# -ne 40 ]
+then
+    echo -e &quot;\nPlease provide all arguments. If argument not needed:\n -b [Full path to input bed]\n -j [Full path to input bim]\n -f [Full path to input fam]\n -m [MAF]\n -v [GENO]\n -s [MIND]\n -a [Exclude non-Caucasians? 1 = Yes, 0 = No]\n -q [Exclude QA errors? 1 = Yes, 0 = No]\n -e [Full path to UKBB QA Excludes file]\n -g [Exclude gender mismatches? 1 = Yes, 0 = No]\n -x [Full path to UKBB Phenotypic Sex file]\n -r [Relatedness threshold for greedyRelated]\n -l [Full path to Relatedness Pairs file]\n -t [Use phenotype file to retain cases preferentially? 1 = Yes 0 = No]\n -u [Full path to phenotype file for Relatedness pairs]\n -h [HWE for SNPs]\n -d [Create sex split? 1 = Yes, 0 = No]\n -p [Create pruned file? 1 = Yes, 0 = No]\n -c [Full path to Caucasians File]\n -o [Full path to output root]\nArguments provided = $#&quot;
+    exit
+fi
+
+## MAF
+
+MAF_FLAG=$(echo ${MAF} != 0 | bc -l)
+MIND_FLAG=$(echo ${MIND} != 0 | bc -l)
+RELATE_FLAG=$(echo ${RELATEDNESS} != 1 | bc -l)
+
+first_plink=&quot;plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --geno ${GENO} --write-snplist --out ${OUTPUT}_GENO${GENO}&quot;
+
+$first_plink
+
+## Keep {OUTPUT}_GENO${GENO}.fam
+
+plink=&quot;plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --geno ${GENO} --extract ${OUTPUT}_GENO${GENO}.snplist --write-snplist --make-just-fam&quot;
+
+if [ ${MAF_FLAG} -ne 0 ]
+then 
+    plink=&quot;${plink} --freq --maf ${MAF}&quot;
+fi
+
+## Sample Missingness
+
+if [ ${MIND_FLAG} -eq 1 ]
+then
+    echo -e &quot;\nWARNING: You are applying a missingness filter to samples.\n If your base file is not a whole-genome file, this may produce different sample sets between clumps/chromosomes.\n&quot;
+
+    plink=&quot;${plink} --mind ${MIND}&quot;
+fi
+
+if [ ${CAUC} -eq 1 ]
+then
+    ## Keep {OUTPUT}_GENO${GENO}.fam and Caucasians file
+    plink=&quot;${plink} --keep ${CAUCASIANS_FILE}&quot;
+fi
+
+if [ ${CAUC} -eq 0 ]
+then
+    echo -e &quot;\nWARNING: You are retaining all individuals - this will produce a transethnic dataset \n&quot;
+fi
+
+##Exclude relatives greedily 
+
+if [ ${RELATE_FLAG} -eq 0 ]
+then
+    echo -e &quot;\nWARNING: You are not removing related individuals \n&quot;
+fi
+
+if [ ${RELATE_FLAG} -ne 0 ]
+then
+   if [ ${QA} -eq 1 ]
+   then
+      ##Get plink .fam for exclusions to date, including QA
+      plink_pre_relate=&quot;${plink} --remove ${QA_FILE} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}&quot;
+
+      $plink_pre_relate
+   fi
+
+   if [ ${QA} -eq 0 ]
+   then
+      ##Get plink .fam for exclusions to date, including QA
+      plink_pre_relate_no_QA=&quot;${plink} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}&quot;
+
+      $plink_pre_relate_no_QA
+   fi
+
+   ##Limit relatedness file to included participants
+   cat &lt;(head -1 ${RELATE_FILE}) &lt;(LANG=C fgrep -wf &lt;(awk &#39;{print $1}&#39; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}.fam) ${RELATE_FILE}) &gt; ${RELATE_FILE}_reduced
+
+   if [ ${RELATE_PHENO} -eq 0 ]
+   then
+      greedRelate/greedyRelated \
+      -r ${RELATE_FILE}_reduced \
+      -t ${RELATEDNESS} \
+      -s 1234 \
+      &gt; ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt
+   fi
+   if [ ${RELATE_PHENO} -ne 0 ]
+   then
+      greedRelate/greedyRelated \
+      -r ${RELATE_FILE}_reduced \
+      -p ${RELATE_PHENO_FILE} \
+      -t ${RELATEDNESS} \
+      -s 1234 \
+      &gt; ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt
+   fi      
+   cat &lt;(echo -e &quot;FID IID&quot;) &lt;(awk &#39;{print $1, $1}&#39; ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt) &gt; ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt
+fi
+
+## Exclude all UKB exclusions (UKBileve_Affy... + UKBileve_Geno... + Recommended Excl... For details of these exlcusions, see http://biobank.ctsu.ox.ac.uk/showcase/search.cgi?wot=0&amp;srch=quality+&amp;sta0=on&amp;sta1=on&amp;sta2=on&amp;sta3=on&amp;str0=on&amp;str3=on&amp;fit0=on&amp;fit10=on&amp;fit20=on&amp;fit30=on&amp;fvt11=on&amp;fvt21=on&amp;fvt22=on&amp;fvt31=on&amp;fvt41=on&amp;fvt51=on&amp;fvt61=on&amp;fvt101=on)
+
+if [ ${QA} -eq 1 ]
+then
+
+    if [ ${RELATE_FLAG} -ne 0 ]
+    then
+    cat ${QA_FILE} ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt | sort | uniq &gt; ${OUTPUT}_KCL_UKBB_QA_And_Relatedness_Exclusions_FOR_PLINK.txt
+        plink=&quot;${plink} --remove ${OUTPUT}_KCL_UKBB_QA_And_Relatedness_Exclusions_FOR_PLINK.txt --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}&quot;
+    fi
+
+    if [ ${RELATE_FLAG} -eq 0 ]
+    then
+    plink=&quot;${plink} --remove ${QA_FILE} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}&quot;
+    fi
+fi
+
+if [ ${QA} -eq 0 ]
+then
+    echo -e &quot;\nWARNING: You are not removing UKBiobank QA exclusions - ARE YOU SURE? \n&quot;
+    if [ ${RELATE_FLAG} -ne 0 ]
+    then
+        plink=&quot;${plink} --remove ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}&quot;
+    fi
+
+    if [ ${RELATE_FLAG} -eq 0 ]
+    then
+        plink=&quot;${plink} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}&quot;
+    fi
+
+fi
+
+##Prune
+
+###JRIC - 020617 - This command previously included Split-X. This makes a new file, which we want to avoid. I have moved this to the start of the analysis so that this is run first time (if needed)
+
+#Run the previous QC first
+$plink
+
+if [ $PRUNE -eq 1 ]
+then
+
+    awk -f gwas_scripts/highLDregions4bim_b37.awk ${INPUT_BIM} &gt; ${OUTPUT}_High_LD_Regions_To_Exclude.txt
+
+    plink \
+    --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+    --maf 0.05 \
+    --hwe 0.001 \
+    --geno 0.02 \
+    --thin-indiv-count 300 \
+    --indep-pairphase 200 100 0.2 \
+    --seed 1204688 \
+    --exclude ${OUTPUT}_High_LD_Regions_To_Exclude.txt \
+    --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+    --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+    --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_ALL
+
+    plink \
+    --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+    --autosome \
+    --maf 0.05 \
+    --hwe 0.001 \
+    --geno 0.02 \
+    --thin-indiv-count 300 \
+    --indep-pairphase 200 100 0.2 \
+    --seed 1204688 \
+    --exclude ${OUTPUT}_High_LD_Regions_To_Exclude.txt \
+    --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+    --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+    --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_NO_X
+
+    if [ ${GENDER} -eq 1 ]
+    then 
+        sex_plink=&quot;plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --check-sex --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_ALL.prune.in --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX&quot;
+    $sex_plink
+    ##Compare to UKBB_Sex - no males have F &lt;0.9, some females with high Fs, but this is possible, so no exclusions for now
+    cat &lt;(echo -e &quot;FID SEX IID PEDSEX SNPSEX STATUS F&quot;) &lt;(join -1 1 -2 1 &lt;(sort -k1,1 ${SEX_FILE}) &lt;(tail -n+2 ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX.sexcheck | sort -k1,1)) &gt; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck
+    ##Deviations - exclude phenotypic males with F &lt; 0.9, phenotypic females with F &gt; 0.6
+    #Reduce file read by 1
+    cat &lt;(awk &#39;( NR &gt;1 &amp;&amp; $2 == &quot;F&quot; &amp;&amp; $7 &lt; 0.5)||(NR &gt;1 &amp;&amp; $2 == &quot;M&quot; &amp;&amp; $7 &gt; 0.9){ print $1, $3;}&#39; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck) &gt; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist    
+    fi
+    
+    if [ $GENDER -eq 0 ]
+    then
+        echo -e &quot;\nWARNING: You are not removing mismatched genders - ARE YOU SURE? \n&quot;
+    fi
+fi
+
+if [ $PRUNE -ne 1 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        echo -e &quot;\nWARNING: You are not performing pruning before checking mismatched genders - ARE YOU SURE? \n&quot;
+        plink \
+        --bed ${INPUT_BED} \
+        --bim ${INPUT_BIM} \
+        --fam ${INPUT_FAM} \
+    --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+    --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+    --check-sex \
+    --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX
+    
+    cat &lt;(echo -e &quot;FID SEX IID PEDSEX SNPSEX STATUS F&quot;) &lt;(join -1 1 -2 1 &lt;(sort -k1,1 ${SEX_FILE}) &lt;(tail -n+2 ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX.sexcheck)) &gt; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck
+
+        cat &lt;(awk &#39;( NR &gt;1 &amp;&amp; $2 == 0 &amp;&amp; $7 &lt; 0.6)||(NR &gt;1 &amp;&amp; $2 == 1 &amp;&amp; $7 &gt; 0.85){ print $1, $3;}&#39; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck) &gt; ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist       
+    fi
+
+    if [ $GENDER -eq 0 ]
+    then
+        echo -e &quot;\nWARNING: You are not removing mismatched genders - ARE YOU SURE? \n&quot;
+    fi
+fi
+
+##Sex split
+
+if [ $SEXSPLIT -eq 1 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --make-just-fam \
+    --write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --filter-males \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_MALES
+        
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --filter-females \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_FEMALES
+    fi
+    if  [ $GENDER -eq 0 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --make-just-fam \
+    --write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --filter-males \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_MALES
+
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --filter-females \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_FEMALES
+    fi
+fi
+if [ $SEXSPLIT -eq 0 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --make-just-fam \
+    --write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+    fi
+    if  [ $GENDER -eq 0 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --make-just-fam \
+    --write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+    fi
+fi
+</code></pre>
+<div id="imputed-data-code" class="section level3">
+<h3>Imputed data code</h3>
+<p>UKBB data as received is vast and larger than most users will use for common-variant analyses. Thin the UKBB data to MAF &gt;= 0.01 and INFO &gt;= 0.4.</p>
+<pre class="sh"><code>awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr1_v3.txt &gt; ukb_mfi_chr1_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr2_v3.txt &gt; ukb_mfi_chr2_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr3_v3.txt &gt; ukb_mfi_chr3_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr4_v3.txt &gt; ukb_mfi_chr4_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr5_v3.txt &gt; ukb_mfi_chr5_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr6_v3.txt &gt; ukb_mfi_chr6_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr7_v3.txt &gt; ukb_mfi_chr7_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr8_v3.txt &gt; ukb_mfi_chr8_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr9_v3.txt &gt; ukb_mfi_chr9_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr10_v3.txt &gt; ukb_mfi_chr10_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr11_v3.txt &gt; ukb_mfi_chr11_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr12_v3.txt &gt; ukb_mfi_chr12_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr13_v3.txt &gt; ukb_mfi_chr13_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr14_v3.txt &gt; ukb_mfi_chr14_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr15_v3.txt &gt; ukb_mfi_chr15_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr16_v3.txt &gt; ukb_mfi_chr16_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr17_v3.txt &gt; ukb_mfi_chr17_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr18_v3.txt &gt; ukb_mfi_chr18_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr19_v3.txt &gt; ukb_mfi_chr19_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr20_v3.txt &gt; ukb_mfi_chr20_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr21_v3.txt &gt; ukb_mfi_chr21_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr22_v3.txt &gt; ukb_mfi_chr22_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chrX_v3.txt &gt; ukb_mfi_chrX_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chrXY_v3.txt &gt; ukb_mfi_chrXY_v3_MAF1_INFO4.txt
+
+for i in {22..1} X XY
+do
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3.bgen -i ukb_imp_chr${i}_v3.bgen.bgi -incl-rsids ukb_mfi_chr${i}_v3_MAF1_INFO4.txt &gt; ukb_imp_chr${i}_v3_MAF1_INFO4.bgen
+
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3_MAF1_INFO4.bgen -index
+done
+</code></pre>
+</div>
+</div>
+
+&nbsp;
+<hr />
+<a href = "https://www.kcl.ac.uk/">
+<p style="text-align: center"><img src="KCL_logo.jpg" href="https://www.kcl.ac.uk/" style="width:70px;height:50px"> 
+</a>
+</p>
+
+<a href = "https://www.kcl.ac.uk/people/anna-furtjes">
+<p style="text-align: center;">By Anna Elisabeth Fürtjes</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>anna.furtjes@kcl.ac.uk</em></span></p>
+
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Add font awesome icons -->
+<p style="text-align: center;">
+    <a href="https://twitter.com/Anna_Furtjes" class="fa fa-twitter"></a>
+</p>
+
+&nbsp;
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

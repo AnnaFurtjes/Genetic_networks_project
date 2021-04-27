@@ -14,16 +14,29 @@
 <title>Processing phenotypic data</title>
 
 <script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.15/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -263,6 +276,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -270,6 +346,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -282,16 +368,22 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Home</a>
+      <a class="navbar-brand" href="index.html"></a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        
+        <li>
+  <a href="index.html">
+    <span class="fas fa-home"></span>
+     
+    Home
+  </a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://www.kcl.ac.uk/">
-    <span class=" KCL_logo.jpg"></span>
+  <a href="https://osf.io/7n4qj">
+    <span class="fas fa-hand-spock-o"></span>
      
   </a>
 </li>
@@ -324,115 +416,227 @@ body{
   line-height: 24px;
 }
 </style>
-<p><span class="math display">\[\\[0.5in]\]</span></p>
-<p>Here we prepare phenotypic data to be used in the genome-wide association study. We include European participants where T1 images were used in conjunction with T2 FLAIR (item 26500). We control the GWAS phenotypes for acquisition site (item 54), and head position (X,Y,Z coordinates, items 25756, 25757, 25758), time of year and time of day (item 53), and 20 genetic principal components to adjust for population stratification. Extreme outliers outside of 4 standard deviations will be excluded. These phenotypes will also be used for comparison between phenoypic and genetic networks later in the study.</p>
+<p><span class="math display">\[\\[0.5in]\]</span> Magnetic resonance imaging (MRI) data was collected at assessment sites with identical hardware and software in Manchester, Newcastle, and Reading. Brain volumetric phenotypes were pre-processed by an imaging-pipeline developed and executed on behalf of UK Biobank <a href="https://www.sciencedirect.com/science/article/pii/S1053811917308613">REF</a>. More information on T1 processing can be found in the UKB online documentation <a href="https://biobank.ctsu.ox.ac.uk/crystal/crystal/docs/brain_mri.pdf">REF</a>. Briefly, cortical surfaces were modelled using FreeSurfer, and volumes were extracted based on Desikan-Killiany surface templates <a href="https://www.sciencedirect.com/science/article/pii/S1053811906000437">REF</a>; subcortical areas were derived using FreeSurfer aeseg tools <a href="https://www.sciencedirect.com/science/article/pii/S089662730200569X">REF</a>. Volumetric measures have been generated in each participant’s native space. We selected 83 imaging-derived phenotypes (IDPs) of cortical and subcortical grey-matter volumes in regions of interest spanning the whole brain (UKB category 192 &amp; 190).</p>
+<p><br/></p>
+<p>GWAS phenotypes are cortical and subcortical brain regions (UKB category 192 and 190) measured in participants of European ancestry where T1-weighted images were used in conjunction with T2-weighted FLAIR (item 26500). Extreme outliers outside of 4 standard deviations will be excluded. We will add a handful of nuisance variables as covariates in the GWAS calculation: acquisition site (item 54), head position (X,Y,Z coordinates, items 25756, 25757, 25758), time of year and time of day (item 53), age at neuroimaging visit (item 21003) and self-reported sex (item 31), genotyping batch (item 22000), and 40 genetic principal components. We will empirically test whether the neuroimaging-specific covariatessubstantially correlate with the imaging phenotypes (arbitrary cut-off at r ≤ .10) before calculating GWAS and only include them as covariates if they do. The brain phenotypes are also used for comparison between phenoypic and genetic networks later in the study.</p>
 <hr />
 <p><span class="math display">\[\\[0.1in]\]</span></p>
-<p>Based on this script, the final sample used for analyses consisted of <em>N</em> = participants.</p>
-<pre class="r"><code>### phenotypic analysis on Edinburgh server
+<div id="phenotypic-data-cleaning" class="section level2">
+<h2>Phenotypic data cleaning</h2>
+<p>Participants’ IDPs were considered if their T1-weighted images were processed in conjunction with T2-weighted FLAIR (UKB item 26500), which was the case for n = 41,776 participants (already excluding participants who had withdrawn consent). Extreme outliers outside of 4 standard deviations from the mean were excluded, which resulted in between 41,686 to 41,769 available participants depending on the specific IDP. 381 participants were excluded as they reported non-European ancestry. Phenotypic quality control resulted in 39,947 complete cases across the 83 brain volumes and the covariates. Data by the remaining participants was used to perform genetic quality control.</p>
+<pre class="r"><code>#### Genomic PCA project ####
+## here we prepare files to be used in the GWAS calculation with cortical and subcortical phenotypes
+# Aims:
+# 1. obtain a file with all covariates 
+# 2. obtain a list with participant IDs to include in GWAS 
 
-# save output
-sink(&quot;/Cluster_Filespace/Ritchie_Group/Anna/pheno_decomposition_console.out&quot;)
+
+########################################################################
+## read in data
+########################################################################
 
 # load dependencies
 library(data.table)
 
 # read in UKB file
-setwd(&quot;/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/40837&quot;)
-file&lt;-list.files(pattern=&quot;.csv&quot;)
+setwd(&quot;/scratch/datasets/ukbiobank/ukb18177/phenotypes/&quot;)
+file&lt;-list.files(pattern=&quot;ukb46293.csv&quot;)
 file&lt;-fread(file,header=T,data.table=F)
 
-# 1. identify which columnames belong to our variables of interest and save in document
-# read in region codes
-setwd(&quot;/Cluster_Filespace/Ritchie_Group/Anna/&quot;)
+
+########################################################################
+## Identify the cortical and subcortical volume columns
+########################################################################
+
+setwd(&quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/&quot;)
 ref&lt;-fread(&quot;region_codes.txt&quot;,data.table=F)
+print(&quot;Print head references file containing brain area codes&quot;)
+head(ref)
 
-# 2. re-name them accordning to their brain area
-
+# name columns according to their name in region_codes.txt
 for(i in 1:nrow(ref)){
     number&lt;-paste0(ref$No[i],&quot;-2.0&quot;)
-    #number&lt;-ref$No[i]
     region&lt;-ref$Region[i]
     names(file)[grep(number,colnames(file))]&lt;-region
 }
+ # save names of volumes in &quot;keep_volumes&quot;
+keep_volumes&lt;-names(file)[grepl(&quot;Right&quot;,names(file))|grepl(&quot;Left&quot;,names(file))|grepl(&quot;Brain_stem&quot;,names(file))]
 
-# only keep columns of interest
-keep&lt;-names(file)[grepl(&quot;Right&quot;,names(file))|grepl(&quot;Left&quot;,names(file))|grepl(&quot;Brain_stem&quot;,names(file))]
-keep&lt;-append(&quot;eid&quot;,keep)
-file&lt;-file[,keep]
+# check that there are 83 volumes
+print(length(keep_volumes))
+
+
+## identify item 26500 which indicates whether participants brain measures were estracted based on T1-weighted AND T2 FLAIR
+# we only keep the one with both
+names(file)[grep(&quot;26500&quot;,colnames(file))]&lt;-&quot;T2flair&quot;
+
+print(&quot;Table T2FLAIR: 1 = yes, 0 = no&quot;)
+table(file$T2flair)
+# 1 = yes
+# 0 = no 
+# keep only yes
+file[which(file$T2flair ==0),]&lt;-NA
+# remove the missing participants
+file &lt;- file[rowSums(is.na(file)) != ncol(file), ]
+
+print(&quot;After removing T2FLAIR and all participants that have all missing values, what are the dimensions of the file?&quot;)
+# show dimensions of file
 dim(file)
-# [1] 502506     84
 
-# show missing values per column
-print(&quot;Number of missing values&quot;)
-colSums(is.na(file))
-# 
+########################################################################
+# determine head positioning variables
+########################################################################
 
-print(&quot;Number of non-missing values&quot;)
+names(file)[grep(&quot;25756-2.0&quot;,colnames(file))]&lt;-&quot;x_coordinate&quot;
+names(file)[grep(&quot;25757-2.0&quot;,colnames(file))]&lt;-&quot;y_coordinate&quot;
+names(file)[grep(&quot;25758-2.0&quot;,colnames(file))]&lt;-&quot;z_coordinate&quot;
+
+# save their column names in an object
+coordinates &lt;- names(file)[grep(&quot;coordinate&quot;,colnames(file))]
+
+
+########################################################################
+## only keep columns of interest
+########################################################################
+# keep id column and volumes
+keep&lt;-append(&quot;eid&quot;,keep_volumes)
+# keep coordinate columns
+keep&lt;-append(keep,coordinates)
+file&lt;-file[,keep]
+
+print(&quot;Print dimensions with only relevant columns. We expect 87.&quot;)
+dim(file)
+
+
+
+#########################################################################
+## Get rid of people with cortical or subcortical measures above 4 SDs
+#########################################################################
+
+print(&quot;How many participants before removing outliers?&quot;)
 colSums(!is.na(file))
-#[1] &quot;Number of non-missing values&quot;
-#                             eid                       Brain_stem 
-#                          502506                            40055 
-#            Left_thalamus_proper                     Left_caudate 
-#                           40054                            40055 
-#                    Left_putamen                    Left_pallidum 
-#                           40055                            40055 
-#                Left_hippocampus                    Left_amygdala 
-#                           40055                            40055 
 
-########## merge with file containing age_correlations
-# read in age file
-setwd(&quot;/UK_Biobank_New/Raw_Data/1027_Refresh_Jan_2019/25136/&quot;)
-age_file&lt;-list.files(pattern=&quot;.csv&quot;)
+# remove outliers for each volume column
+
+for(i in keep_volumes){
+    # calculate volume specific mean 
+        mean_volume&lt;-mean(file[,i],na.rm = T)
+    # calculate volume specific sd
+        sd_volume &lt;- sd(file[,i], na.rm=T)
+    # remove values that are beyond 4 SDs
+        file[,i][which(file[,i] &lt; mean_volume - (sd_volume*4) | file[,i] &gt; mean_volume + (sd_volume*4))]&lt;-NA
+}
+
+
+#mean_volume&lt;-mean(file$Left_bankssts,na.rm = T)
+#sd_volume &lt;- sd(file$Left_bankssts, na.rm=T)
+#file$Left_bankssts[which(file$Left_bankssts &lt; mean_volume - (sd_volume*4) | file$Left_bankssts &gt; mean_volume + (sd_volume*4))]&lt;-NA
+
+
+print(&quot;How many participants after removing outliers?&quot;)
+colSums(!is.na(file))
+
+
+#########################################################################
+## Keep participants that have at least one entry in any of the columns
+#########################################################################
+# ncol(file)-1 because every participant will have at least an id value 
+
+file &lt;- file[rowSums(is.na(file)) != ncol(file)-1, ]
+
+#######################################################################################################
+# read in file containing age, sex, acquisition site variable
+#######################################################################################################
+### for now we only want to see how associated these extra variables are with the brain phenotypes to 
+# test if we want to include them as covariates (cut off criterion r &gt; 0.1)
+
+setwd(&quot;/scratch/datasets/ukbiobank/ukb18177/phenotypes/&quot;)
+
+age_file&lt;-list.files(pattern=&quot;ukb37667.csv&quot;)
 age_file&lt;-fread(age_file,header=T,data.table=F)
+
+print(&quot;Dimensions of age_file when loaded into R&quot;)
 dim(age_file)
-#[1] 502540  10900
 
-# keep British ancestry item 21000 and delete those from other background
-names(age_file)[grep(&quot;21000.0&quot;,colnames(age_file))]&lt;-&quot;ancestry&quot;
-age_file$british&lt;-ifelse(age_file$ancestry == 1001 | age_file$ancestry == 1002 | age_file$ancestry == 1003,1,0)
-sum(age_file$british,na.rm=T)
-#[1] 472159
-age_file&lt;-age_file[-which(age_file$british==0),]
+
+#######################################################################################################
+# determine self-reported ancestry
+#######################################################################################################
+
+# keep European ancestry item 21000 and delete those from other background
+names(age_file)[grep(&quot;21000.2&quot;,colnames(age_file))]&lt;-&quot;ancestry&quot;
+
+age_file$European&lt;-ifelse(age_file$ancestry == 1001 | age_file$ancestry == 1002 | age_file$ancestry == 1003,1,0)
+
+print(&quot;How many people of European ancestry?&quot;)
+sum(age_file$European==1,na.rm=T)
+table(age_file$European==1)
+
+age_file&lt;-age_file[-which(age_file$European==0),]
+
+print(&quot;How many left when only European?&quot;)
 dim(age_file)
-#[1] 473057  10901
 
 
+#######################################################################################################
+# determine sex
+#######################################################################################################
+names(age_file)[grep(&quot;31.0&quot;,colnames(age_file))]&lt;-&quot;sex&quot;
+
+#######################################################################################################
+## identify acquisition site variable
+#######################################################################################################
+# acquisition site variable is not in the age file 
+
+names(age_file)[grep(&quot;54-2&quot;,colnames(age_file))]&lt;-&quot;site&quot;
+
+# It would make more sense if site was a factor but if it is, the correlation doesn&#39;t run
+#age_file$site&lt;-as.factor(age_file$site)
+#site_file &lt;- site_file[,c(&quot;eid&quot;,&quot;site&quot;)]
+#age_file&lt;-merge(age_file,site_file,by=&quot;eid&quot;, all=T)
+
+
+
+
+
+####################################################################################################
+# AGE VARIABLE
+#######################################################################################################
 # keep only age relevant rows 
-names(age_file)[grep(&quot;21003.2.0&quot;,colnames(age_file))]&lt;-&quot;age_neuroimaging&quot;
-names(age_file)[grep(&quot;52.0.0&quot;,colnames(age_file))]&lt;-&quot;birth_month&quot;
-names(age_file)[grep(&quot;53.2.0&quot;,colnames(age_file))]&lt;-&quot;date_imaging&quot;
-names(age_file)[grep(&quot;21003.0.0&quot;,colnames(age_file))]&lt;-&quot;age_assessment&quot;
-names(age_file)[grep(&quot;53.0.0&quot;,colnames(age_file))]&lt;-&quot;date_assessment&quot;
+names(age_file)[grep(&quot;21003-2.0&quot;,colnames(age_file))]&lt;-&quot;age_neuroimaging&quot;
+names(age_file)[grep(&quot;52-0.0&quot;,colnames(age_file))]&lt;-&quot;birth_month&quot;
+names(age_file)[grep(&quot;53-2&quot;,colnames(age_file))]&lt;-&quot;date_imaging&quot;
+names(age_file)[grep(&quot;21003-0.0&quot;,colnames(age_file))]&lt;-&quot;age_assessment&quot;
+names(age_file)[grep(&quot;53-0.0&quot;,colnames(age_file))]&lt;-&quot;date_assessment&quot;
 
 
 length(age_file$age_neuroimaging)
-#[1] 473057
+
 summary(age_file$age_neuroimaging)
-#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
-#   45.0    57.0    64.0    63.3    69.0    81.0  442747 
+
 length(age_file$birth_month)
-#[1] 473057
+
 summary(age_file$birth_month)
-#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#  1.000   3.000   6.000   6.408   9.000  12.000
+
 
 # only keep columns of interest
-age_file&lt;-age_file[,c(&quot;eid&quot;,&quot;birth_month&quot;,&quot;date_imaging&quot;,&quot;age_neuroimaging&quot;,&quot;age_assessment&quot;,&quot;date_assessment&quot;)]
+age_file&lt;-age_file[,c(&quot;eid&quot;,&quot;birth_month&quot;,&quot;date_imaging&quot;,&quot;age_neuroimaging&quot;,&quot;age_assessment&quot;,&quot;date_assessment&quot;,&quot;sex&quot;,&quot;site&quot;)]
+
 
 # work out month in which participant attended imaging
 age_file$attendance_month&lt;-as.numeric(substr(age_file$date_imaging,6,7))
+
 # difference between attendance and birth month
 age_file$add_months&lt;-(age_file$attendance_month)-(age_file$birth_month)
 
 age_file$add_months&lt;-ifelse(age_file$add_months&lt;0,(12+age_file$add_months),ifelse(age_file$add_months==0,0,age_file$add_months))
+
 # if any remaining fields are now above 11 or below 0, something must have gone wrong and we delete
 age_file$add_months&lt;-ifelse(age_file$add_months&gt;11|age_file$add_months&lt;0,NA,age_file$add_months)
 
 # descriptives months to add
 summary(age_file$add_months)
-#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
-#   0.0     3.0     5.0     5.5     8.0    11.0  442747
+
 
 # add extra months to age in months
 age_file$age_in_months&lt;-(age_file$age_neuroimaging*12)+age_file$add_months
@@ -460,179 +664,213 @@ age_file$age_in_months&lt;-ifelse(is.na(age_file$age_in_months),age_file$age_inf
 #descriptives for age_in_months including added months
 print(&quot;age in months&quot;)
 summary(age_file$age_in_months)
-#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#  444.0   612.0   708.0   687.7   768.0   982.0 
+
 
 print(&quot;age in years&quot;)
 summary(age_file$age_in_months/12)
-#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#  37.00   51.00   59.00   57.31   64.00   81.83 
+
 
 # merge by eid with file
 dim(age_file)
-#[1] 473057     14
+
 
 dim(file)
-# [1] 502506     84
 
-# onlykeep rows that are present in both, because age_file includes the ethnicity exclusions
-file&lt;-merge(file,age_file[,c(&quot;eid&quot;,&quot;age_in_months&quot;)],by=&quot;eid&quot;,all=F)
+#######################################################################################################
+## identify time of year
+#######################################################################################################
+
+# create time of year variable
+age_file$time_of_year&lt;-format(age_file$date3, format=&quot;%m&quot;)
+age_file$time_of_year&lt;-as.numeric(age_file$time_of_year)
+
+
+age_file&lt;-age_file[,c(&quot;eid&quot;,&quot;age_in_months&quot;,&quot;sex&quot;,&quot;time_of_year&quot;,&quot;site&quot;)] #&quot;time_of_year&quot;
+
+
+##################################################################################################################
+## Merge brain volume variables with demographics
+##################################################################################################################
+
+# merge by eid with file
+print(&quot;Dimensions age_file&quot;)
+dim(age_file)
+print(&quot;Dimensions file&quot;)
 dim(file)
-#[1] 473024     85
+# only keep rows that are present in both, because age_file includes the ethnicity exclusions
+file&lt;-merge(file,age_file,by=&quot;eid&quot;,all=F)
+print(&quot;Dimensions after merging file and age_file&quot;)
+dim(file)
 
 print(&quot;Number of non-missing values&quot;)
 colSums(!is.na(file))
-#                             eid                       Brain_stem 
-#                          473024                            38753 
-#            Left_thalamus_proper                     Left_caudate 
-#                           38752                            38753 
-#                    Left_putamen                    Left_pallidum 
-#                           38753                            38753 
-#                Left_hippocampus                    Left_amygdala 
-#                           38753                            38753 
-#             Left_accumbens_area                          Left_DC 
-#                           38753                            38753 
-#           Right_thalamus_proper                    Right_caudate 
-#                           38752                            38753 
-#                   Right_putamen                   Right_pallidum 
-#                           38753                            38753 
-#               Right_hippocampus                   Right_amygdala 
-#                           38753                            38753 
-#            Right_accumbens_area                         Right_DC 
-#                           38753                            38753 
-#                   Left_bankssts   Left_caudal_anterior_cingulate 
-#                           38753                            38753 
-#      Left_caudal_middle_frontal                      Left_cuneus 
-#                           38753                            38753 
-#                 Left_entorhinal                    Left_fusiform 
-#                           38753                            38753 
-#          Left_inferior_parietal           Left_inferior_temporal 
-#                           38753                            38753 
-#          Left_isthmus_cingulate           Left_lateral_occipital 
-#                           38753                            38753 
-#      Left_lateral_orbitofrontal                     Left_lingual 
-#                           38753                            38753 
-#       Left_medial_orbitofrontal             Left_middle_temporal 
-#                           38753                            38753 
-#            Left_parahippocampal                 Left_paracentral 
-#                           38753                            38753 
-#           Left_pars_opercularis              Left_pars_orbitalis 
-#                           38753                            38753 
-#          Left_pars_triangularis               Left_pericalcarine 
-#                           38753                            38753 
-#                Left_postcentral         Left_posterior_cingulate 
-#                           38753                            38753 
-#                 Left_precentral                   Left_precuneus 
-#                           38753                            38753 
-# Left_rostral_anterior_cingulate      Left_rostral_middle_frontal 
-#                           38753                            38753 
-#           Left_superior_frontal           Left_superior_parietal 
-#                           38753                            38753 
-#          Left_superior_temporal               Left_supramarginal 
-#                           38753                            38753 
-#               Left_frontal_pole         Left_transverse_temporal 
-#                           38753                            38753 
-#                     Left_insula                   Right_bankssts 
-#                           38753                            38753 
-# Right_caudal_anterior_cingulate      Right_caudal_middle_frontal 
-#                           38753                            38753 
-#                    Right_cuneus                 Right_entorhinal 
-#                           38753                            38753 
-#                  Right_fusiform          Right_inferior_parietal 
-#                           38753                            38753 
-#         Right_inferior_temporal          Right_isthmus_cingulate 
- #                          38753                            38753 
-#         Right_lateral_occipital      Right_lateral_orbitofrontal 
-#                           38753                            38753 
-#                   Right_lingual       Right_medial_orbitofrontal 
-#                           38753                            38753 
-#           Right_middle_temporal            Right_parahippocampal 
-#                           38753                            38753 
-#               Right_paracentral           Right_pars_opercularis 
-#                           38753                            38753 
-#            Right_pars_orbitalis          Right_pars_triangularis 
-#                           38753                            38753 
-#             Right_pericalcarine                Right_postcentral 
-#                           38753                            38753 
-#       Right_posterior_cingulate                 Right_precentral 
-#                           38753                            38753 
-#                 Right_precuneus Right_rostral_anterior_cingulate 
-#                           38753                            38753 
-#    Right_rostral_middle_frontal           Right_superior_frontal 
-#                           38753                            38753 
-#         Right_superior_parietal          Right_superior_temporal 
-#                           38753                            38753 
-#             Right_supramarginal               Right_frontal_pole 
-#                           38753                            38753 
-#       Right_transverse_temporal                     Right_insula 
-#                           38753                            38753 
-#                   age_in_months 
-#                         473024 
 
-#########################################################################
+# report sex of participants
+non_missing&lt;-file[which(!is.na(file$Brain_stem)),]
+print(&quot;males =1 females = 0&quot;)
+table(non_missing$sex)
 
+##################################################################################################################
+## Delete withdrawals
+# in this example the withdrawals have already been removed so this will not change the dimensions of the file
+# keeping it for completeness only 
+##################################################################################################################
+setwd(&quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/&quot;)
+withdrawals &lt;- read.csv(&quot;w18177_20210201_withdrawals.csv&quot;,header=F)
+names(withdrawals)[1]&lt;-&quot;withdrawn&quot;
 
-# calculate correlation matrix between all brain areas
-cor_matrix&lt;-cor(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],use=&quot;pairwise.complete.obs&quot;)
-dim(cor_matrix) # should be 83 for all brain_areas
-#[1] 83 83
+file[file$eid %in% withdrawals$withdrawn,]&lt;-NA
 
-# confirm the brain areas included
-dimnames(cor_matrix)[1]
+##################################################################################################################
+## Correlations between potential covariates and brain volumes
+##################################################################################################################
 
-
-# 5. caclulate values and vectors
-eigenvalues&lt;-eigen(cor_matrix)$values 
-eigenvectors&lt;-eigen(cor_matrix)$vectors
-    rownames(eigenvectors)&lt;-dimnames(cor_matrix)[[2]]
-    colnames(eigenvectors)&lt;-dimnames(cor_matrix)[[2]]
-
-# calculate explained variance
-explained_variance&lt;-eigenvalues/sum(eigenvalues)*100
-
-# calculate eigenvalues and format them
-stand_loadings&lt;-eigenvectors%*%sqrt(diag(eigenvalues))
-stand_loadings&lt;-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
-names(stand_loadings)&lt;-c(&quot;Regions&quot;,&quot;stand_loadings&quot;)
-head(stand_loadings)
-#                Regions stand_loadings
-#1:           Brain_stem     -0.6685657
-#2: Left_thalamus_proper     -0.7353249
-#3:         Left_caudate     -0.5235884
-#4:         Left_putamen     -0.6449436
-#5:        Left_pallidum     -0.6213252
-#6:     Left_hippocampus     -0.6796167
-
-#########################################################################
-
-# calculate age correlations and save in table
-age_cor&lt;-as.data.frame(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],function(x) cor(x,file$age_in_months,use=&quot;pairwise.complete.obs&quot;,method=&quot;pearson&quot;)))
+# correlations with age
+age_cor&lt;-as.data.frame(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;,&quot;sex&quot;,&quot;site&quot;,&quot;time_of_year&quot;,&quot;x_coordinate&quot;,&quot;y_coordinate&quot;,&quot;z_coordinate&quot;))],function(x) cor(x,file$age_in_months,use=&quot;pairwise.complete.obs&quot;,method=&quot;pearson&quot;)))
 age_cor&lt;-cbind(age_cor,rownames(age_cor))
 rownames(age_cor)&lt;-NULL
 names(age_cor)&lt;-c(&quot;age_cor&quot;,&quot;Region&quot;)
-head(age_cor)
-#      age_cor               Region
-#1 -0.05236820           Brain_stem
-#2 -0.25331778 Left_thalamus_proper
-#3  0.00343390         Left_caudate
-#4 -0.15066448         Left_putamen
-#5 -0.09292321        Left_pallidum
-#6 -0.26023714     Left_hippocampus
 
-# print all correlations with full statistics
-print(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;))],function(x) cor.test(x,file$age_in_months,method=&quot;pearson&quot;,na.action=na.omit)))
+print(age_cor)
+
+print(&quot;Mean age corr across all volumes&quot;)
+mean(age_cor$age_cor)
+
+all_vars_cor &lt;- age_cor
+
+candidate_covar &lt;- c(&quot;sex&quot;,&quot;site&quot;,&quot;time_of_year&quot;,&quot;x_coordinate&quot;,&quot;y_coordinate&quot;,&quot;z_coordinate&quot;)
+
+for(i in candidate_covar){
+    # pick a name for the data.frame to be saved as
+    cor_name&lt;-paste0(i,&quot;_cor&quot;)
+    
+    # calculate correlation between the covariate in i and all brain volumes 
+    cor_all_volumes &lt;- as.data.frame(sapply(file[,-which(names(file)%in%c(&quot;eid&quot;,&quot;age_in_months&quot;,&quot;sex&quot;,&quot;site&quot;,&quot;time_of_year&quot;,&quot;x_coordinate&quot;,&quot;y_coordinate&quot;,&quot;z_coordinate&quot;))],function(x) cor(x,file[,i],use=&quot;pairwise.complete.obs&quot;,method=&quot;pearson&quot;)))
+    
+    # format the data.frame
+    cor_all_volumes&lt;-cbind(cor_all_volumes,rownames(cor_all_volumes))
+    rownames(cor_all_volumes)&lt;-NULL
+    names(cor_all_volumes)&lt;-c(cor_name,&quot;Region&quot;)
+    
+    # add to age data.frame
+    all_vars_cor &lt;- merge(all_vars_cor, cor_all_volumes, by= &quot;Region&quot;)
+}
+
+print(all_vars_cor)
+summary(all_vars_cor)
+
+write.table(all_vars_cor, &quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/assoc_volumes_covars_13042021.txt&quot;, sep = &quot;\t&quot;, row.names = FALSE, col.names = TRUE)</code></pre>
+<p><br/> <br/></p>
+</div>
+<div id="correlations-with-covariates" class="section level2">
+<h2>Correlations with covariates</h2>
+<p>As outlined in the amendment of our pre-registration, we only consider covariates that demonstrate a correlation with brain volumes &gt; .10. Here, we display the correlations results between each of the 83 brain volumes, and all our candidate covariates: age, sex, acquisition site, time of year, and x, y, z coordinates.</p>
+<div id="htmlwidget-fd257542e8633b05b6a8" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fd257542e8633b05b6a8">{"x":{"filter":"none","data":[["Brain_stem","Left_accumbens_area","Left_amygdala","Left_bankssts","Left_caudal_anterior_cingulate","Left_caudal_middle_frontal","Left_caudate","Left_cuneus","Left_DC","Left_entorhinal","Left_frontal_pole","Left_fusiform","Left_hippocampus","Left_inferior_parietal","Left_inferior_temporal","Left_insula","Left_isthmus_cingulate","Left_lateral_occipital","Left_lateral_orbitofrontal","Left_lingual","Left_medial_orbitofrontal","Left_middle_temporal","Left_pallidum","Left_paracentral","Left_parahippocampal","Left_pars_opercularis","Left_pars_orbitalis","Left_pars_triangularis","Left_pericalcarine","Left_postcentral","Left_posterior_cingulate","Left_precentral","Left_precuneus","Left_putamen","Left_rostral_anterior_cingulate","Left_rostral_middle_frontal","Left_superior_frontal","Left_superior_parietal","Left_superior_temporal","Left_supramarginal","Left_thalamus_proper","Left_transverse_temporal","Right_accumbens_area","Right_amygdala","Right_bankssts","Right_caudal_anterior_cingulate","Right_caudal_middle_frontal","Right_caudate","Right_cuneus","Right_DC","Right_entorhinal","Right_frontal_pole","Right_fusiform","Right_hippocampus","Right_inferior_parietal","Right_inferior_temporal","Right_insula","Right_isthmus_cingulate","Right_lateral_occipital","Right_lateral_orbitofrontal","Right_lingual","Right_medial_orbitofrontal","Right_middle_temporal","Right_pallidum","Right_paracentral","Right_parahippocampal","Right_pars_opercularis","Right_pars_orbitalis","Right_pars_triangularis","Right_pericalcarine","Right_postcentral","Right_posterior_cingulate","Right_precentral","Right_precuneus","Right_putamen","Right_rostral_anterior_cingulate","Right_rostral_middle_frontal","Right_superior_frontal","Right_superior_parietal","Right_superior_temporal","Right_supramarginal","Right_thalamus_proper","Right_transverse_temporal"],[-0.052,-0.372,-0.296,-0.123,-0.095,-0.149,-0.001,-0.075,-0.202,-0.036,-0.135,-0.161,-0.286,-0.161,-0.127,-0.023,-0.052,-0.137,-0.164,-0.111,-0.134,-0.178,-0.097,-0.168,-0.154,-0.176,-0.182,-0.182,-0.011,-0.143,-0.1,-0.188,-0.195,-0.177,-0.084,-0.193,-0.203,-0.173,-0.176,-0.128,-0.276,-0.048,-0.303,-0.21,-0.135,-0.099,-0.135,0.029,-0.039,-0.214,-0.022,-0.102,-0.165,-0.287,-0.177,-0.13,-0.037,-0.053,-0.12,-0.153,-0.08,-0.15,-0.182,-0.077,-0.149,-0.138,-0.165,-0.196,-0.176,0.014,-0.14,-0.129,-0.182,-0.168,-0.176,-0.071,-0.179,-0.193,-0.186,-0.185,-0.135,-0.24,-0.047],[0.489,0.187,0.351,0.257,0.07,0.257,0.292,0.313,0.461,0.23,0.217,0.374,0.313,0.284,0.41,0.456,0.405,0.419,0.405,0.267,0.394,0.412,0.399,0.224,0.073,0.239,0.325,0.287,0.247,0.321,0.306,0.353,0.357,0.4,0.323,0.422,0.408,0.278,0.396,0.398,0.367,0.227,0.246,0.414,0.228,0.11,0.244,0.318,0.344,0.46,0.22,0.235,0.41,0.293,0.375,0.419,0.485,0.348,0.442,0.392,0.252,0.407,0.415,0.399,0.266,0.108,0.258,0.315,0.307,0.256,0.295,0.281,0.344,0.398,0.395,0.274,0.428,0.406,0.295,0.348,0.342,0.422,0.224],[-0.036,-0.093,-0.062,-0.029,-0.008,-0.034,-0.059,-0.048,-0.082,-0.024,-0.006,-0.05,-0.057,-0.039,-0.047,-0.049,-0.047,-0.051,-0.058,-0.032,-0.05,-0.058,-0.035,-0.062,-0.025,-0.026,-0.053,-0.042,-0.04,-0.048,-0.049,-0.062,-0.054,-0.074,-0.049,-0.043,-0.051,-0.043,-0.053,-0.035,-0.067,-0.032,-0.082,-0.075,-0.044,-0.033,-0.033,-0.04,-0.038,-0.072,-0.033,-0.021,-0.048,-0.058,-0.048,-0.053,-0.059,-0.035,-0.049,-0.068,-0.018,-0.084,-0.055,-0.048,-0.058,-0.022,-0.041,-0.048,-0.044,-0.02,-0.056,-0.058,-0.069,-0.044,-0.071,-0.067,-0.057,-0.055,-0.052,-0.063,-0.047,-0.068,-0.046],[-0.002,-0.002,0.001,0.003,0.007,-0.001,-0.008,0.004,-0.001,-0.005,-0.004,-0.005,-0.001,-0.006,-0.001,-0.006,-0.004,0.006,0.002,0,-0.003,0.002,0.003,0.001,-0.002,-0.009,-0.003,-0.007,0.003,-0.005,-0.003,0,-0.004,-0.006,0.004,-0.003,-0.008,0.002,-0.001,-0.002,-0.001,0.008,-0.004,-0.006,-0.002,-0.002,-0.001,-0.007,0.006,-0.003,-0.01,-0.006,-0.004,-0.007,-0.008,-0.001,-0.007,-0.005,-0.003,0.002,-0.002,0.001,0.001,0.003,0.003,-0.006,-0.007,-0.003,0.001,0.005,0.001,-0.002,-0,-0.003,-0.007,0.003,-0.001,-0.006,-0.002,-0.003,0.003,-0.002,0.009],[0.016,-0.016,-0.012,0.008,0.002,-0.002,-0.002,0,0.003,-0.011,0.003,0.01,0.007,0.012,0.012,0.03,0.026,0.006,0.016,0.005,0,0.004,0.006,0.009,-0.003,0.01,0.007,0.011,-0.004,0.001,0.002,-0.006,0.012,0.011,0.003,0.002,-0,0.001,0.001,0.019,0.018,0.009,0.005,0.017,-0.011,-0.005,0.006,0.014,0.003,0.006,0.01,-0.009,0.001,-0.003,0.007,0.016,0.014,-0.011,0.009,0.004,-0.003,0.012,0.007,0.026,-0.006,-0.019,-0.014,0.009,-0.007,0.012,0.002,-0.003,0.003,0.01,0.007,-0,0.009,0.002,0.01,0.001,0.001,-0.014,-0.004],[-0.038,-0.133,-0.064,-0.047,-0.034,-0.048,-0.05,-0.064,-0.096,-0.029,-0.041,-0.074,-0.073,-0.068,-0.067,-0.053,-0.048,-0.061,-0.078,-0.056,-0.078,-0.071,-0.05,-0.084,-0.051,-0.054,-0.065,-0.06,-0.063,-0.067,-0.046,-0.069,-0.088,-0.064,-0.057,-0.056,-0.06,-0.07,-0.064,-0.058,-0.09,-0.055,-0.104,-0.061,-0.065,-0.041,-0.049,-0.027,-0.046,-0.087,-0.038,-0.052,-0.063,-0.072,-0.067,-0.063,-0.054,-0.041,-0.053,-0.085,-0.042,-0.099,-0.067,-0.06,-0.073,-0.048,-0.053,-0.06,-0.055,-0.055,-0.071,-0.059,-0.067,-0.073,-0.053,-0.069,-0.06,-0.067,-0.078,-0.076,-0.069,-0.071,-0.059],[-0.064,0.045,0.022,0.026,0.053,-0.066,-0.055,-0.03,-0.011,-0.037,-0.005,0.004,-0.01,0.015,0.015,-0.031,-0.034,-0.022,-0.031,-0.056,0.012,0.03,-0.032,0.029,0.026,-0.024,-0.006,-0.01,-0.058,-0.031,-0.018,-0.033,0.001,-0.037,0.014,-0.028,-0.07,-0.011,0.01,-0.007,-0.026,-0.023,0.021,-0.049,0.021,0.032,-0.063,-0.071,-0.047,-0.029,-0.024,-0.004,-0.026,-0.025,0.008,-0.016,-0.017,-0.041,-0.047,-0.024,-0.071,-0.011,0.002,-0.038,0.029,0.015,-0.031,-0.019,-0.019,-0.06,-0.022,-0.011,-0.036,-0.014,-0.052,0.031,-0.024,-0.061,-0.018,-0.005,-0.015,-0.054,-0.01]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Region<\/th>\n      <th>age<\/th>\n      <th>sex<\/th>\n      <th>site<\/th>\n      <th>time of year<\/th>\n      <th>x coordinate<\/th>\n      <th>y coordinate<\/th>\n      <th>z coordinate<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Average correlations across all 83 volumes:</p>
+<ul>
+<li>Mean <em>Age</em> correlation = -0.14; SD = 0.07</li>
+<li>Mean <em>Sex</em> correlation = 0.33; SD = 0.09</li>
+<li>Mean <em>Site</em> correlation = -0.05; SD = 0.02</li>
+<li>Mean <em>Time of year</em> correlation = -0.002; SD = 0.004</li>
+<li>Mean <em>X coordinate</em> (head positioning) = 0.004; SD = 0.01</li>
+<li>Mean <em>Y coordinate</em> correlation = -0.06; SD = 0.02</li>
+<li>Mean <em>Z coordinate</em> correlation = -0.02; SD = 0.03</li>
+</ul>
+<p>As stated in the pre-registration, we planned to include covariates with correlations above .10 as an arbitrary cut-off which is why we will include age and sex (but not site, time of year or the x, y, z coordinates), alongside genetic genotyping batch and 40 genetic principal components.</p>
+<p><br/> <br/></p>
+</div>
+<div id="format-output-files" class="section level2">
+<h2>Format output files</h2>
+<p>As most covariates in this selection, apart from age and sex, are not associated with brain volumes more than .10, we only include age and sex and drop acquisition site, time of year and the x, y and z coordinates from the analyses.</p>
+<p>Next, we create the input files for either the following genetic quality control steps or the GWAS analyses.</p>
+<ol style="list-style-type: decimal">
+<li>File containing covariates (age, sex, 40 genetic PCs and genotyping batch) <strong>covariates_volume_gwas.txt</strong></li>
+<li>File containing IDs of participants who have neuroimaging data and survived phenotypic QC above <strong>participants_of_interest_QC.txt</strong></li>
+<li>File containing phenotypic variables for the 83 regional volumes <strong>target_phenotypes_83volumes_gwas.txt</strong></li>
+</ol>
+<pre class="r"><code>###############################################################################################################################
+## create covariate file
+###############################################################################################################################
+# as the GWAS pipeline does not tolerate missing values, we delete all cases with missing values:
+file&lt;-file[,-which(names(file)%in%c(&quot;site&quot;,&quot;time_of_year&quot;,&quot;x_coordinate&quot;,&quot;y_coordinate&quot;,&quot;z_coordinate&quot;))]
+file &lt;- file[complete.cases(file),]
+
+# keep the columns we identified to be associated with the volumes
+covariates&lt;-file[,c(&quot;eid&quot;,&quot;age_in_months&quot;,&quot;sex&quot;)]
+names(covariates)[which(names(covariates)==&quot;eid&quot;)]&lt;-&quot;IID&quot;
 
 
-# 6. name rows and columns 
-setwd(&quot;/Cluster_Filespace/Ritchie_Group/Anna/&quot;)
+#################### 
+## add genotyping batch
+## read in fam_file and merge with covariates
+fam_file&lt;-fread(&quot;/mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.fam&quot;,header=F,data.table=F)
+fam_file&lt;-fam_file[,c(1,6)]
+names(fam_file)&lt;-c(&quot;IID&quot;,&quot;batch&quot;)
 
-save(list = c(&quot;cor_matrix&quot;,&quot;eigenvalues&quot;,&quot;eigenvectors&quot;,&quot;explained_variance&quot;,&quot;stand_loadings&quot;,&quot;age_cor&quot;), file = &quot;pheno_decomposition.RData&quot;)
+covariates&lt;-merge(covariates, fam_file,by=&quot;IID&quot;, all=FALSE)
 
-sink()
-# 7. copy results into dropbox</code></pre>
+#################### 
+## add 40 genetic PCs
+## read in 40 genetic PCs, and merge with covariates
+
+PC_file&lt;-fread(&quot;/scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_sqc_v2.txt&quot;,header=F,data.table=F)
+PC_file[,ncol(PC_file)+1]&lt;-PC_file[,1]
+PC_file&lt;-PC_file[,c(1,ncol(PC_file),28:67)]
+names(PC_file)&lt;-c(&quot;IID&quot;,&quot;FID&quot;,paste0(&quot;PC&quot;,1:40))
+
+covariates&lt;-merge(covariates, PC_file, by=&quot;IID&quot;, all=FALSE)
+
+write.table(covariates, &quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/covariates_volume_gwas.txt&quot;, sep = &quot;\t&quot;, row.names = FALSE, col.names = TRUE, quote=F)
+
+###############################################################################################################################
+## save participant list
+###############################################################################################################################
+# this list will be fed into the QC pipeline
+# the GreedyRelate algorithm uses it to delete all participants that we identify here to not be of interest
+# file header: ID Pheno with 0 = exclude, 1 = include 
+fam_file$Pheno &lt;- 0
+fam_file&lt;-fam_file[,c(&quot;eid&quot;,&quot;Pheno&quot;)]
+
+# we take the pariticpants of interest from the main file containing the cleaned volumetric data and covariates
+IDs_of_interest&lt;-file$eid
+# all participants of interest will get the label 1
+fam_file[which(fam_file$eid %in% IDs_of_interest),&quot;Pheno&quot;]&lt;-1
+
+names(fam_file)&lt;-c(&quot;ID&quot;,&quot;Pheno&quot;)
+
+write.table(fam_file, &quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/participants_of_interest_QC.txt&quot;,sep = &quot;\t&quot;, row.names = FALSE, col.names = TRUE, quote=F)
+
+###############################################################################################################################
+## save phenotype file
+###############################################################################################################################
+
+file$FID&lt;-file$eid
+names(pheno_file)[which(names(pheno_file)==&quot;eid&quot;)]&lt;-&quot;IID&quot;
+pheno_file&lt;-file[,c(&quot;IID&quot;,&quot;FID&quot;,keep_volumes)]
+
+
+print(&quot;Print dimensions of phenotype file containing 83 volumes and complete cases&quot;)
+dim(pheno_file)
+
+missing_genotype&lt;-fread(&quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/participants_with_phenotypic_but_no_genetic_data1000.txt&quot;,header=T,data.table=F)
+
+print(&quot;Now removing participants with missing genotype&quot;)
+pheno_file[pheno_file$eid %in% missing_genotype$eid,]&lt;-NA
+pheno_file &lt;- pheno_file[complete.cases(pheno_file),]
+
+
+write.table(pheno_file, &quot;/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/target_phenotypes_83volumes_gwas.txt&quot;,sep = &quot;\t&quot;, row.names = FALSE, col.names = TRUE, quote=F)</code></pre>
+</div>
 
 &nbsp;
 <hr />
+<a href = "https://www.kcl.ac.uk/">
+<p style="text-align: center"><img src="KCL_logo.jpg" href="https://www.kcl.ac.uk/" style="width:70px;height:50px"> 
+</a>
+</p>
+
+<a href = "https://www.kcl.ac.uk/people/anna-furtjes">
 <p style="text-align: center;">By Anna Elisabeth Fürtjes</a></p>
 <p style="text-align: center;"><span style="color: #808080;"><em>anna.furtjes@kcl.ac.uk</em></span></p>
 
@@ -647,6 +885,8 @@ sink()
 &nbsp;
 
 
+</div>
+</div>
 
 </div>
 
@@ -680,10 +920,36 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
+  window.initializeCodeFolding("hide" === "show");
 });
 </script>
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

@@ -51,6 +51,8 @@ $$\\[0.05in]$$
 
 * [Processing phenotypic data](Processing_phenotypic_data.html)
 
+* [Genetic quality control](Genetic_qc.html)
+
 * [Genome-wide association study for regional brain volumes](.html)
 
 * [Processing genetic data](Process_genetic_data.html)

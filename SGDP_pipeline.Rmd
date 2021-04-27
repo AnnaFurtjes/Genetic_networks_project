@@ -1,0 +1,544 @@
+---
+title: "SGDP_Central_Genotype_QC"
+author: "Joni Coleman"
+date: "20/04/2020"
+output: 
+  html_document:
+    includes:
+      after_body: footer.html 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Notes
+
+This RMarkdown is written as a self-contained codebook for the centralised quality control of the genetic data downloaded from the UK Biobank at the Social, Genetic and Developmental Psychiatry [SGDP] Centre, King's College London [KCL]. 
+The output of this centralised quality control produces cleaned datasets for use by multiple analysts across KCL.
+The scripts are constructed to be usable for the different projects run from KCL, and so are generalisable to UKBB projects overall.
+Developments of this code were used in the R package ukbtools [https://cran.r-project.org/web/packages/ukbtools/index.html] - credit: Ken Hanscombe
+This document should not be run as a R script itself, but is rather a single document to list all code.
+All code was run on the King's College London / National Institute of Health Research Maudsley Biomedical Research Centre high performance computing cluster "Rosalind", unless otherwise stated.
+
+Scripts have been simplified by removing paths to files and renaming certain files to more widely-understandable names where relevant
+
+## Dependencies
+
+No previous scripts
+UKBB genotype and imputed genetic data
+PLINK 1.9 (see below)
+FlashPCA2 (see below)
+GreedyRelated (see below)
+bgenix (see below)
+
+## Credit
+
+Contributions to the logic of this code were made by numerous analysts at the SGDP.
+The code itself was written by Jonathan Coleman and Sam Choi.
+Additional programs are the credit of their authors:
+    PLINK[https://www.cog-genomics.org/plink/1.9/]
+        Chris Chang, Shaun Purcell
+    FlashPCA2[https://github.com/gabraham/flashpca]
+        Gad Abraham
+    GreedyRelated[https://github.com/choishingwan/GreedyRelated]
+        Sam Choi
+    bgenix[https://bitbucket.org/gavinband/bgen/wiki/bgenix]
+	Gavin Band
+    
+### Genotype data code
+
+## Wrapper for genotype QC
+
+```{sh Run_Genotyped_Data_QC_JRIC_240119.sh, eval=F}
+
+## Note - text in square brackets below should be replaced with suitable file name (don't put the square brackets around the files!)
+
+Rscript Make_UKBB_Caucasians_By_4_Means_Clustering.R \
+[File containing the IDs and the 40 UKBB PCs extracted from ...sqc_v2.txt - e.g. ukb1657_40PCs_ID_from_sqc_v2.txt] \
+[k for k-means clustering, e.g. 4] \
+[Full path to output root, e.g. to/UKBB_Data_Ancestry. Example output will be to/UKBB_Data_Ancestry.txt, to/UKBB_Data_Ancestry.pdf, to/UKBB_Data_Ancestry_PLINK.txt]
+
+bash Genotyped_Data_QC_JRIC_240119.bash \
+-b /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.bed  \
+-j /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.bim \
+-f /mnt/lustre/groups/ukbiobank/ukb18177_glanville/genotyped/ukb18177_glanville_binary_pre_qc.fam \
+-m 0.01 \
+-v 0.02 \
+-s 0.02 \
+-a 1 \
+-q 1 \
+-e /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_het_miss_excl_rows_v3.txt \
+-g 1 \
+-x /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_reported_sex_from_sqc_v2.txt \
+-r 0.044 \
+-l /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_rel_pairs.txt \
+-t 1 \
+-u /mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/participants_of_interest.txt \ # this file will have header: ID Pheno
+-h 0.00000001 \
+-d 0 \
+-p 1 \
+-c /scratch/groups/ukbiobank/KCL_Data/Genotypes/kylie_application/ukb1817_Caucasians_4Means_PLINK.txt \
+-o /mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/genetic_qc_UKB
+
+```
+
+## Identify White Western European Individuals
+
+```{r Make_UKBB_Caucasians_By_4_Means_Clustering.R, eval=F}
+
+##Load dependencies
+library(data.table)
+library(ggplot2)
+
+args<-commandArgs(trailingOnly=TRUE)
+
+if(length(args)==0){
+    stop("Please provide an input file containing an ID column and all PCs (full path), K for k-means clustering, and an output file path", call.=FALSE)
+}
+
+##Read in PCs, remove NAs, rename
+PCs<-fread(args[1], data.table=F)
+PCs<-na.omit(PCs)
+names(PCs)<-c("ID","PC.1","PC.2","PC.3","PC.4","PC.5","PC.6","PC.7","PC.8","PC.9","PC.10","PC.11","PC.12","PC.13","PC.14","PC.15","PC.16","PC.17","PC.18","PC.19","PC.20","PC.21","PC.22","PC.23","PC.24","PC.25","PC.26","PC.27","PC.28","PC.29","PC.30","PC.31","PC.32","PC.33","PC.34","PC.35","PC.36","PC.37","PC.38","PC.39","PC.40")
+
+##Set seed
+
+set.seed(1204688)
+
+##K means clustering on each PC
+
+K_MEAN<-as.numeric(args[2])
+
+PC1_K<-kmeans(PCs$PC.1, K_MEAN)
+PC2_K<-kmeans(PCs$PC.2, K_MEAN)
+
+##Add clusters to PC dataframe
+PCs$PC1.Cluster<-PC1_K$cluster
+PCs$PC2.Cluster<-PC2_K$cluster
+PCs$Clusters<-as.factor(paste(PC1_K$cluster,PC2_K$cluster,sep="."))
+
+##WWE group is the majority
+
+MAX_PC1<-ifelse(match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster)) %% K_MEAN == 0, K_MEAN, match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster)) %% K_MEAN)
+
+MAX_PC2<-ceiling(match(max(table(PCs$PC1.Cluster, PCs$PC2.Cluster)), table(PCs$PC1.Cluster, PCs$PC2.Cluster))/K_MEAN)
+
+##Make lists of WWE IDs
+WWE<-as.data.frame(PCs[PCs$PC1.Cluster == MAX_PC1 & PCs$PC2.Cluster == MAX_PC2,1])
+names(WWE)<-"ID"
+
+WWE_PLINK<-as.data.frame(cbind(WWE,WWE))
+names(WWE_PLINK)<-c("FID","IID")
+
+##Write to file
+write.table(WWE, file=paste(args[3],".txt",sep=""), row.names=F, col.names=T, quote = F)
+write.table(WWE_PLINK, file=paste(args[3],"_PLINK.txt",sep=""), row.names=F, col.names=T, quote = F)
+
+##Plot
+pdf(paste(args[3], ".pdf", sep=""))
+with(PCs, print(qplot(PC.1, PC.2, colour=Clusters)))
+dev.off()
+```
+
+## QC genotyped data
+
+```{bash Genotyped_Data_QC_JRIC_240119.bash, eval=F}
+
+#Check inputs are suitable
+
+while getopts ":b:j:f:m:v:s:a:q:e:g:x:r:l:t:u:h:d:p:c:o:" opt
+do
+    case $opt in
+	b) INPUT_BED="$OPTARG"
+	;;
+	j) INPUT_BIM="$OPTARG"
+	;;
+	f) INPUT_FAM="$OPTARG"
+	;;
+        m) MAF="$OPTARG"
+        ;;
+        v) GENO="$OPTARG"
+        ;;
+        s) MIND="$OPTARG"
+        ;;
+        a) CAUC="$OPTARG"
+	;;
+	q) QA="$OPTARG"
+	;;
+	e) QA_FILE="$OPTARG"
+	;;
+	g) GENDER="$OPTARG"
+	;;
+	x) SEX_FILE="$OPTARG"
+	;;
+	r) RELATEDNESS="$OPTARG"
+	;;
+	l) RELATE_FILE="$OPTARG"
+	;;
+	t) RELATE_PHENO="$OPTARG"
+	;;
+	u) RELATE_PHENO_FILE="$OPTARG"
+	;;
+        h) HWE="$OPTARG"
+        ;;
+	p) PRUNE="$OPTARG"
+	;;
+	d) SEXSPLIT="$OPTARG"
+	;;
+	c) CAUCASIANS_FILE="$OPTARG"
+	;;
+	o) OUTPUT="$OPTARG"
+	;;
+        \?) echo "Invalid option -$OPTARG" >&2
+        ;;
+    esac
+done
+
+if [ $# -ne 40 ]
+then
+    echo -e "\nPlease provide all arguments. If argument not needed:\n -b [Full path to input bed]\n -j [Full path to input bim]\n -f [Full path to input fam]\n -m [MAF]\n -v [GENO]\n -s [MIND]\n -a [Exclude non-Caucasians? 1 = Yes, 0 = No]\n -q [Exclude QA errors? 1 = Yes, 0 = No]\n -e [Full path to UKBB QA Excludes file]\n -g [Exclude gender mismatches? 1 = Yes, 0 = No]\n -x [Full path to UKBB Phenotypic Sex file]\n -r [Relatedness threshold for greedyRelated]\n -l [Full path to Relatedness Pairs file]\n -t [Use phenotype file to retain cases preferentially? 1 = Yes 0 = No]\n -u [Full path to phenotype file for Relatedness pairs]\n -h [HWE for SNPs]\n -d [Create sex split? 1 = Yes, 0 = No]\n -p [Create pruned file? 1 = Yes, 0 = No]\n -c [Full path to Caucasians File]\n -o [Full path to output root]\nArguments provided = $#"
+    exit
+fi
+
+## MAF
+
+MAF_FLAG=$(echo ${MAF} != 0 | bc -l)
+MIND_FLAG=$(echo ${MIND} != 0 | bc -l)
+RELATE_FLAG=$(echo ${RELATEDNESS} != 1 | bc -l)
+
+first_plink="plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --geno ${GENO} --write-snplist --out ${OUTPUT}_GENO${GENO}"
+
+$first_plink
+
+## Keep {OUTPUT}_GENO${GENO}.fam
+
+plink="plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --geno ${GENO} --extract ${OUTPUT}_GENO${GENO}.snplist --write-snplist --make-just-fam"
+
+if [ ${MAF_FLAG} -ne 0 ]
+then 
+    plink="${plink} --freq --maf ${MAF}"
+fi
+
+## Sample Missingness
+
+if [ ${MIND_FLAG} -eq 1 ]
+then
+    echo -e "\nWARNING: You are applying a missingness filter to samples.\n If your base file is not a whole-genome file, this may produce different sample sets between clumps/chromosomes.\n"
+
+    plink="${plink} --mind ${MIND}"
+fi
+
+if [ ${CAUC} -eq 1 ]
+then
+    ## Keep {OUTPUT}_GENO${GENO}.fam and Caucasians file
+    plink="${plink} --keep ${CAUCASIANS_FILE}"
+fi
+
+if [ ${CAUC} -eq 0 ]
+then
+    echo -e "\nWARNING: You are retaining all individuals - this will produce a transethnic dataset \n"
+fi
+
+##Exclude relatives greedily 
+
+if [ ${RELATE_FLAG} -eq 0 ]
+then
+    echo -e "\nWARNING: You are not removing related individuals \n"
+fi
+
+if [ ${RELATE_FLAG} -ne 0 ]
+then
+   if [ ${QA} -eq 1 ]
+   then
+      ##Get plink .fam for exclusions to date, including QA
+      plink_pre_relate="${plink} --remove ${QA_FILE} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}"
+
+      $plink_pre_relate
+   fi
+
+   if [ ${QA} -eq 0 ]
+   then
+      ##Get plink .fam for exclusions to date, including QA
+      plink_pre_relate_no_QA="${plink} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}"
+
+      $plink_pre_relate_no_QA
+   fi
+
+   ##Limit relatedness file to included participants
+   cat <(head -1 ${RELATE_FILE}) <(LANG=C fgrep -wf <(awk '{print $1}' ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}.fam) ${RELATE_FILE}) > ${RELATE_FILE}_reduced
+
+   if [ ${RELATE_PHENO} -eq 0 ]
+   then
+      greedRelate/greedyRelated \
+      -r ${RELATE_FILE}_reduced \
+      -t ${RELATEDNESS} \
+      -s 1234 \
+      > ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt
+   fi
+   if [ ${RELATE_PHENO} -ne 0 ]
+   then
+      greedRelate/greedyRelated \
+      -r ${RELATE_FILE}_reduced \
+      -p ${RELATE_PHENO_FILE} \
+      -t ${RELATEDNESS} \
+      -s 1234 \
+      > ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt
+   fi      
+   cat <(echo -e "FID IID") <(awk '{print $1, $1}' ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}.txt) > ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt
+fi
+
+## Exclude all UKB exclusions (UKBileve_Affy... + UKBileve_Geno... + Recommended Excl... For details of these exlcusions, see http://biobank.ctsu.ox.ac.uk/showcase/search.cgi?wot=0&srch=quality+&sta0=on&sta1=on&sta2=on&sta3=on&str0=on&str3=on&fit0=on&fit10=on&fit20=on&fit30=on&fvt11=on&fvt21=on&fvt22=on&fvt31=on&fvt41=on&fvt51=on&fvt61=on&fvt101=on)
+
+if [ ${QA} -eq 1 ]
+then
+
+    if [ ${RELATE_FLAG} -ne 0 ]
+    then
+	cat ${QA_FILE} ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt | sort | uniq > ${OUTPUT}_KCL_UKBB_QA_And_Relatedness_Exclusions_FOR_PLINK.txt
+        plink="${plink} --remove ${OUTPUT}_KCL_UKBB_QA_And_Relatedness_Exclusions_FOR_PLINK.txt --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}"
+    fi
+
+    if [ ${RELATE_FLAG} -eq 0 ]
+    then
+	plink="${plink} --remove ${QA_FILE} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}"
+    fi
+fi
+
+if [ ${QA} -eq 0 ]
+then
+    echo -e "\nWARNING: You are not removing UKBiobank QA exclusions - ARE YOU SURE? \n"
+    if [ ${RELATE_FLAG} -ne 0 ]
+    then
+        plink="${plink} --remove ${OUTPUT}_KCL_UKBB_Relatedness_Exclusions_Greedy_1234_${RELATEDNESS}_FOR_PLINK.txt --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}"
+    fi
+
+    if [ ${RELATE_FLAG} -eq 0 ]
+    then
+        plink="${plink} --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE} --hardy --hwe ${HWE}"
+    fi
+
+fi
+
+##Prune
+
+###JRIC - 020617 - This command previously included Split-X. This makes a new file, which we want to avoid. I have moved this to the start of the analysis so that this is run first time (if needed)
+
+#Run the previous QC first
+$plink
+
+if [ $PRUNE -eq 1 ]
+then
+
+    awk -f gwas_scripts/highLDregions4bim_b37.awk ${INPUT_BIM} > ${OUTPUT}_High_LD_Regions_To_Exclude.txt
+
+    plink \
+    --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+    --maf 0.05 \
+    --hwe 0.001 \
+    --geno 0.02 \
+    --thin-indiv-count 300 \
+    --indep-pairphase 200 100 0.2 \
+    --seed 1204688 \
+    --exclude ${OUTPUT}_High_LD_Regions_To_Exclude.txt \
+    --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+    --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+    --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_ALL
+
+    plink \
+    --bed ${INPUT_BED} \
+    --bim ${INPUT_BIM} \
+    --fam ${INPUT_FAM} \
+    --autosome \
+    --maf 0.05 \
+    --hwe 0.001 \
+    --geno 0.02 \
+    --thin-indiv-count 300 \
+    --indep-pairphase 200 100 0.2 \
+    --seed 1204688 \
+    --exclude ${OUTPUT}_High_LD_Regions_To_Exclude.txt \
+    --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+    --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+    --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_NO_X
+
+    if [ ${GENDER} -eq 1 ]
+    then 
+        sex_plink="plink --bed ${INPUT_BED} --bim ${INPUT_BIM} --fam ${INPUT_FAM} --check-sex --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_LD1_ALL.prune.in --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX"
+	$sex_plink
+	##Compare to UKBB_Sex - no males have F <0.9, some females with high Fs, but this is possible, so no exclusions for now
+	cat <(echo -e "FID SEX IID PEDSEX SNPSEX STATUS F") <(join -1 1 -2 1 <(sort -k1,1 ${SEX_FILE}) <(tail -n+2 ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX.sexcheck | sort -k1,1)) > ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck
+	##Deviations - exclude phenotypic males with F < 0.9, phenotypic females with F > 0.6
+	#Reduce file read by 1
+	cat <(awk '( NR >1 && $2 == "F" && $7 < 0.5)||(NR >1 && $2 == "M" && $7 > 0.9){ print $1, $3;}' ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck) > ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist	
+    fi
+    
+    if [ $GENDER -eq 0 ]
+    then
+        echo -e "\nWARNING: You are not removing mismatched genders - ARE YOU SURE? \n"
+    fi
+fi
+
+if [ $PRUNE -ne 1 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        echo -e "\nWARNING: You are not performing pruning before checking mismatched genders - ARE YOU SURE? \n"
+        plink \
+        --bed ${INPUT_BED} \
+        --bim ${INPUT_BIM} \
+        --fam ${INPUT_FAM} \
+	--extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+	--keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+	--check-sex \
+	--out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX
+	
+	cat <(echo -e "FID SEX IID PEDSEX SNPSEX STATUS F") <(join -1 1 -2 1 <(sort -k1,1 ${SEX_FILE}) <(tail -n+2 ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_PRUNE_SEX.sexcheck)) > ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck
+
+        cat <(awk '( NR >1 && $2 == 0 && $7 < 0.6)||(NR >1 && $2 == 1 && $7 > 0.85){ print $1, $3;}' ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEXCHECK_WITH_UKBB_SEX.sexcheck) > ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist		
+    fi
+
+    if [ $GENDER -eq 0 ]
+    then
+        echo -e "\nWARNING: You are not removing mismatched genders - ARE YOU SURE? \n"
+    fi
+fi
+
+##Sex split
+
+if [ $SEXSPLIT -eq 1 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --make-just-fam \
+	--write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --filter-males \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_MALES
+        
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --filter-females \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_FEMALES
+    fi
+    if  [ $GENDER -eq 0 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --make-just-fam \
+	--write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --filter-males \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_MALES
+
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --filter-females \
+        --make-just-fam \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}_FEMALES
+    fi
+fi
+if [ $SEXSPLIT -eq 0 ]
+then
+    if [ $GENDER -eq 1 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}.samplelist \
+        --make-just-fam \
+	--write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+    fi
+    if  [ $GENDER -eq 0 ]
+    then
+        plink \
+        --bed ${INPUT_BED} \
+	--bim ${INPUT_BIM} \
+	--fam ${INPUT_FAM} \
+        --extract ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.snplist \
+        --keep ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}.fam \
+        --make-just-fam \
+	--write-snplist \
+        --out ${OUTPUT}_MAF${MAF}_GENO${GENO}_MIND${MIND}_CAUC${CAUC}_UKBQC${QA}_UNREL${RELATEDNESS}_HWE${HWE}_SEX${GENDER}
+    fi
+fi
+
+```
+
+### Imputed data code 
+
+UKBB data as received is vast and larger than most users will use for common-variant analyses. Thin the UKBB data to MAF >= 0.01 and INFO >= 0.4.
+
+```{sh Extract_MAF1_INFO4_From_Imputed_Data_Updated.sh, eval=F}
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr1_v3.txt > ukb_mfi_chr1_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr2_v3.txt > ukb_mfi_chr2_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr3_v3.txt > ukb_mfi_chr3_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr4_v3.txt > ukb_mfi_chr4_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr5_v3.txt > ukb_mfi_chr5_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr6_v3.txt > ukb_mfi_chr6_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr7_v3.txt > ukb_mfi_chr7_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr8_v3.txt > ukb_mfi_chr8_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr9_v3.txt > ukb_mfi_chr9_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr10_v3.txt > ukb_mfi_chr10_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr11_v3.txt > ukb_mfi_chr11_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr12_v3.txt > ukb_mfi_chr12_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr13_v3.txt > ukb_mfi_chr13_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr14_v3.txt > ukb_mfi_chr14_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr15_v3.txt > ukb_mfi_chr15_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr16_v3.txt > ukb_mfi_chr16_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr17_v3.txt > ukb_mfi_chr17_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr18_v3.txt > ukb_mfi_chr18_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr19_v3.txt > ukb_mfi_chr19_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr20_v3.txt > ukb_mfi_chr20_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr21_v3.txt > ukb_mfi_chr21_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr22_v3.txt > ukb_mfi_chr22_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chrX_v3.txt > ukb_mfi_chrX_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chrXY_v3.txt > ukb_mfi_chrXY_v3_MAF1_INFO4.txt
+
+for i in {22..1} X XY
+do
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3.bgen -i ukb_imp_chr${i}_v3.bgen.bgi -incl-rsids ukb_mfi_chr${i}_v3_MAF1_INFO4.txt > ukb_imp_chr${i}_v3_MAF1_INFO4.bgen
+
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3_MAF1_INFO4.bgen -index
+done
+
+```
