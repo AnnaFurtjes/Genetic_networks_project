@@ -28,156 +28,62 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 
 $$\\[0.5in]$$
 
-*Here we download GWAS summary statistics for 83 regional brain volumes and process them to obtain genetic correlation matrices using the [GenomicSEM software](https://www.nature.com/articles/s41562-019-0566-x). The code displayed performs data visualisation and sanity checks.*
+*Here we analyse that GWAS summary statistics created as part of this project. The code displayed below performs data visualisation and sanity checks.*
 
 $$\\[1in]$$
 
 ***
 
 
-# 1. Data download
-Use `curl -O -L -C - https://open.win.ox.ac.uk/ukbiobank/big40/release/stats/0344.txt.gz` to download gwas files for phenotypes listed in pre-registration (Supplementary Table 1) and download table containing SNP info on https://open.win.ox.ac.uk/ukbiobank/big40/.
 
-
-***
-
-# 2. Merge all files with SNP file & reformat them for munging
-```{r merge_format,eval=F,echo=T}
-###### this script formats GWAS files to input expected by GenomiSEM
-###### and merges the GWASs with a variant.txt file containing an INFO column and allele frequency column 
-
-## before running this R script I renamed the gwas files in linux using: for i in *; do mv "$i" gwas_"$i";done
-# because R doesn't like file names to start with a number
-
-# set working directory to where gwas files are saved
-setwd("~/genetic_networks/data/GWAS_raw")
-
-# load dependencies
-library(data.table)
-
-# use pattern 0 because only the gwas files have numbers all starting with 0
-gwas_files<-list.files(pattern="0")
-
-# make sure 83 file names have been selected
-print(length(gwas_files))
-
-# read all 83 files into R
-for (i in 1:length(gwas_files)) assign(gwas_files[i],fread(gwas_files[i],header=T,data.table=F))
-
-# check all files have been read in 
-print(ls(pattern=".txt"))
-print(length(ls(pattern=".txt")))
-
-# read in file with info and af columns
-variants<-fread("gwas_variants.txt",header=T,data.table=F)
-print(head(variants))
-
-# set wd to where formatted files need to be saved
-setwd("~/genetic_networks/data/GWAS_header/")
-
-# format files as expected by Genomic SEM
-for(i in gwas_files){
-		file<-get(i)
-		print(dim(file))
-		print(head(file))
-
-		# rename pval(-log10) column because R doesn't like that
-		names(file)[8]<-"pval_transformed"
-		print(head(file))
-
-		# transform pvalues back from log transformation
-		# https://www.biostars.org/p/358046/
-		file$pval<-10^(-file$pval_transformed)
-		print(summary(file$pval))
-		print(min(file$pval,na.rm=T))
-
-		# merge file with variant file to obtain info and af columns
-		file<-merge(file,variants[,c("rsid","af","info")],by="rsid",all.x=T)
-
-		print(head(file))
-		names(file)<-c("rsid","chr","pos","a1","a2","beta","se","pval_transformed","p","af","info")
-		file<-file[,c("rsid","chr","pos","a1","a2","beta","se","p","af","info")]
-
-		# given allele frequency is the allele frequency for the reference allele a2, but we would like to filter for minor allele frequency
-		# if allele frequency is larger than or equal to 0.5 (indicating it's major allele), calculate 1-allele frequency
-    # if it is below 0.5 (indicating minor allele frequency), save existing af value 
-    file$maf<-ifelse(file$af >=0.5, 1-file$af, file$af)
-    
-		# add N column, all phenotypes are reported to have N=21,282
-		file$N<-21282
-		print(head(file))
-		fwrite(file,file=i, quote=FALSE,col.names=TRUE,row.names=F,na="NA",sep=" ")
-}
-
-```
-
-***
-
-# 3. Munge files as expected by Genomic SEM software
+# 1. Munge files as expected by Genomic SEM software
 ```{r munge_gwas,eval=F,echo=T}
-### this script will munge the files previously formated using GenomicSEM
+### this script will munge the gwas files using GenomicSEM
 
 # load dependencies
 library(tidyr)
 library(data.table)
 library(devtools)
 library(GenomicSEM)
+library(stringr)
 
 # set wd to where formatted files are saved
-setwd("~/genetic_networks/data/GWAS_header/")
+setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/step2/")
 
+hm3<-"/scratch/users/k1894405/genetic_networks/data/w_hm3.noMHC.snplist"
 
-hm3<-"~/genetic_networks/data/w_hm3.noMHC.snplist"
-
-############## make sure that gwas files are named after the right region
 
 # list gwas files you want to munge
-gwas_files<-list.files(pattern="gwas_")
+gwas_files<-list.files(pattern="GWAS_22chr_noTBVcontrol_")
 print(length(gwas_files))
 
-# build a data frame that contains information on file_name and corresponding region of interest
-gwas_files<-data.frame(cbind(gwas_files,gwas_files),stringsAsFactor=FALSE)
-names(gwas_files)<-c("file_names","No")
-gwas_files<-gwas_files[,c("file_names","No")]
+						
 
-gwas_files$file_names<-as.character(gwas_files$file_names)
-gwas_files$No<-as.character(gwas_files$No)
+for (i in gwas_files){
+		# define file to be munged
+			files<-i
+			print(files)
+		
+		# name the file
+			trait_name <- str_remove(i, pattern = "GWAS_22chr_noTBVcontrol_")
+			trait_name <- str_remove(trait_name, pattern = ".txt")
 
-print(str(gwas_files))
-
-gwas_files<-separate(gwas_files,No,into=c("delete","No"),sep="_0")
-gwas_files<-gwas_files[,c("file_names","No")]
-gwas_files<-separate(gwas_files,No,into="No",sep=".txt")
-
-# read in files containing regions_of_interest
-# this file contains region names in one column, and the download number from the website in other column
-#Region	                        No
-#Left_bankssts	                344
-#Left_caudal_anterior_cingulate	345
-
-regions_of_interest<-fread("~/genetic_networks/scripts/format_files/regions_of_interest.txt",header=T,data.table=F)
-print("Done reading in regions of interest")
-
-gwas_files<-merge(gwas_files,regions_of_interest,by="No")
-print(gwas_files)
-
-#loop because genomicSEM can't handle 83 files at the same time
-for (i in 1:length(gwas_files)){
-files<-gwas_files[i,"file_names"]
-print(files)
-trait.names<-gwas_files[i,"Region"]
-print(trait.names)
-munge(files=files,
-		hm3=hm3,
-		trait.names=trait.names,
-		info.filter = 0.9)
+			trait.names<-trait_name
+			print(trait.names)
+		
+		# munge
+			munge(files=files,
+					hm3=hm3,
+					trait.names=trait.names,
+					info.filter = 0.9)
 }
+
 ```
 After munging the files have 9 columns, and 1,171,881 rows (SNPs).
 
 ***
 
-# 4. Calculate LDSC
+# 2. Calculate LDSC
 ```{r calculate_ldsc_83_regions,eval=F,echo=T}
 ### after formatting and munging the gwas files, I have manually transferred the files into a folder called "GWAS_munged"
 
@@ -186,13 +92,13 @@ library(devtools)
 library(GenomicSEM)
 
 # set wd to the munged GWAS folder
-setwd("~/genetic_networks/data/GWAS_munged")
+setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/gwas_munged/")
 
 # specifications for ldsc function
 traits<-list.files(pattern=".sumstats.gz")
 
 # double check that 83 files have been read in 
-print(length(traits))
+if(length(traits) !=83){print("You are not including 83 files");break}
 
 # no sample or population prevalence needed because brain volumes are continuous traits
 # specify NA for both
@@ -203,8 +109,8 @@ population.prev<-rep(NA, desired_length)
 print(population.prev)
 
 # ld scores and weights previously downloaded (European population)
-ld<-"~/genetic_networks/data/eur_w_ld_chr/"
-wld<-"~/genetic_networks/data/eur_w_ld_chr/"
+ld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
+wld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
 
 
 gwas_munged<-list.files(pattern=".sumstats.gz")
@@ -212,26 +118,41 @@ gwas_munged<-str_replace(gwas_munged,pattern=".sumstats.gz",replacement="")
 trait.names<-gwas_munged
 
 # double check that trait.names and traits match up
-print(data.frame(trait.names,traits))
+# first build a data set from the vectors, then compare the two vectors
+test<-data.frame(trait.names,traits)
+print(test)
 
+
+count<-0
+
+for(i in 1:nrow(test)){
+	# which trait are we testing
+		print(substr(test$traits[i], 1, nchar(as.character(test$trait.names[i]))))
+		print(as.character(test$trait.names[i]))
+	# break the loop if trait.names and traits don't match
+		if(as.character(test$trait.names[i]) != substr(test$traits[i], 1, nchar(as.character(test$trait.names[i])))){"Trait names and trait files don't match";break}
+		
+		count<-count+1
+		print(paste0("This is the ",count,"st/nd trait iteration"))
+	}
 
 
 LDSCoutput_wholebrain<-ldsc(traits=traits,
                              ld=ld,wld=wld,
                              trait.names = trait.names,
-							 ldsc.log="ldsc_wholebrain.log",
+							 ldsc.log="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/ldsc/ldsc_wholebrain.log",
 							 sample.prev=sample.prev,
 							 population.prev=population.prev,
 							 stand=T)
 
 ## save output for subsequent analyses
-save(LDSCoutput_wholebrain, file="~/genetic_networks/data/ldsc_output/ldsc_wholebrain.RData")
+save(LDSCoutput_wholebrain, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/ldsc/ldsc_wholebrain.RData")
 ```
 
 ***
 
 
-# 5. Plot heatmaps
+# 3. Plot heatmaps
 ```{r heatmaps, echo=T, out.width = '80%',warning=F,message=F}
 ## this script is displaying the heatmaps of the networks
 rm(list=ls())
@@ -242,7 +163,7 @@ library(ggplot2)
 
 # load data and name it according to network
 workingwd<-getwd()
-temporarywd<-paste0(workingwd,"/data/ldsc_output/")
+temporarywd<-paste0(workingwd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 networks<-list.files(pattern=".RData")
