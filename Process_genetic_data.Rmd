@@ -486,7 +486,7 @@ plot_heritability<-
 ##################################################
 # Plot genetic correlations
 #################################################
-temporarywd<-paste0(workingd,""/data_my_own/ldsc/"")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")

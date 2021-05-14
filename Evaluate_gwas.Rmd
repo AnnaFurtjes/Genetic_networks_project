@@ -8,14 +8,15 @@ output: html_document
 Here, we evaluate the GWAS summary statistics created in a previous step. 
 The following properties of the summary statistics are assessed:
 
- - Are the traits heritable?
- - Calculate Genomic Inflation Factor
- - Do the univariate intercepts suggest inflation of the summary statistics?
- - Assess signal-to-noise ratio 
+ - Heritability
+ - Genomic Inflation Factor
+ - Univariate intercepts
+ - Signal-to-noise ratio 
  - Do the ldsc intercepts from the whole-brain genetic correlations correlate with phenotypic correlations?
 
-# Are all traits heritable?
+# Heritability
 
+Are all traits heritable?
 ```{bash univariate_ldsc, eval=F,echo=T}
 #!/bin/bash -l
 
@@ -421,7 +422,7 @@ The intercept depend on the phenotypic correlation between traits which can be n
 ```{r intercepts_phenotypic_cor}
 # load intercepts
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")
