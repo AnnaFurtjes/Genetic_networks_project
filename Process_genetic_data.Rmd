@@ -195,13 +195,17 @@ matrices<-ls(pattern="cor_")
 
 ## plot the rounded correlation matrices
 
+
 # get lower triangle of matrix
-for(i in matrices){
-  cormatrix<- get(i)
-  get_lower_tri<-function(cormatrix){
+
+get_lower_tri<-function(cormatrix){
     cormatrix[upper.tri(cormatrix)] <- NA
     return(cormatrix)
-  }
+} 
+
+for(i in matrices){
+  cormatrix<- get(i)
+  
   lower_triangle<-get_lower_tri(cormatrix)
   lower_triangle<-reshape2::melt(lower_triangle)
   #print(i)
@@ -260,12 +264,14 @@ cor_default_mode_heatmap
 ```{r whole_brain_heatmap,eval=T,echo=T,warning=F,message=F}
 # set working directory
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 
 load("whole_brain.RData")
 ldscoutput<-LDSCoutput_wholebrain
+dimnames(ldscoutput$S_Stand)[[1]]<-dimnames(ldscoutput$S)[[2]]
+dimnames(ldscoutput$S_Stand)[[2]]<-dimnames(ldscoutput$S)[[2]]
 whole_brain_corr<-reshape2::melt(ldscoutput$S_Stand)
 whole_brain_corr$value_corrected<-ifelse(whole_brain_corr$value>1,1,whole_brain_corr$value)
 
@@ -290,10 +296,15 @@ whole_brain_corr$value_corrected<-ifelse(whole_brain_corr$value>1,1,whole_brain_
     guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
     coord_fixed()
   heatmap
+  
+
 ```
 
 
 The vertical line through the diagnonal indicates the genetic correlation of a brain area with itself, and the vertical lines that run parallel to it indicate the strong genetic correlation with their contralateral counterpart.
+
+
+
 
 <br>
 <br>
@@ -370,7 +381,7 @@ source("https://raw.githubusercontent.com/talgalili/R-code-snippets/master/boxpl
 
 # load whole brain data
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")
@@ -400,351 +411,27 @@ library(knitr)
 #kable()
 library(DT)
 datatable(display, rownames=FALSE, filter="top",options= list(pageLength=5,scrollX=T))
- # ggplot(lower_triangle, aes(y = lower_triangle$value,x=1)) +
-#    geom_boxplot() +
-#    geom_text(aes(label = lower_triangle$jointname), na.rm = TRUE, nudge_y = 0.05)
+
+# work out which correlations are above 1 and below 0
+traits_corr_above1<-as.data.frame(whole_brain_corr[which(whole_brain_corr$value >1.0001),])
+traits_corr_below0<-whole_brain_corr[which(whole_brain_corr$value<0),]
 ```
+
+Note that we found correlations slightly above 1 for the following traits:
+<br/>
+`r paste0(traits_corr_above1[1,1]," & ",traits_corr_above1[1,2], "; ",traits_corr_above1[2,1]," & ",traits_corr_above1[2,2], "; ",traits_corr_above1[3,1]," & ",traits_corr_above1[3,2], "; ",traits_corr_above1[4,1]," & ",traits_corr_above1[4,2])`.
+
+<br/>
+
+These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, all negative correlations involve either the frontal pole or the bankssts, which are both known to be hard to segment, and therefore could index only noise (which is a potential explanation for the negative correlations with more reliably measured brain volumes). 
+
+```{r}
+kable(traits_corr_below0[,c("Var1","Var2","value")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation"), caption = "Negative Genetic Correlations")
+```
+
 
 ***
 
-#### Plot LDSC intercepts
-
-```{r plot_intercepts_code,eval=T,echo=T,message=F,warning=F}
-### plot intercepts of genetic correlation matrices
-rm(list=ls())
-## this script is displaying the heatmaps of the networks
-
-# load dependencies
-library(stringr)
-library(reshape2)
-library(ggplot2)
-
-# load data and name it according to network
-workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/")
-setwd(temporarywd)
-
-networks<-list.files(pattern=".RData")
-network_names<-str_replace(networks,pattern=".RData",replacement = "")
-
-for(i in 1:length(networks)){
-load(networks[i])
-  name<-network_names[i]
-  assign(name,LDSCoutput)
-}
-
-## name all columns in $I after brain regions and round $I
-for(i in network_names){
-  output<-get(i)
-  dimnames(output$I)[[1]]<-dimnames(output$S)[[2]]
-  dimnames(output$I)[[2]]<-dimnames(output$S)[[2]]
-  name<-i
-  assign(name,output)
-  output$I<-round(output$I,digits = 2)
-  name_cor<-paste0("intercepts_",i)
-  assign(name_cor,output$I)
-}
-
-# count number of correlation matrices
-#length(ls(pattern="intercepts_"))
-
-# create vector containing names of the correlation matrices
-matrices<-ls(pattern="intercepts_")
-
-## plot the rounded correlation matrices
-
-# get lower triangle of matrix
-for(i in matrices){
-  cormatrix<- get(i)
-  get_lower_tri<-function(cormatrix){
-    cormatrix[upper.tri(cormatrix)] <- NA
-    return(cormatrix)
-  }
-  lower_triangle<-get_lower_tri(cormatrix)
-  lower_triangle<-reshape2::melt(lower_triangle)
-  lower_triangle$corrected<-with(lower_triangle, ifelse(value>=1.00,1.00,value))
-
-  #print(i)
-  #print(lower_triangle)
-  
-  heatmap<-
-    ggplot(data=lower_triangle, aes(Var1,Var2,fill=corrected))+
-    geom_tile(color = "white")+
-    theme_minimal()+ 
-    theme_bw()+
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-                                     size = 8, hjust = 1))+
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-                                     size = 8, hjust = 1))+
-    theme(axis.title.x=element_blank(),
-          axis.title.y = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.border = element_blank(),
-          axis.ticks = element_blank(),
-          legend.justification = c(1,0),
-          #legend.position = c(0.45,0.7),
-          legend.direction = "horizontal")+  
-    scale_fill_gradient2(low="gold4",high="darkorange3",mid ="gold",
-                         midpoint=0,limit=c(-1,1),na.value="white",
-                         name="LDSC intercepts")+
-    guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
-    coord_fixed()
-  
-  heatmap<-heatmap+
-    geom_text(aes(Var1,Var2,label=value),color="black",size=2)
-  
-  name<-paste0(i,"_heatmap")
-  assign(name,heatmap)
-}
-
-```
-```{r intercepts1,echo=FALSE, out.width = '80%',warning=F,message=F,fig.cap=c("Central Executive","Cingulo-opercular")}
-library(cowplot)
-intercepts_central_exec_heatmap
-intercepts_cingulo_heatmap
-```
-
-```{r intercepts2,echo=FALSE, out.width = '100%',warning=F,message=F,fig.cap="Default Mode"}
-intercepts_default_mode_heatmap
-```
-
-#### LDSC intercepts across the whole brain
-```{r whole_brain_intercepts,eval=T,echo=F}
-workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain")
-setwd(temporarywd)
-
-load("whole_brain.RData")
-ldscoutput<-LDSCoutput_wholebrain
-whole_brain_inter<-reshape2::melt(ldscoutput$I)
-whole_brain_inter$value_corrected<-ifelse(whole_brain_inter$value>1,1,whole_brain_inter$value)
-
-  heatmap<-
-    ggplot(data=whole_brain_inter, aes(Var1,Var2,fill=value_corrected))+
-    geom_tile(color = "white")+
-    theme_minimal()+ 
-    theme_bw()+
-    theme(axis.text.x = element_blank())+
-    theme(axis.text.y = element_blank())+
-    theme(axis.title.x=element_blank(),
-          axis.title.y = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.border = element_blank(),
-          axis.ticks = element_blank(),
-          legend.justification = c(1,0),
-          #legend.position = c(0.45,0.7),
-          legend.direction = "horizontal")+  
-    scale_fill_gradient2(low="gold4",high="darkorange3",mid ="gold",
-                         midpoint=0,limit=c(-1,1),na.value="white",
-                         name="LDSC intercepts")+
-    guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
-    coord_fixed()
-  heatmap
-```
-
-***
-
-#### Do the LDSC intercepts correlate with the phenotypic correlations between brain areas?
-The intercept depend on the phenotypic correlation between traits which can be negative or positive. Thus, we plot the intercepts as a function of the pairwise phenotypic correlation between traits. Based on LDSC theory it should look like a straight line + small variation due to sampling error.
-
-```{r intercepts_phenotypic_cor}
-# load intercepts
-workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
-setwd(temporarywd)
-
-load("whole_brain.RData")
-ldscoutput<-LDSCoutput_wholebrain
-# name rows and columns
-dimnames(ldscoutput$I)[[1]]<-dimnames(ldscoutput$S)[[2]]
-dimnames(ldscoutput$I)[[2]]<-dimnames(ldscoutput$S)[[2]]
-
-# keep lower matrix
-cormatrix<-ldscoutput$I
-get_lower_tri<-function(cormatrix){
-  cormatrix[upper.tri(cormatrix)] <- NA
-  return(cormatrix)
-}
-intercepts<-get_lower_tri(cormatrix)
-diag(intercepts)<-NA
-intercepts<-reshape2::melt(intercepts)
-names(intercepts)<-c("region1","region2","intercepts")
-
-# load phenotypic correlations
-temporarywd<-paste0(workingd,"/data/phenotypic/")
-setwd(temporarywd)
-
-load("residualised_Zhao_corr.RData")
-
-phenotypic_cor<-cor_matrix
-
-# sort same as intercept matrix
-names<-dimnames(ldscoutput$S)[[2]]
-phenotypic_cor<-phenotypic_cor[names,names]
-
-# get lower triangle
-phenotypic_cor<-get_lower_tri(phenotypic_cor)
-phenotypic_cor<-reshape2::melt(phenotypic_cor)
-names(phenotypic_cor)<-c("region1","region2","phenotypic_cor")
-
-intercept_pheno<-merge(intercepts,phenotypic_cor,by=c("region1","region2"))
-
-plot(intercept_pheno$phenotypic_cor,intercept_pheno$intercepts,xlab="Phenotypic correlations",ylab="LDSC intercepts")
-abline(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor,na.action = "na.omit"),col="red")
-summary(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor))
-# how many intercepts are there? Should be 3404
-#sum(!is.na(intercepts$intercepts))
-```
-
-***
-
-#### Are all traits heritable?
-Distribution of heritability estimates for all 83 brain volumes
-
-```{bash univariate_ldsc, eval=F,echo=T}
-#!/bin/bash -l
-
-#SBATCH --output=~/genetic_networks/outputs/ldsc/calculate_heritabilities.txt
-#SBATCH --job-name=heritability_brain_volume
-
-
-# specify time limit 
-#SBATCH --time=0-99:00
-
-# memory per job 
-#SBATCH --mem=12G
-
-module load devtools/anaconda/2019.3-python2.7.16
-
-~/Software/ldscore/ldsc/ldsc.py \
---rg ~/genetic_networks/data/GWAS_munged/Brain_stem.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_accumbens_area.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_amygdala.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_bankssts.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_caudal_anterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_caudal_middle_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_caudate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_cuneus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_DC.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_entorhinal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_frontal_pole.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_fusiform.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_hippocampus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_inferior_parietal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_inferior_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_insula.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_isthmus_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_lateral_occipital.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_lateral_orbitofrontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_lingual.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_medial_orbitofrontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_middle_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_pallidum.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_paracentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_parahippocampal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_pars_opercularis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_pars_orbitalis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_pars_triangularis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_pericalcarine.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_postcentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_posterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_precentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_precuneus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_putamen.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_rostral_anterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_rostral_middle_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_superior_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_superior_parietal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_superior_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_supramarginal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_thalamus_proper.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Left_transverse_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_accumbens_area.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_amygdala.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_bankssts.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_caudal_anterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_caudal_middle_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_caudate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_cuneus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_DC.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_entorhinal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_frontal_pole.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_fusiform.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_hippocampus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_inferior_parietal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_inferior_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_insula.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_isthmus_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_lateral_occipital.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_lateral_orbitofrontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_lingual.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_medial_orbitofrontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_middle_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_pallidum.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_paracentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_parahippocampal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_pars_opercularis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_pars_orbitalis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_pars_triangularis.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_pericalcarine.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_postcentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_posterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_precentral.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_precuneus.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_putamen.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_rostral_anterior_cingulate.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_rostral_middle_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_superior_frontal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_superior_parietal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_superior_temporal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_supramarginal.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_thalamus_proper.sumstats.gz,\
-~/genetic_networks/data/GWAS_munged/Right_transverse_temporal.sumstats.gz \
---ref-ld-chr ~/Software/ldscore/eur_w_ld_chr/ \
---w-ld-chr ~/Software/ldscore/eur_w_ld_chr/ \
---out ~/genetic_networks/outputs/ldsc/volumes_heritability_ldsc.out
-
-### Aim: run univariate LDSC to get heritability estimates with Bulik-Sullivan python software
-### extract files in cd ~/genetic_networks/data/GWAS_munged/ and save in a file
-### using ls -d "$PWD"/*.gz > listOfFiles.list
-
-### Author: Anna Furtjes
-### Date: 16/05/2020
-### submit using: sbatch -p shared ~/genetic_networks/scripts/perform_ldsc/ldsc_heritability_volumes_26052020.sh
-
-
-## copy over onto local machine
-```
-
-
-```{r display_h2, message=F,eval=T,fig.width=5,warning=F}
-workingd<-getwd()
-temporarywd<-paste0(workingd,"/data_Smith/heritability_volumes/")
-setwd(temporarywd)
-
-library(data.table)
-heritability<-fread("heritability_brain_volumes_26052020.txt",header=T,data.table = F)
-summary(heritability$h2_obs)
-
-library(plyr)
-source("https://raw.githubusercontent.com/talgalili/R-code-snippets/master/boxplot.with.outlier.label.r")
-boxplot_h2<-boxplot.with.outlier.label(heritability$h2_obs,heritability$p2,xaxt="n",yaxt="n",ylab="SNP heritability",spread_text = F)
-axis(side=2,las=2)
-```
-
-#### Display heritability estimates
-```{r lowest_heritabilities}
-table<-heritability[,c("p2","h2_obs","h2_obs_se")]
-names(table)<-c("Brain areas","h2 observed","SE")
-table<-table[order(table$`h2 observed`),]
-library(DT)
-datatable(table, rownames=FALSE, filter="top",options = list(pageLength=5, scrollX=T))
-```
-
-
-*Note.* The frontal pole is only a tiny area which often is difficult to segment. This might have caused low levels of systematic variation across the GWAS resulting in very low SNP heritability captured by LDSC.
-
-***
 
 <br>
 <br>
@@ -771,6 +458,12 @@ library(cowplot)
 ## Plot SNP-heriability
 #########################################
 # data to be plotted: heritability estimates
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+heritability<-read.table("heritability_brain_volumes_14052021.txt",header=T)
+
 heritability$name<-rep("SNP-heritability",83)
 heritability$outlier<-ifelse(heritability$p2=="Brain_stem", "Brain stem",NA)
 
@@ -793,7 +486,7 @@ plot_heritability<-
 ##################################################
 # Plot genetic correlations
 #################################################
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,""/data_my_own/ldsc/"")
 setwd(temporarywd)
 
 load("whole_brain.RData")
@@ -840,7 +533,7 @@ plot_genetic_corr<-
 #############################################################################################
 # make same plot for phenotypic correlations
 # code for how we obtain the cor_matrix on the Edinburgh server can be found in this document under "Pre-processing: Phenotypic data"
-temporarywd_pheno<-paste0(workingd,"/data/phenotypic/")
+temporarywd_pheno<-paste0(workingd,"/data/phenotypic/");break
 setwd(temporarywd_pheno)
 
 load("residualised_Zhao_corr.RData")

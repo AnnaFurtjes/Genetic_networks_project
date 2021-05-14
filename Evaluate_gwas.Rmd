@@ -1,0 +1,471 @@
+---
+title: "Evaluating gwas"
+author: "Anna Elisabeth Furtjes"
+date: "14/05/2021"
+output: html_document
+---
+
+Here, we evaluate the GWAS summary statistics created in a previous step. 
+The following properties of the summary statistics are assessed:
+
+ - Are the traits heritable?
+ - Calculate Genomic Inflation Factor
+ - Do the univariate intercepts suggest inflation of the summary statistics?
+ - Assess signal-to-noise ratio 
+ - Do the ldsc intercepts from the whole-brain genetic correlations correlate with phenotypic correlations?
+
+# Are all traits heritable?
+
+```{bash univariate_ldsc, eval=F,echo=T}
+#!/bin/bash -l
+
+#SBATCH --output=~ldsc/calculate_heritabilities.out
+#SBATCH --job-name=heritability_brain_volume
+
+
+# specify time limit of two hours
+#SBATCH --time=0-99:00
+
+# memory per job 
+#SBATCH --mem=80G
+
+module load devtools/anaconda/2019.3-python2.7.16
+
+~/Software/ldscore_2020_06/ldsc/ldsc.py \
+--rg ~gwas_munged/Brain_stem.sumstats.gz,\
+~gwas_munged/Left_accumbens_area.sumstats.gz,\
+~gwas_munged/Left_amygdala.sumstats.gz,\
+~gwas_munged/Left_bankssts.sumstats.gz,\
+~gwas_munged/Left_caudal_anterior_cingulate.sumstats.gz,\
+~gwas_munged/Left_caudal_middle_frontal.sumstats.gz,\
+~gwas_munged/Left_caudate.sumstats.gz,\
+~gwas_munged/Left_cuneus.sumstats.gz,\
+~gwas_munged/Left_DC.sumstats.gz,\
+~gwas_munged/Left_entorhinal.sumstats.gz,\
+~gwas_munged/Left_frontal_pole.sumstats.gz,\
+~gwas_munged/Left_fusiform.sumstats.gz,\
+~gwas_munged/Left_hippocampus.sumstats.gz,\
+~gwas_munged/Left_inferior_parietal.sumstats.gz,\
+~gwas_munged/Left_inferior_temporal.sumstats.gz,\
+~gwas_munged/Left_insula.sumstats.gz,\
+~gwas_munged/Left_isthmus_cingulate.sumstats.gz,\
+~gwas_munged/Left_lateral_occipital.sumstats.gz,\
+~gwas_munged/Left_lateral_orbitofrontal.sumstats.gz,\
+~gwas_munged/Left_lingual.sumstats.gz,\
+~gwas_munged/Left_medial_orbitofrontal.sumstats.gz,\
+~gwas_munged/Left_middle_temporal.sumstats.gz,\
+~gwas_munged/Left_pallidum.sumstats.gz,\
+~gwas_munged/Left_paracentral.sumstats.gz,\
+~gwas_munged/Left_parahippocampal.sumstats.gz,\
+~gwas_munged/Left_pars_opercularis.sumstats.gz,\
+~gwas_munged/Left_pars_orbitalis.sumstats.gz,\
+~gwas_munged/Left_pars_triangularis.sumstats.gz,\
+~gwas_munged/Left_pericalcarine.sumstats.gz,\
+~gwas_munged/Left_postcentral.sumstats.gz,\
+~gwas_munged/Left_posterior_cingulate.sumstats.gz,\
+~gwas_munged/Left_precentral.sumstats.gz,\
+~gwas_munged/Left_precuneus.sumstats.gz,\
+~gwas_munged/Left_putamen.sumstats.gz,\
+~gwas_munged/Left_rostral_anterior_cingulate.sumstats.gz,\
+~gwas_munged/Left_rostral_middle_frontal.sumstats.gz,\
+~gwas_munged/Left_superior_frontal.sumstats.gz,\
+~gwas_munged/Left_superior_parietal.sumstats.gz,\
+~gwas_munged/Left_superior_temporal.sumstats.gz,\
+~gwas_munged/Left_supramarginal.sumstats.gz,\
+~gwas_munged/Left_thalamus_proper.sumstats.gz,\
+~gwas_munged/Left_transverse_temporal.sumstats.gz,\
+~gwas_munged/Right_accumbens_area.sumstats.gz,\
+~gwas_munged/Right_amygdala.sumstats.gz,\
+~gwas_munged/Right_bankssts.sumstats.gz,\
+~gwas_munged/Right_caudal_anterior_cingulate.sumstats.gz,\
+~gwas_munged/Right_caudal_middle_frontal.sumstats.gz,\
+~gwas_munged/Right_caudate.sumstats.gz,\
+~gwas_munged/Right_cuneus.sumstats.gz,\
+~gwas_munged/Right_DC.sumstats.gz,\
+~gwas_munged/Right_entorhinal.sumstats.gz,\
+~gwas_munged/Right_frontal_pole.sumstats.gz,\
+~gwas_munged/Right_fusiform.sumstats.gz,\
+~gwas_munged/Right_hippocampus.sumstats.gz,\
+~gwas_munged/Right_inferior_parietal.sumstats.gz,\
+~gwas_munged/Right_inferior_temporal.sumstats.gz,\
+~gwas_munged/Right_insula.sumstats.gz,\
+~gwas_munged/Right_isthmus_cingulate.sumstats.gz,\
+~gwas_munged/Right_lateral_occipital.sumstats.gz,\
+~gwas_munged/Right_lateral_orbitofrontal.sumstats.gz,\
+~gwas_munged/Right_lingual.sumstats.gz,\
+~gwas_munged/Right_medial_orbitofrontal.sumstats.gz,\
+~gwas_munged/Right_middle_temporal.sumstats.gz,\
+~gwas_munged/Right_pallidum.sumstats.gz,\
+~gwas_munged/Right_paracentral.sumstats.gz,\
+~gwas_munged/Right_parahippocampal.sumstats.gz,\
+~gwas_munged/Right_pars_opercularis.sumstats.gz,\
+~gwas_munged/Right_pars_orbitalis.sumstats.gz,\
+~gwas_munged/Right_pars_triangularis.sumstats.gz,\
+~gwas_munged/Right_pericalcarine.sumstats.gz,\
+~gwas_munged/Right_postcentral.sumstats.gz,\
+~gwas_munged/Right_posterior_cingulate.sumstats.gz,\
+~gwas_munged/Right_precentral.sumstats.gz,\
+~gwas_munged/Right_precuneus.sumstats.gz,\
+~gwas_munged/Right_putamen.sumstats.gz,\
+~gwas_munged/Right_rostral_anterior_cingulate.sumstats.gz,\
+~gwas_munged/Right_rostral_middle_frontal.sumstats.gz,\
+~gwas_munged/Right_superior_frontal.sumstats.gz,\
+~gwas_munged/Right_superior_parietal.sumstats.gz,\
+~gwas_munged/Right_superior_temporal.sumstats.gz,\
+~gwas_munged/Right_supramarginal.sumstats.gz,\
+~gwas_munged/Right_thalamus_proper.sumstats.gz,\
+~gwas_munged/Right_transverse_temporal.sumstats.gz \
+--ref-ld-chr /mnt/lustre/groups/ukbiobank/Edinburgh_Data/Software/ldscore_2020_06/eur_w_ld_chr/ \
+--w-ld-chr /mnt/lustre/groups/ukbiobank/Edinburgh_Data/Software/ldscore_2020_06/eur_w_ld_chr/ \
+--out ~ldsc/heritability_volumes_ldsc.out
+
+### Aim: run LDSC to get heritabilities with Bulik-Sullivan packages
+### extract files in cd ~gwas_munged/ and save in a file
+### using ls -d "$PWD"/*.gz > listOfFiles.list
+
+### Author: Anna Furtjes
+### Date: 13/05/2021
+### submit using: sbatch -p brc,shared ~/scripts/genetic_networks_project/ldsc/ldsc_bullik_heritability_volumes_13052021.sh
+
+## copy onto local machine
+```
+
+
+```{r display_h2, message=F,eval=T,fig.width=5,warning=F}
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+heritability<-read.table("heritability_brain_volumes_14052021.txt",header=T)
+summary(heritability$h2_obs)
+
+library(plyr)
+source("https://raw.githubusercontent.com/talgalili/R-code-snippets/master/boxplot.with.outlier.label.r")
+boxplot_h2<-boxplot.with.outlier.label(heritability$h2_obs,heritability$p2,xaxt="n",yaxt="n",ylab="SNP heritability",spread_text = F)
+axis(side=2,las=2)
+```
+
+## Display heritability estimates
+```{r lowest_heritabilities}
+table<-heritability[,c("p2","h2_obs","h2_obs_se")]
+names(table)<-c("Brain areas","h2 observed","SE")
+table<-table[order(table$`h2 observed`),]
+library(DT)
+datatable(table, rownames=FALSE, filter="top",options = list(pageLength=5, scrollX=T))
+```
+
+
+
+*Note.* The frontal pole is only a tiny area which often is difficult to segment. This might have caused low levels of systematic variation across the GWAS resulting in very low SNP heritability captured by LDSC.
+
+
+# Genomic Inflation Factor for each GWAS
+
+Find an explanation for how to interpret the Genomic Inflation Factor [online](https://bioinformaticsngs.wordpress.com/2016/03/08/genomic-inflation-factor-calculation/). It is an index of confounding but it is also sensitive to true polygenic signal. It can increase with sample size, heritability and the number of causal variants ([REF](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3137506/)). 
+
+```{r calculate_lambda, eval=F, echo=T}
+### Calculate Genomic Inflation Factor for each of the GWAS
+# Save in a list
+# We will later contrast them with the univariate LDSC intercept
+
+# load dependencies
+library(data.table)
+library(stringr)
+
+# set wd to where the gwas files are stored
+setwd("~/PhD/output/regenie/step2/")
+
+# list all files of interest
+files_of_interest <- list.files(pattern="GWAS_22chr_noTBVcontrol_")
+
+# create data.frame to hold Genomic Inflation Factor
+table <- as.data.frame(matrix(ncol = 3,nrow = length(files_of_interest)))
+names(table)<-c("trait","lambda","mean_chisq")
+
+for(i in 1:length(files_of_interest)){
+	# read in GWAS file
+	file<-fread(files_of_interest[i], header=T,data.table=F) 
+
+	# save trait_name in table
+
+	trait_name <- str_remove(files_of_interest[i], pattern = "GWAS_22chr_noTBVcontrol_")
+	trait_name <- str_remove(trait_name, pattern = ".txt")
+	table$trait[i]<-trait_name
+
+	### Assess systematic bias in GWAS using Genomic Inflation Factor
+
+	chisq <- qchisq(1-file$P,1)
+	lambda_median <- median(chisq)/qchisq(0.5,1)
+	table$lambda[i]<-lambda_median
+	
+	## calculate average association signal in all SNPs
+	table$mean_chisq[i] <- mean(file$CHISQ, na.rm=T)
+
+	}
+
+
+write.table(table,"~/ldsc/lambda_per_volume_14052021.txt", quote=F, row.names=F, sep="\t")
+```
+
+```{r readlambda, eval=T}
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+lambda<-read.table("lambda_per_volume_14052021.txt",header=T)
+
+stats<-merge(lambda, univar_intercepts, by = "trait")
+
+
+# plot lambda
+x<-density(stats$lambda)
+plot(x, main = "Distribution of lambda", xlab = "Lambda (median)")
+```
+
+# Univariate intercepts
+
+The univariate LDSC intercept is an index of stratification confounding. It gives the expected chi-squared value for SNPs with no effect, as, under the null hypothesis, the expected mean of the chi-squared statistic is itself (i.e. 1.0).
+
+Univariate LDSC intercepts close to 1 indicate that the GWAS calculation appropriately controlled for population stratification. When the LDSC intercept is much larger than 1.0, stratification is indicated because the expected value for SNPs with no effect under the null hypothesis is still association signal.
+
+
+```{r univariate_intercepts}
+# plot intercepts
+x<-density(stats$intercept)
+plot(x, main = "Distribution of intercepts", xlab = "Intercepts")
+```
+
+# Signal-to-noise ratio
+
+To get an index for the ratio of true signal to spurious signal, we can divide the mean chi-squared value within a set of summary statistics by the univariate intercept-1. 
+
+This mean chi-squared value is an index of the average association signal across all SNPs. However, it includes the chi-squared values expected under the null hypothesis, which is 1.0 (see above under *Univariate intercepts*). In order to get the mean signal beyond the null hypothesis, we subtract 1.0 from the mean chi-squared values across all SNPs. Finally, the ratio between mean chi-squared - 1 and intercept - 1 is the ratio of true signal to confounding. A comprehensive and intuitive explanation of the interpretation of this ratio can be found [here](https://www.nature.com/articles/s41588-018-0144-6#Sec3)(Section 4 in Supplementary materials).
+Note to self: Keep in mind, that there is no point considering confidence intervals in this case because the ldsc heritability is a signal-to-noise ratio and already has a standard error.
+
+```{r }
+#calculate the ratio of the mean chisq-1 to the univariate intercept-1 to get a sense of the ratio of true signal to spurious signal
+#Mean chisq -1 / Intercept-1
+
+# first we round one intercept to the second digit because we have one trait where the intercept is slightly below 1 and results in a negative ratio
+# note that this value will result in an infite value instead
+stats$intercept[which(stats$intercept<1)]<-round(stats$intercept[which(stats$intercept<1)],digits = 2)
+
+stats$ratio<-(stats$mean_chisq - 1)/(stats$intercept-1)
+
+
+# display as table
+stats$lambda<-round(stats$lambda, digits = 3)
+stats$intercept<-round(stats$intercept, digits = 3)
+stats$ratio<-round(stats$ratio, digits = 3)
+
+datatable(stats, rownames=FALSE, colnames = c("Traits","Lambda","Univariate intercepts","Signal to noise ratio"),options = list(pageLength=5, scrollX=T))
+
+```
+
+
+# LDSC intercepts
+Note that one trait (`r stats[which(stats$intercept<1),"trait"]`) has a univariate intercept below, but very close to 1 (intercept = `r stats[which(stats$intercept<1),"intercept"]`).
+
+
+## Plot LDSC intercepts for genetic correlations across the brain
+
+```{r plot_intercepts_code,eval=T,echo=T,message=F,warning=F}
+### plot intercepts of genetic correlation matrices
+rm(list=ls())
+## this script is displaying the heatmaps of the networks
+
+# load dependencies
+library(stringr)
+library(reshape2)
+library(ggplot2)
+
+# load data and name it according to network
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+networks<-list.files(pattern=".RData")
+network_names<-str_replace(networks,pattern=".RData",replacement = "")
+
+for(i in 1:length(networks)){
+load(networks[i])
+  name<-network_names[i]
+  assign(name,LDSCoutput)
+}
+
+## name all columns in $I after brain regions and round $I
+for(i in network_names){
+  output<-get(i)
+  dimnames(output$I)[[1]]<-dimnames(output$S)[[2]]
+  dimnames(output$I)[[2]]<-dimnames(output$S)[[2]]
+  name<-i
+  assign(name,output)
+  output$I<-round(output$I,digits = 2)
+  name_cor<-paste0("intercepts_",i)
+  assign(name_cor,output$I)
+}
+
+# count number of correlation matrices
+#length(ls(pattern="intercepts_"))
+
+# create vector containing names of the correlation matrices
+matrices<-ls(pattern="intercepts_")
+
+## plot the rounded correlation matrices
+
+# get lower triangle of matrix
+for(i in matrices){
+  cormatrix<- get(i)
+  get_lower_tri<-function(cormatrix){
+    cormatrix[upper.tri(cormatrix)] <- NA
+    return(cormatrix)
+  }
+  lower_triangle<-get_lower_tri(cormatrix)
+  lower_triangle<-reshape2::melt(lower_triangle)
+  lower_triangle$corrected<-with(lower_triangle, ifelse(value>=1.00,1.00,value))
+
+  #print(i)
+  #print(lower_triangle)
+  
+  heatmap<-
+    ggplot(data=lower_triangle, aes(Var1,Var2,fill=corrected))+
+    geom_tile(color = "white")+
+    theme_minimal()+ 
+    theme_bw()+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                     size = 8, hjust = 1))+
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                     size = 8, hjust = 1))+
+    theme(axis.title.x=element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_blank(),
+          axis.ticks = element_blank(),
+          legend.justification = c(1,0),
+          #legend.position = c(0.45,0.7),
+          legend.direction = "horizontal")+  
+    scale_fill_gradient2(low="gold4",high="darkorange3",mid ="gold",
+                         midpoint=0,limit=c(-1,1),na.value="white",
+                         name="LDSC intercepts")+
+    guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
+    coord_fixed()
+  
+  heatmap<-heatmap+
+    geom_text(aes(Var1,Var2,label=value),color="black",size=2)
+  
+  name<-paste0(i,"_heatmap")
+  assign(name,heatmap)
+}
+
+```
+
+```{r intercepts1,echo=FALSE, out.width = '80%',warning=F,message=F,fig.cap=c("Central Executive","Cingulo-opercular")}
+intercepts_central_exec_heatmap
+intercepts_cingulo_heatmap
+```
+
+```{r intercepts2,echo=FALSE, out.width = '100%',warning=F,message=F,fig.cap="Default Mode"}
+intercepts_default_mode_heatmap
+```
+
+## LDSC intercepts across the whole brain
+```{r whole_brain_intercepts,eval=T,echo=F}
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+load("whole_brain.RData")
+ldscoutput<-LDSCoutput_wholebrain
+  dimnames(ldscoutput$I)[[1]]<-dimnames(ldscoutput$S)[[2]]
+  dimnames(ldscoutput$I)[[2]]<-dimnames(ldscoutput$S)[[2]]
+whole_brain_inter<-reshape2::melt(ldscoutput$I)
+whole_brain_inter$value_corrected<-ifelse(whole_brain_inter$value>1,1,whole_brain_inter$value)
+
+  heatmap<-
+    ggplot(data=whole_brain_inter, aes(Var1,Var2,fill=value_corrected))+
+    geom_tile(color = "white")+
+    theme_minimal()+ 
+    theme_bw()+
+    theme(axis.text.x = element_blank())+
+    theme(axis.text.y = element_blank())+
+    theme(axis.title.x=element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_blank(),
+          axis.ticks = element_blank(),
+          legend.justification = c(1,0),
+          #legend.position = c(0.45,0.7),
+          legend.direction = "horizontal")+  
+    scale_fill_gradient2(low="gold4",high="darkorange3",mid ="gold",
+                         midpoint=0,limit=c(-1,1),na.value="white",
+                         name="LDSC intercepts")+
+    guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
+    coord_fixed()
+  heatmap
+  
+  
+  whole_brain_inter[which(whole_brain_inter$value>1),]
+  
+# get table that holds univariate LDSC intercepts
+univar_intercepts<-whole_brain_inter[which(whole_brain_inter$Var1 == whole_brain_inter$Var2),c("Var1","value")]
+names(univar_intercepts)[1]<-"trait"
+names(univar_intercepts)[2]<-"intercept"
+
+```
+
+
+***
+
+## Do the LDSC intercepts correlate with the phenotypic correlations between brain areas?
+The intercept depend on the phenotypic correlation between traits which can be negative or positive. Thus, we plot the intercepts as a function of the pairwise phenotypic correlation between traits. Based on LDSC theory, it should look like a straight line + small variation due to sampling error [REF](https://doi.org/10.1101/310565).
+
+```{r intercepts_phenotypic_cor}
+# load intercepts
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+setwd(temporarywd)
+
+load("whole_brain.RData")
+ldscoutput<-LDSCoutput_wholebrain
+# name rows and columns
+dimnames(ldscoutput$I)[[1]]<-dimnames(ldscoutput$S)[[2]]
+dimnames(ldscoutput$I)[[2]]<-dimnames(ldscoutput$S)[[2]]
+
+# keep lower matrix
+cormatrix<-ldscoutput$I
+get_lower_tri<-function(cormatrix){
+  cormatrix[upper.tri(cormatrix)] <- NA
+  return(cormatrix)
+}
+intercepts<-get_lower_tri(cormatrix)
+diag(intercepts)<-NA
+intercepts<-reshape2::melt(intercepts)
+names(intercepts)<-c("region1","region2","intercepts")
+
+# load phenotypic correlations
+temporarywd<-paste0(workingd,"/data/phenotypic/")
+setwd(temporarywd)
+
+load("residualised_Zhao_corr.RData")
+
+phenotypic_cor<-cor_matrix
+
+# sort same as intercept matrix
+names<-dimnames(ldscoutput$S)[[2]]
+phenotypic_cor<-phenotypic_cor[names,names]
+
+# get lower triangle
+phenotypic_cor<-get_lower_tri(phenotypic_cor)
+phenotypic_cor<-reshape2::melt(phenotypic_cor)
+names(phenotypic_cor)<-c("region1","region2","phenotypic_cor")
+
+intercept_pheno<-merge(intercepts,phenotypic_cor,by=c("region1","region2"))
+
+plot(intercept_pheno$phenotypic_cor,intercept_pheno$intercepts,xlab="Phenotypic correlations",ylab="LDSC intercepts")
+abline(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor,na.action = "na.omit"),col="red")
+summary(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor))
+# how many intercepts are there? Should be 3404
+#sum(!is.na(intercepts$intercepts))
+```
+
+***
+
