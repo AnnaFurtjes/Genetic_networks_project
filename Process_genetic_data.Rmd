@@ -20,6 +20,8 @@ body{
 </style>
 
 
+
+
 ```{r setup, include=F,echo=F}
 require(knitr)
 opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
@@ -427,6 +429,48 @@ These genetic correlations include `r nrow(traits_corr_below0)` negative correla
 
 ```{r}
 kable(traits_corr_below0[,c("Var1","Var2","value")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation"), caption = "Negative Genetic Correlations")
+```
+
+## Plot standard errors
+
+Here we display the standard errors for the lower triangle of the genetic correlation matrix. 
+
+```{r standard_errors, warning=F, message=F}
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+load("whole_brain.RData")
+ldscoutput<-LDSCoutput_wholebrain
+  dimnames(ldscoutput$S_Stand)[[1]]<-dimnames(ldscoutput$S)[[2]]
+  dimnames(ldscoutput$S_Stand)[[2]]<-dimnames(ldscoutput$S)[[2]]
+
+k<-nrow(ldscoutput$S)
+SE<-matrix(0, k, k)
+SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(ldscoutput$V))
+
+get_lower_tri<-function(cormatrix){
+  cormatrix[upper.tri(cormatrix)] <- NA
+  return(cormatrix)
+}
+
+SE_lower<-get_lower_tri(SE)
+SE_lower<-reshape2::melt(SE_lower)
+
+library(ggridges)
+
+ggplot(SE_lower, aes(value,color="indianred2",fill="indianred2"))+
+  geom_density(show.legend=FALSE)+
+              theme_ridges()+
+              scale_x_continuous(n.breaks = 5)+
+              xlab("Standard errors of genetic correlations")+ylab("")+
+              theme(legend.position = "none",
+                    axis.text.x = element_text(size=24),
+                    axis.text.y = element_text(size=24),
+                    axis.title.x = element_text(size=26),
+                    panel.background = element_blank(), 
+                    axis.line = element_line(color="black"), 
+                    axis.line.x = element_line(color="black"))+theme_bw()
+
 ```
 
 
