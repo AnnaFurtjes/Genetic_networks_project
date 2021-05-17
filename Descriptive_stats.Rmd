@@ -43,7 +43,7 @@ $$\\[1in]$$
 ```{r eigendecomposition_pheno, warning=F,message=F}
 # set wd to where region names per network are saved
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/Scripts/Genetic_networks_project_May2020/3Perform_ldsc")
+temporarywd<-paste0(workingd,"/Scripts/my_own_gwas/2Perform_ldsc")
 setwd(temporarywd)
 
 # load files containing region names
@@ -65,7 +65,7 @@ library(stringr)
 descriptives_pheno_networks<-data.frame(networks=str_replace(region_files,pattern="_regions",replacement = ""))
 
 # load phenotypic correlation matrix
-temporarywd_pheno<-paste0(workingd,"/data_Smith/phenotypic/")
+temporarywd_pheno<-paste0(workingd,"/data_my_own/Pheno_preparation/")
 setwd(temporarywd_pheno)
 
 load("pheno_decomposition.RData")
@@ -200,7 +200,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
 #tiff("PC_pheno_loadings.tiff", width = 6.25, height = 5, units = 'in', res=1000)
 
  loadings_pheno_plot<-ggplot(data_pheno, aes(x=stand_loadings,y=network))+
-              geom_density_ridges(rel_min_height = 0.005,aes(fill=as.factor(network))) +
+              geom_density_ridges(rel_min_height = 0.005, aes(fill=as.factor(network)),stat="density_ridges", position = "identity", quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_ridges)) +
               theme_ridges()+
               #scale_fill_brewer(values = mycolors)+
               scale_fill_manual(values=mycolors,guide=FALSE)+
@@ -217,6 +217,11 @@ loadings_pheno_plot
 
 #dev.off()
 ```
+
+Note that the vertical lines indicate the quantiles. 
+
+
+
 ***
 
 <br>
@@ -233,7 +238,7 @@ library(data.table)
 
 # set wd where ldsc_output is saved
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data_Smith/ldsc_output/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 # list available results in this directory
@@ -244,7 +249,11 @@ network_names<-str_replace(networks,pattern=".RData",replacement = "")
 for(i in 1:length(networks)){
   load(networks[i])
   name<-network_names[i]
-  assign(name,LDSCoutput)
+    if(name == "whole_brain"){
+      assign(name,LDSCoutput_wholebrain)
+    }else{
+      assign(name,LDSCoutput)
+    }
 }
 
 # name rows and columns in matrices after their corresponding brain area
@@ -316,9 +325,7 @@ for(i in 1:nrow(networks)){
 
 	name<-paste0("stand_loadings_",network_names[i])
 	assign(name,stand_loadings)
-	
-	#the calculation of the standardised loadings throws an error message because the eigenvalue of the last PC has a negative value. R cannot take the sqrt of that value
-}
+	}
 
 rm("stand_loadings")
 loadings_all_traits<-ls(pattern="stand_loadings")
@@ -328,40 +335,22 @@ explained_all_traits<-ls(pattern="explained_var")
 
 ```
 
-```{r eigendecomp_whole_brain, warning=FALSE}
+## Save PC loadings in separate files
 
-workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
-setwd(temporarywd)
+This step is done to be able to create the network specific summary statistics, in which multiple regions are combined and weighted according to their PC loadings. 
 
-load("whole_brain.RData")
-ldscoutput<-LDSCoutput_wholebrain
+```{r eval=F}
 
-dimnames(ldscoutput$S_Stand)[[1]]<-dimnames(ldscoutput$S)[[2]]
-dimnames(ldscoutput$S_Stand)[[2]]<-dimnames(ldscoutput$S)[[2]]
-ldscoutput$S_Stand<-ldscoutput$S_Stand
+setwd(paste0(workingd,"data_my_own/standardised_loadings/"))
 
-# extract eigenvectors
-eigenvectors_whole_brain<-eigen(ldscoutput$S_Stand)$vectors
-rownames(eigenvectors_whole_brain)<-dimnames(ldscoutput$S)[[2]]
-colnames(eigenvectors_whole_brain)<-dimnames(ldscoutput$S)[[2]]
+for (i in loadings_all_traits){
+	loadings<-get(i)
+	file_name<-paste0(i,".txt")
+	write.table(loadings,file=file_name,quote=F,sep=" ",na="NA",row.names=F,col.names = T)
+}
 
-
-### in case only interested in 1 hemisphere use the next line
-# ldscoutput$S_Stand<-ldscoutput$S_Stand[grep("Left_", colnames(matrix)),grep("Left_", rownames(matrix))]
-
-
-eigenvalues_whole_brain<-eigen(ldscoutput$S_Stand)$values
-explained_variance_whole_brain<-eigenvalues_whole_brain/sum(eigenvalues_whole_brain)*100
-
-# values and brain areas next to each other
-stand_loadings_whole_brain<-eigenvectors_whole_brain%*%sqrt(diag(eigenvalues_whole_brain))
-stand_loadings_whole_brain<-setDT(as.data.frame(stand_loadings_whole_brain), keep.rownames = TRUE)[,1:2]
-names(stand_loadings_whole_brain)<-c("Regions","stand_loadings")
-stand_loadings_whole_brain$stand_loadings<-stand_loadings_whole_brain$stand_loadings*(-1)
-## brain are with smallest loading
-## stand_loadings_whole_brain[which(stand_loadings_whole_brain$stand_loadings == min(stand_loadings_whole_brain$stand_loadings)),]
 ```
+
 
 
 ```{r eigendecomp_table}
@@ -369,7 +358,7 @@ stand_loadings_whole_brain$stand_loadings<-stand_loadings_whole_brain$stand_load
 library(knitr)
 
 # create new dataframe with network names in one row
-table<-data.frame(networks="test",matrix(nrow=9))[1]
+table<-data.frame(networks="test",matrix(nrow=10))[1]
 table$networks<-str_replace(loadings_all_traits,pattern="stand_loadings_",replacement="")
 
 for(i in 1:length(loadings_all_traits)){
@@ -394,18 +383,6 @@ for(i in 1:length(loadings_all_traits)){
 
 }
 
-table[10,"networks"]<-"whole_brain"
-table[10,"explained"]<-explained_variance_whole_brain[1]
-table[10,"min"]<-min(stand_loadings_whole_brain$stand_loadings)
-table[10,"mean"]<-mean(stand_loadings_whole_brain$stand_loadings)
-table[10,"sd"]<-sd(stand_loadings_whole_brain$stand_loadings)
-table[10,"median"]<-median(stand_loadings_whole_brain$stand_loadings)
-
-d<-density(stand_loadings_whole_brain$stand_loadings)
-table[10,"mode"]<-d$x[which.max(d$y)]
-
-table[10,"max"]<-max(stand_loadings_whole_brain$stand_loadings)
-
 table$number_included<-c(8,10,16,12,12,36,10,12,30,83)
 
 
@@ -415,7 +392,7 @@ kable(table,caption="Explained variance and loadings on first PC",format="markdo
 
 
 
-## Plot density distribution of stansardised loadings
+## Plot density distribution of standardised loadings
 ```{r plot_density_stand_loadings,eval=T,message=F,warning=F}
 # all networks are saved in loadings_all_traits
 
@@ -432,11 +409,6 @@ for(i in loadings_all_traits){
   data_ridges<-rbind(data_ridges,df)
 }
 
-# do the same for whole brain 
-stand_loadings_whole_brain$network<-"Whole brain"
-
-# merge all networks with whole brain
-data_ridges<-rbind(data_ridges,stand_loadings_whole_brain)
 # remove empty first row
 data_ridges<-data_ridges[-1,]
 
@@ -450,6 +422,8 @@ data_ridges$network[which(data_ridges$network == "hippocampal")]<-"Hippocampal-d
 data_ridges$network[which(data_ridges$network == "default_mode")]<-"Default mode"
 data_ridges$network[which(data_ridges$network == "cingulo")]<-"Cingulo-opercular"
 data_ridges$network[which(data_ridges$network == "central_exec")]<-"Central executive"
+data_ridges$network[which(data_ridges$network == "whole_brain")]<-"Whole brain"
+
 
 data_ridges$network<-as.factor(data_ridges$network)
 
@@ -466,7 +440,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
 #tiff("PC_loadings.tiff", width = 6.25, height = 5, units = 'in', res=1000)
 
  loadings_plot<-ggplot(data_ridges, aes(x=stand_loadings,y=network))+
-              geom_density_ridges(rel_min_height = 0.041, aes(fill=as.factor(network)),stat="density_ridges", position = "identity", quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_ridges),bandwidth=0.065) +
+              geom_density_ridges(rel_min_height = 0.005, aes(fill=as.factor(network)),stat="density_ridges", position = "identity", quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_ridges)) +
               theme_ridges()+
               #scale_fill_brewer(values = mycolors)+
               scale_fill_manual(values=mycolors,guide=FALSE)+
@@ -483,6 +457,8 @@ loadings_plot
 
 #dev.off()
 ```
+
+Note that the vertical lines indicate the quantiles. 
 
 ***
 
@@ -502,13 +478,13 @@ library(stringr)
 
 # load Javiers function
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/Scripts/Genetic_networks_project_May2020/5Eigendecomp/")
+temporarywd<-paste0(workingd,"/Scripts/my_own_gwas/Eigendecomp/")
 setwd(temporarywd)
 
 source("Parallel_Anallysis_paLDSC_JF.R")
 
 # load data and name it according to network
-temporarywd<-paste0(workingd,"/data/ldsc_output")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 networks<-list.files(pattern=".RData")
@@ -520,7 +496,7 @@ load(networks[i])
   assign(name,LDSCoutput)
 }
 
-temporarywd<-paste0(workingd,"/data/parallel_analysis_output")
+temporarywd<-paste0(workingd,"/data_my_own/PA_output/")
 setwd(temporarywd)
 
 
@@ -533,10 +509,11 @@ for(i in network_names){
 ```
 
 ```{r parallel_analysis_graphics, echo=FALSE, out.width = '80%',fig.cap=c("Central Executive","Cingulo-opercular","Default Mode","Whole brain")}
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/central_executive_PA.png")
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/cingulo_PA.png")
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/default_mode.png")
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/whole_brain_PA.png")
+knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/central_exec_PA.png")
+knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/cingulo_PA.PNG")
+knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/default_mode_PA.PNG")
+break
+#knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/whole_brain_PA.png")
 ```
 
 # Exploratory analyses
@@ -544,7 +521,6 @@ knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/
 ## The first PC of larger networks explains less variance than the PC of smaller networks
 
 ```{r}
-networks<-c("central","cingulo","default","hippo","multiple","pfit","salience","sensori","temporo","whole_brain")
 volumes<-table$number_included
 explained_var<-table$explained
 
@@ -560,7 +536,7 @@ abline(lm(explained_var~volumes),col="red")
 ```{r pa}
 networks<-c("central","cingulo","default","hippo","multiple","pfit","salience","sensori","temporo","whole_brain")
 volumes<-table$number_included
-components<-c(3,4,4,3,4,8,4,5,7,15)
+components<-c(2,2,3,4,2,7,2,2,7,NA);break
 
 test<-cbind(networks,volumes,components)
 
@@ -579,7 +555,7 @@ We ask this question, because it may invalidate a priori network characterisatio
 ```{r random_networks}
 # read in genetic correlation matrix - whole brain 
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")

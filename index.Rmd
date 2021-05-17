@@ -15,6 +15,8 @@ body{
 }
 </style>
 
+<script type="text/javascript">
+
 
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri(file.path("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/", "KCL_logo.jpg")), 
@@ -55,7 +57,7 @@ $$\\[0.05in]$$
 
 * [Genome-wide association study for regional brain volumes](gwas.html)
 
-* [Evaluate GWAS for regional brain volumes](Evaluate_gwas.html)
+* [Evaluate GWAS](Evaluate_gwas.html)
 
 * [Processing genetic data](Process_genetic_data.html)
 
