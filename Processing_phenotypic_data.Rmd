@@ -21,10 +21,9 @@ body{
 
 
 
-```{r setup, include=F,echo=F}
+```{r setup, include=F,echo=F,eval=T}
 require(knitr)
 opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
-knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
 
 $$\\[0.5in]$$
@@ -394,7 +393,10 @@ write.table(all_vars_cor, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/
 As outlined in the amendment of our pre-registration, we only consider covariates that demonstrate a correlation with brain volumes > .10. Here, we display the correlations results between each of the 83 brain volumes, and all our candidate covariates: age, sex, acquisition site, time of year, and x, y, z coordinates. 
 
 ```{r echo=F, eval=T}
-assoc<-read.table("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data/Pheno_preparation/assoc_volumes_covars_13042021.txt",header=T)
+#workingd<-getwd()
+#temporarywd<-paste0(workingd,"data_my_own/Pheno_preparation/")
+#setwd(temporarywd)
+assoc<-read.table("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/Pheno_preparation/assoc_volumes_covars_13042021.txt",header=T)
 
 vars<-names(assoc)[2:ncol(assoc)]
 
@@ -513,3 +515,258 @@ write.table(pheno_file, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/Ph
 
 ```
   
+## Calculate phenotypic correlations
+
+As this study aims to compare correlations of regional volumes between genetic and phenotypic measures, we calculate phenotypic correlations between all regional brain volumes considered in the genetic analyses.
+
+```{r pheno_cor, eval=F, echo=T}
+## Phenotypic part of the analysis
+# Get the brain volume variables and age variables
+# keep only people who have been used in gwas
+
+########################################################################
+## read in data
+########################################################################
+
+# load dependencies
+library(data.table)
+
+# read in UKB file
+setwd("/scratch/datasets/ukbiobank/ukb18177/phenotypes/")
+file<-list.files(pattern="ukb46293.csv")
+file<-fread(file,header=T,data.table=F)
+
+
+########################################################################
+## Identify the cortical and subcortical volume columns
+########################################################################
+
+setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/")
+ref<-fread("region_codes.txt",data.table=F)
+print("Print head references file containing brain area codes")
+head(ref)
+
+# name columns according to their name in region_codes.txt
+for(i in 1:nrow(ref)){
+	number<-paste0(ref$No[i],"-2.0")
+	region<-ref$Region[i]
+	names(file)[grep(number,colnames(file))]<-region
+}
+ # save names of volumes in "keep_volumes"
+keep_volumes<-names(file)[grepl("Right",names(file))|grepl("Left",names(file))|grepl("Brain_stem",names(file))]
+
+# check that there are 83 volumes
+print(length(keep_volumes))
+
+########################################################################
+## only keep columns of interest
+########################################################################
+# keep id column and volumes
+keep<-append("eid",keep_volumes)
+
+file<-file[,keep]
+
+print("Print dimensions with only relevant columns. We expect 84.")
+dim(file)
+
+## only keep non-missing rows for less RAM
+file <- file[rowSums(is.na(file)) != ncol(file)-1, ]
+
+#######################################################################################################
+# read in file containing age, sex
+#######################################################################################################
+setwd("/scratch/datasets/ukbiobank/ukb18177/phenotypes/")
+
+age_file<-list.files(pattern="ukb37667.csv")
+age_file<-fread(age_file,header=T,data.table=F)
+
+print("Dimensions of age_file when loaded into R")
+dim(age_file)
+#######################################################################################################
+# determine sex
+#######################################################################################################
+names(age_file)[grep("31.0",colnames(age_file))]<-"sex"
+
+
+
+####################################################################################################
+# AGE VARIABLE
+#######################################################################################################
+# keep only age relevant rows 
+names(age_file)[grep("21003-2.0",colnames(age_file))]<-"age_neuroimaging"
+names(age_file)[grep("52-0.0",colnames(age_file))]<-"birth_month"
+names(age_file)[grep("53-2",colnames(age_file))]<-"date_imaging"
+names(age_file)[grep("21003-0.0",colnames(age_file))]<-"age_assessment"
+names(age_file)[grep("53-0.0",colnames(age_file))]<-"date_assessment"
+
+
+length(age_file$age_neuroimaging)
+
+summary(age_file$age_neuroimaging)
+
+length(age_file$birth_month)
+
+summary(age_file$birth_month)
+
+
+# only keep columns of interest
+age_file<-age_file[,c("eid","birth_month","date_imaging","age_neuroimaging","age_assessment","date_assessment","sex")]
+
+
+# work out month in which participant attended imaging
+age_file$attendance_month<-as.numeric(substr(age_file$date_imaging,6,7))
+
+
+# difference between attendance and birth month
+age_file$add_months<-(age_file$attendance_month)-(age_file$birth_month)
+
+age_file$add_months<-ifelse(age_file$add_months<0,(12+age_file$add_months),ifelse(age_file$add_months==0,0,age_file$add_months))
+
+# if any remaining fields are now above 11 or below 0, something must have gone wrong and we delete
+age_file$add_months<-ifelse(age_file$add_months>11|age_file$add_months<0,NA,age_file$add_months)
+
+# descriptives months to add
+summary(age_file$add_months)
+
+
+# add extra months to age in months
+age_file$age_in_months<-(age_file$age_neuroimaging*12)+age_file$add_months
+
+# whoever didn't indicate birth_month would have missing values, use age at neuoroimaging visit in months
+age_file$age_in_months<-ifelse(is.na(age_file$age_in_months),age_file$age_neuroimaging*12,age_file$age_in_months)
+
+# with this definition we have 8000 people without age (whoever is left with NA now had no data in both items age_at_assement and birth_month)
+# try to rescue using data from first assessment and imput lag using Simons definition
+
+age_file$date1 <- as.Date(age_file$date_assessment, format="%Y-%m-%d")
+age_file$date3 <- as.Date(age_file$date_imaging, format="%Y-%m-%d")
+age_file$lag1to3 <- as.vector(age_file$date3 - age_file$date1)
+age_file$lag_in_years<-age_file$lag1to3/365.25
+#hist(age_file$lag1to3)
+# make a variable to add lag to age at assessment
+age_file$age_inferred_assessment_months<-(age_file$age_assessment +age_file$lag_in_years)*12
+
+#if there is a missing value: use age at assessment without lag inferred
+age_file$age_inferred_assessment_months<-ifelse(is.na(age_file$age_inferred_assessment_months),(age_file$age_assessment*12),age_file$age_inferred_assessment_months)
+
+
+age_file$age_in_months<-ifelse(is.na(age_file$age_in_months),age_file$age_inferred_assessment_months,age_file$age_in_months)
+
+#descriptives for age_in_months including added months
+print("age in months")
+summary(age_file$age_in_months)
+
+
+print("age in years")
+summary(age_file$age_in_months/12)
+
+
+# only keep age_in_months variable
+age_file<-age_file[,c("eid","age_in_months")]
+
+##################################################################################################################
+## Merge brain volume variables with demographics
+##################################################################################################################
+
+# merge by eid with file
+print("Dimensions age_file")
+dim(age_file)
+print("Dimensions file")
+dim(file)
+# only keep rows that are present in both, because age_file includes the ethnicity exclusions
+file<-merge(file,age_file,by="eid",all.x=T)
+print("Dimensions after merging file and age_file")
+dim(file)
+
+print("Number of non-missing values")
+colSums(!is.na(file))
+
+
+##################################################################################################################
+## Get IDs of pariticpants that were used in the gwas
+##################################################################################################################
+
+print("Now reading in fam file")
+
+fam<-fread("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/geneticQC_UKB_15042021__MAF0.01_GENO0.02_MIND0.02_CAUC1_UKBQC1_UNREL0.044_HWE0.00000001_SEX1.fam",header=F, data.table=F)
+
+
+names(fam)[1]<-"eid"
+
+print("Now merging fam file with trait file")
+file<-merge(fam$eid, file, all.x=T)
+
+if(nrow(file)!=36778){print("Wrong number of participants");break}
+
+print("Done merging the files, and the resulting object match the expected number of participants")
+
+##################################################################################################################
+# Residualise the brain volumes for age and sex
+##################################################################################################################
+print("Summary of volumetric measures before residualising for age and sex")
+summary(file)
+
+for(i in keep_volumes){
+
+	# calculate residualised brain volumes
+	adjusted_var <-residuals(lm(file[,i] ~ file$age_in_months + file$sex, data=file, na.action=na.exclude))
+	
+	# overwrite unresidualised volumes
+	file[,i]<-adjusted_var
+	}
+
+print("Summary of volumetric measures after residualising for age and sex")
+summary(file)
+
+##################################################################################################################
+## Calculate correlations among phenotypic measures
+##################################################################################################################
+
+
+cor_matrix<-cor(file[,-which(names(file)%in%c("eid","age_in_months"))],use="pairwise.complete.obs")
+print("Dimensions of correlation matrix of 83 regions")
+dim(cor_matrix) # should be 83 for all brain_areas
+
+# confirm the brain areas included
+print("Dimension names of cormatrix")
+dimnames(cor_matrix)[1]
+
+# 5. caclulate values and vectors
+eigenvalues<-eigen(cor_matrix)$values 
+eigenvectors<-eigen(cor_matrix)$vectors
+	rownames(eigenvectors)<-dimnames(cor_matrix)[[2]]
+	colnames(eigenvectors)<-dimnames(cor_matrix)[[2]]
+
+# calculate explained variance
+explained_variance<-eigenvalues/sum(eigenvalues)*100
+
+# calculate eigenvalues and format them
+stand_loadings<-eigenvectors%*%sqrt(diag(eigenvalues))
+stand_loadings<-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
+names(stand_loadings)<-c("Regions","stand_loadings")
+print("print head phenotypic standardised loadings")
+head(stand_loadings)
+
+##################################################################################################################
+# calculate age correlations and save in table
+##################################################################################################################
+
+
+age_cor<-as.data.frame(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor(x,file$age_in_months,use="pairwise.complete.obs",method="pearson")))
+age_cor<-cbind(age_cor,rownames(age_cor))
+rownames(age_cor)<-NULL
+names(age_cor)<-c("age_cor","Region")
+print("head age_cor table")
+head(age_cor)
+
+# print all correlations with full statistics
+print("print age correlations")
+print(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor.test(x,file$age_in_months,method="pearson",na.action=na.omit)))
+
+save(list = c("cor_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
+
+```
+
+The resulting .RData file contains phenotypic correlations, eigenvalues and -vectors, standardised loadings and age correlation for each of the 83 brain volumes. This information will be used in subsequent analysis steps for comparison with genetic correlations.
+
+Note that the volumetric measures have been residualised for age and sex to match the phenotypes used in the GWAS. 

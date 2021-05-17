@@ -423,7 +423,7 @@ Note that we found correlations slightly above 1 for the following traits:
 
 <br/>
 
-These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, all negative correlations involve either the frontal pole or the bankssts, which are both known to be hard to segment, and therefore could index only noise (which is a potential explanation for the negative correlations with more reliably measured brain volumes). 
+These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, nearly all negative correlations involve either the frontal pole or the bankssts, which are both known to be hard to segment, and therefore could index only noise (which is a potential explanation for the negative correlations with more reliably measured brain volumes). 
 
 ```{r}
 kable(traits_corr_below0[,c("Var1","Var2","value")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation"), caption = "Negative Genetic Correlations")
@@ -533,10 +533,10 @@ plot_genetic_corr<-
 #############################################################################################
 # make same plot for phenotypic correlations
 # code for how we obtain the cor_matrix on the Edinburgh server can be found in this document under "Pre-processing: Phenotypic data"
-temporarywd_pheno<-paste0(workingd,"/data/phenotypic/");break
+temporarywd_pheno<-paste0(workingd,"/data_my_own/Pheno_preparation/")
 setwd(temporarywd_pheno)
 
-load("residualised_Zhao_corr.RData")
+load("pheno_decomposition.RData")
 
 lower_triangle_pheno<-get_lower_tri(cor_matrix)
 # remove correlations with oneself

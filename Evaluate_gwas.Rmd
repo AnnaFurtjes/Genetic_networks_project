@@ -1,9 +1,31 @@
 ---
 title: "Evaluating gwas"
-author: "Anna Elisabeth Furtjes"
-date: "14/05/2021"
-output: html_document
+highlighter: prettify
+output: 
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    theme: readable
+    includes:
+      after_body: footer.html   
 ---
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+
+
+
+```{r setup, include=F,echo=F}
+require(knitr)
+opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+```
 
 Here, we evaluate the GWAS summary statistics created in a previous step. 
 The following properties of the summary statistics are assessed:
@@ -13,6 +35,8 @@ The following properties of the summary statistics are assessed:
  - Univariate intercepts
  - Signal-to-noise ratio 
  - Do the ldsc intercepts from the whole-brain genetic correlations correlate with phenotypic correlations?
+
+$$\\[0.5in]$$
 
 # Heritability
 
@@ -152,13 +176,14 @@ table<-heritability[,c("p2","h2_obs","h2_obs_se")]
 names(table)<-c("Brain areas","h2 observed","SE")
 table<-table[order(table$`h2 observed`),]
 library(DT)
-datatable(table, rownames=FALSE, filter="top",options = list(pageLength=5, scrollX=T))
+datatable(table, rownames=FALSE,options = list(pageLength=5, scrollX=T))
 ```
 
 
 
 *Note.* The frontal pole is only a tiny area which often is difficult to segment. This might have caused low levels of systematic variation across the GWAS resulting in very low SNP heritability captured by LDSC.
 
+$$\\[1in]$$
 
 # Genomic Inflation Factor for each GWAS
 
@@ -214,13 +239,24 @@ setwd(temporarywd)
 
 lambda<-read.table("lambda_per_volume_14052021.txt",header=T)
 
+  
+# get table that holds univariate LDSC intercepts
+univar_intercepts<-heritability[,c("p2","h2_int","h2_int_se")]
+names(univar_intercepts)<-c("trait","intercept","intercept_se")
 stats<-merge(lambda, univar_intercepts, by = "trait")
 
 
 # plot lambda
 x<-density(stats$lambda)
 plot(x, main = "Distribution of lambda", xlab = "Lambda (median)")
+
+stats$round_lamba<-round(stats$lambda, digits = 3)
+
+library(DT)
+datatable(stats[,c("trait","round_lamba")], rownames=FALSE, colnames = c("Traits","Genomic Inflation Factor"),options = list(pageLength=5, scrollX=T))
 ```
+
+$$\\[1in]$$
 
 # Univariate intercepts
 
@@ -233,7 +269,17 @@ Univariate LDSC intercepts close to 1 indicate that the GWAS calculation appropr
 # plot intercepts
 x<-density(stats$intercept)
 plot(x, main = "Distribution of intercepts", xlab = "Intercepts")
+
+# also we are interested to know whether the confidence intervals around the intercept all overlap with 1
+stats$uci<-round(stats$intercept+(1.96*stats$intercept_se), digits = 2)
+stats$lci<-round(stats$intercept-(1.96*stats$intercept_se), digits = 3)
+stats$CI95 <- paste(stats$lci," - ", stats$uci)
+stats$round_intercept<-round(stats$intercept, digits = 3)
+
+datatable(stats[,c("trait","round_intercept","CI95")], rownames=FALSE, colnames = c("Traits","Intercept","95% Confidence Interval"),options = list(pageLength=5, scrollX=T))
 ```
+
+$$\\[1in]$$
 
 # Signal-to-noise ratio
 
@@ -248,23 +294,28 @@ Note to self: Keep in mind, that there is no point considering confidence interv
 
 # first we round one intercept to the second digit because we have one trait where the intercept is slightly below 1 and results in a negative ratio
 # note that this value will result in an infite value instead
+trait_intercept_below1<-stats[which(stats$intercept<1),"trait"]
+intercept_below1<-stats[which(stats$intercept<1),"intercept"]
 stats$intercept[which(stats$intercept<1)]<-round(stats$intercept[which(stats$intercept<1)],digits = 2)
 
 stats$ratio<-(stats$mean_chisq - 1)/(stats$intercept-1)
 
 
 # display as table
-stats$lambda<-round(stats$lambda, digits = 3)
-stats$intercept<-round(stats$intercept, digits = 3)
 stats$ratio<-round(stats$ratio, digits = 3)
+stats$mean_chisq<-round(stats$mean_chisq, digits = 3)
+# the signal to noise ratio for one trait is Inf, but is displayed as an empty cell
+stats[which(stats$ratio>10000),"ratio"]<-"Inf"
 
-datatable(stats, rownames=FALSE, colnames = c("Traits","Lambda","Univariate intercepts","Signal to noise ratio"),options = list(pageLength=5, scrollX=T))
+datatable(stats[,c("trait","ratio","mean_chisq","intercept")], rownames=FALSE, colnames = c("Traits","Signal to noise ratio", "Mean chisq","Univariate intercept"),options = list(pageLength=5, scrollX=T))
 
 ```
 
 
-# LDSC intercepts
-Note that one trait (`r stats[which(stats$intercept<1),"trait"]`) has a univariate intercept below, but very close to 1 (intercept = `r stats[which(stats$intercept<1),"intercept"]`).
+Note that one trait (`r trait_intercept_below1`) has a univariate intercept below, but very close to 1 (intercept = `r intercept_below1`).
+
+$$\\[1in]$$
+
 
 
 ## Plot LDSC intercepts for genetic correlations across the brain
@@ -404,20 +455,13 @@ whole_brain_inter$value_corrected<-ifelse(whole_brain_inter$value>1,1,whole_brai
   heatmap
   
   
-  whole_brain_inter[which(whole_brain_inter$value>1),]
-  
-# get table that holds univariate LDSC intercepts
-univar_intercepts<-whole_brain_inter[which(whole_brain_inter$Var1 == whole_brain_inter$Var2),c("Var1","value")]
-names(univar_intercepts)[1]<-"trait"
-names(univar_intercepts)[2]<-"intercept"
-
 ```
 
 
 ***
 
 ## Do the LDSC intercepts correlate with the phenotypic correlations between brain areas?
-The intercept depend on the phenotypic correlation between traits which can be negative or positive. Thus, we plot the intercepts as a function of the pairwise phenotypic correlation between traits. Based on LDSC theory, it should look like a straight line + small variation due to sampling error [REF](https://doi.org/10.1101/310565).
+The intercept depends on the phenotypic correlation between traits which can be negative or positive. Thus, we plot the intercepts as a function of the pairwise phenotypic correlation between traits. Based on LDSC theory, it should look like a straight line + small variation due to sampling error [REF](https://doi.org/10.1101/310565).
 
 ```{r intercepts_phenotypic_cor}
 # load intercepts
@@ -443,10 +487,10 @@ intercepts<-reshape2::melt(intercepts)
 names(intercepts)<-c("region1","region2","intercepts")
 
 # load phenotypic correlations
-temporarywd<-paste0(workingd,"/data/phenotypic/")
-setwd(temporarywd)
+temporarywd_pheno<-paste0(workingd,"/data_my_own/Pheno_preparation/")
+setwd(temporarywd_pheno)
 
-load("residualised_Zhao_corr.RData")
+load("pheno_decomposition.RData")
 
 phenotypic_cor<-cor_matrix
 
@@ -464,7 +508,7 @@ intercept_pheno<-merge(intercepts,phenotypic_cor,by=c("region1","region2"))
 plot(intercept_pheno$phenotypic_cor,intercept_pheno$intercepts,xlab="Phenotypic correlations",ylab="LDSC intercepts")
 abline(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor,na.action = "na.omit"),col="red")
 summary(lm(intercept_pheno$intercepts~intercept_pheno$phenotypic_cor))
-# how many intercepts are there? Should be 3404
+# how many intercepts are there? Should be 3403
 #sum(!is.na(intercepts$intercepts))
 ```
 

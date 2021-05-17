@@ -53,7 +53,9 @@ $$\\[0.05in]$$
 
 * [Genetic quality control](Genetic_qc.html)
 
-* [Genome-wide association study for regional brain volumes](.html)
+* [Genome-wide association study for regional brain volumes](gwas.html)
+
+* [Evaluate GWAS for regional brain volumes](Evaluate_gwas.html)
 
 * [Processing genetic data](Process_genetic_data.html)
 
