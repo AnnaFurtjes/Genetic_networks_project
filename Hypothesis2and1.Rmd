@@ -56,7 +56,7 @@ Previously, we have calculated a phenotypic and genetic correlation matrix betwe
 ##### load genetic data
 #set wd
 workingd<-getwd()
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")
@@ -78,10 +78,10 @@ names(genetic_cor)<-c("region1","region2","genetic_cor")
 
 ######## load phenotypic data
 
-temporarywd<-paste0(workingd,"/data/phenotypic/")
-setwd(temporarywd)
+temporarywd_pheno<-paste0(workingd,"/data_my_own/Pheno_preparation/")
+setwd(temporarywd_pheno)
 
-load("residualised_Zhao_corr.RData")
+load("pheno_decomposition.RData")
 
 phenotypic_cor<-cor_matrix
 
@@ -130,31 +130,6 @@ plot_corr<- plot_corr+xlab("Genetic correlations")+ ylab("Phenotypic correlation
         axis.title.x = element_text(face="bold", colour='black', size=17,family="Arial Narrow"))
 plot_corr
 
-## distribution of correlations for brain stem with rest of the brain 
-#summary(gen_pheno[which(gen_pheno$region1 == "Brain_stem" & !is.na(gen_pheno$genetic_cor)| gen_pheno$region2 == "Brain_stem"),"genetic_cor"])
-#brainstem_cor<-gen_pheno[which(gen_pheno$region1 == "Brain_stem" & !is.na(gen_pheno$genetic_cor)| gen_pheno$region2 == "Brain_stem"),"genetic_cor"]
-# summary(brainstem_cor[2:length(brainstem_cor)])
-
-## calculate mean absolute difference in phenotypic vs genetic correlation
-#delta_cor<-abs(gen_pheno$phenotypic_cor-gen_pheno$genetic_cor)
-#mean(delta_cor,na.rm=T)
-# sd(delta_cor,na.rm=T)
-# this is suggesting that phenotypic correlation is not a good predictor for genetic ones
-
-## calculate explained variance betwen them
-#summary(lm(gen_pheno$phenotypic_cor~gen_pheno$genetic_cor,na.action = "na.omit"))
-
-# which correlations are negaitve?
-#neg_gen<-gen_pheno[which(gen_pheno$genetic_cor<=0&!is.na(gen_pheno$genetic_cor)),]
-# nrow(neg_gen)
-# nrow(neg_gen)/sum(!is.na(gen_pheno$genetic_cor))
-
-# test whether measurement error might be associated with the difference between pheno and geno correlations
-#temporarywd<-paste0(workingd,"/data/heritability_volumes/")
-#setwd(temporarywd)
-#heritability<-fread("heritability_volumes_clean.txt",header=T,data.table = F)
-# build avergage h2 for each combination of structure
-# correlate that with delta_cor
 ```
 
 **The red line is the line of identity.**
@@ -183,10 +158,11 @@ Genetic correlations are negative in `r percent_neg`% of the cases (negative cor
 ## Association between phenotypic and genetic loadings on the first PC
 ```{r pheno_gen_stand_loadings, warning=F}
 # load phenotypic loadings
-temporarywd<-paste0(workingd,"/data/phenotypic/")
-setwd(temporarywd)
+temporarywd_pheno<-paste0(workingd,"/data_my_own/Pheno_preparation/")
+setwd(temporarywd_pheno)
 
-load("residualised_Zhao_corr.RData")
+load("pheno_decomposition.RData")
+
 pheno_stand_loadings<-stand_loadings
 names(pheno_stand_loadings)[2]<-"pheno_stand_loadings"
 pheno_stand_loadings$pheno_stand_loadings<-pheno_stand_loadings$pheno_stand_loadings*(-1)
@@ -194,13 +170,21 @@ pheno_stand_loadings$pheno_stand_loadings<-pheno_stand_loadings$pheno_stand_load
 # load genetic loadings
 library(data.table)
 
-temporarywd<-paste0(workingd,"/data/standardised_loadings/")
+temporarywd<-paste0(workingd,"/data_my_own/standardised_loadings/")
 setwd(temporarywd)
 
-gen_stand_loadings<-fread("stand_loadings_whole_brain.txt",data.table=F)
+gen_stand_loadings<-read.table("stand_loadings_whole_brain.txt",header=T)
 names(gen_stand_loadings)[2]<-"gen_stand_loadings"
-gen_stand_loadings$gen_stand_loadings<-gen_stand_loadings$gen_stand_loadings*(-1)
 
+	# multiply the loadings with -1 if the median of the loadings is negative
+	median_loadings<-median(gen_stand_loadings$gen_stand_loadings)
+	mean_direction<-sign(median_loadings)
+	if(mean_direction == -1){
+	gen_stand_loadings$gen_stand_loadings<-gen_stand_loadings$gen_stand_loadings*(-1)
+	} else {
+	gen_stand_loadings$gen_stand_loadings<-gen_stand_loadings$gen_stand_loadings}
+	
+	
 stand_loadings<-merge(pheno_stand_loadings,gen_stand_loadings,by="Regions")
 
 #calculate correlation between loadings
@@ -225,21 +209,33 @@ library(ggplot2)
 library(ggpubr)
 
 plot_loadings<-ggplot(stand_loadings, aes(x=gen_stand_loadings,y=pheno_stand_loadings))+#
-  geom_point(size=4,alpha=0.4)+#,color=stand_loadings$central_col
-  geom_smooth(method=lm, se=TRUE) #+
-  #ggtitle("Phenotypic vs. genetic PC loadings")
+                        geom_point(size=4,alpha=0.4)+#,color=stand_loadings$central_col
+                        geom_smooth(method=lm, se=TRUE) #+
+                        #ggtitle("Phenotypic vs. genetic PC loadings")
   
-  plot_loadings<-plot_loadings+xlab("Genetic PC loadings")+ylab("Phenotypic PC loadings")+
-  theme(plot.title = element_text(size=20, hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ theme_bw()+
+  plot_loadings<-plot_loadings+
+                xlab("Genetic PC loadings")+
+                ylab("Phenotypic PC loadings")+
+                theme(
+                  plot.title = element_text(size=20, hjust = 0.5), 
+                  panel.background = element_blank(), 
+                  axis.line = element_line(color="black"), 
+                  axis.line.x = element_line(color="black"))+ 
+    theme_bw()+
     stat_cor(method="pearson",cor.coef.name="r",size=4.5,label.x.npc=0.65,label.y.npc = 0)+
-  theme(legend.position = "none")+
-    geom_abline(intercept=0,slope=(1),linetype="dashed",color="red",show.legend=T, size=1.5,alpha=0.6)+
-    geom_vline(xintercept = 0,linetype="dashed",color="black",size=1.5,alpha=0.2)+
-        theme(text = element_text(size=12,family="Arial Narrow"),
-        axis.text.x = element_text(size=15,family="Arial Narrow"),#angle=45
-        axis.text.y = element_text(size=15,family="Arial Narrow"),
-        axis.title.y = element_text(face="bold", colour='black', size=17,family="Arial Narrow"),
-        axis.title.x = element_text(face="bold", colour='black', size=17,family="Arial Narrow"))
+    theme(legend.position = "none")+
+    geom_abline(intercept=0,
+                slope=(1),
+                linetype="dashed",
+                color="red",
+                show.legend=T, 
+                size=1.5,
+                alpha=0.6)+
+        theme(text = element_text(size=12),
+              axis.text.x = element_text(size=15),
+              axis.text.y = element_text(size=15),
+              axis.title.y = element_text(face="bold", colour='black', size=17),
+              axis.title.x = element_text(face="bold", colour='black', size=17))
 plot_loadings
 ```
 
@@ -261,7 +257,7 @@ pheno_eigenvector<-principal(cor_matrix)
 match_names<-dimnames(cor_matrix)[[1]]
 
 # genetic matrix inferred through LDSC 
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")
@@ -282,7 +278,7 @@ The Tucker congruence coefficient for the loadings of the first PC in phenotypic
 ### Tucker coefficient: A priori networks
 ```{r Tucker_networks, warning=F,message=F}
 # read in genetic corr matrix
-temporarywd<-paste0(workingd,"/data/ldsc_output/whole_brain/")
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
 load("whole_brain.RData")
@@ -291,7 +287,7 @@ colnames(genetic_whole_brain_matrix)<-dimnames(LDSCoutput_wholebrain$S)[[2]]
 rownames(genetic_whole_brain_matrix)<-dimnames(LDSCoutput_wholebrain$S)[[2]]
 
 # set wd to where region names per network are saved
-temporarywd<-paste0(workingd,"/Scripts/Zhao_GWASs/3_perform_ldsc")
+temporarywd<-paste0(workingd,"/Scripts/my_own_gwas/2Perform_ldsc/")
 setwd(temporarywd)
 
 # load files containing region names
@@ -365,20 +361,31 @@ plot_age_pheno<-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
   geom_smooth(method=lm, se=TRUE)#,color="blue") #+
   #ggtitle("Phenotypic age correlations vs. phenotypic PC loadings")
   
-  plot_age_pheno<-plot_age_pheno+xlab("Phenotypic PC loadings")+ylab("Age correlations")+
-  theme(plot.title = element_text(size=20, hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ theme_bw()+
-    stat_cor(method="pearson",cor.coef.name="r",size=4.5,color="black",label.x.npc=0.65,label.y.npc = 0)+
+  plot_age_pheno<-
+    plot_age_pheno+
+    xlab("Phenotypic PC loadings")+
+    ylab("Age correlations")+
+    theme(plot.title = element_text(size=20, hjust = 0.5), 
+          panel.background = element_blank(), 
+          axis.line = element_line(color="black"), 
+          axis.line.x = element_line(color="black"))+ 
+    theme_bw()+
+    stat_cor(method="pearson",
+             cor.coef.name="r",
+             size=4.5,
+             color="black",
+             label.x.npc=0.65,
+             label.y.npc = 0)+
   theme(legend.position = "none")+
-        theme(text = element_text(size=12,family="Arial Narrow"),
-        axis.text.x = element_text(size=15,family="Arial Narrow"),#angle=45
-        axis.text.y = element_text(size=15,family="Arial Narrow"),
-        axis.title.y = element_text(face="bold", colour='black', size=17,family="Arial Narrow"),
-        axis.title.x = element_text(face="bold", colour='black', size=17,family="Arial Narrow"))
+        theme(text = element_text(size=12),
+        axis.text.x = element_text(size=15),#angle=45
+        axis.text.y = element_text(size=15),
+        axis.title.y = element_text(face="bold", colour='black', size=17),
+        axis.title.x = element_text(face="bold", colour='black', size=17))
 
 plot_age_pheno
 ```
 
-**This is the same result as reported in Madole et al.**
 
 
 ## Association between genetic PC loadings and age-volume correlations
@@ -403,14 +410,25 @@ plot_age_geno<-ggplot(data, aes(x=gen_stand_loadings,y=age_cor))+#
   geom_smooth(method=lm, se=TRUE) #+
   #ggtitle("Phenotypic age correlations vs. PC genetic loadings")
   
-plot_age_geno<-plot_age_geno+xlab("Genetic PC loadings")+ylab("Age correlations")+
-  theme(plot.title = element_text(size=20, hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ theme_bw()+
-    stat_cor(method="pearson",cor.coef.name="r",size=4.5,label.x.npc=0.65,label.y.npc = 0)+
-      theme(text = element_text(size=12,family="Arial Narrow"),
-        axis.text.x = element_text(size=15,family="Arial Narrow"),#angle=45
-        axis.text.y = element_text(size=15,family="Arial Narrow"),
-        axis.title.y = element_text(face="bold", colour='black', size=17,family="Arial Narrow"),
-        axis.title.x = element_text(face="bold", colour='black', size=17,family="Arial Narrow"))
+plot_age_geno<-
+  plot_age_geno+
+  xlab("Genetic PC loadings")+
+  ylab("Age correlations")+
+  theme(plot.title = element_text(size=20, hjust = 0.5), 
+        panel.background = element_blank(), 
+        axis.line = element_line(color="black"), 
+        axis.line.x = element_line(color="black"))+ 
+  theme_bw()+
+    stat_cor(method="pearson",
+             cor.coef.name="r",
+             size=4.5,
+             label.x.npc=0.65,
+             label.y.npc = 0)+
+      theme(text = element_text(size=12),
+        axis.text.x = element_text(size=15),#angle=45
+        axis.text.y = element_text(size=15),
+        axis.title.y = element_text(face="bold", colour='black', size=17),
+        axis.title.x = element_text(face="bold", colour='black', size=17))
 plot_age_geno
 
 ```
