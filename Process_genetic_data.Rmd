@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 
 $$\\[0.5in]$$
 
-*Here we analyse that GWAS summary statistics created as part of this project. The code displayed below performs data visualisation and sanity checks.*
+*Here we process the 83 brain volume GWAS summary statistics created in a [previous step](gwas.html). The code displayed below prepares the data for subsequent analyses, and performs data visualisation and sanity checks.*
 
 $$\\[1in]$$
 
@@ -81,7 +81,23 @@ for (i in gwas_files){
 }
 
 ```
-After munging the files have 9 columns, and 1,171,881 rows (SNPs).
+After munging the files have 1,172,487 remaining rows (SNPs).
+
+  - 9932681 rows present in the full sumstats file
+  
+  - 8737179 rows were removed as the rs-ids for these rows were not present in the reference file (HapMap3)
+  
+  - 3070 rows were removed due to the effect allele (A1) column not matching A1 or A2 in the reference file
+  
+  - 1599 rows were removed due to the other allele (A2) column not matching A1 or A2 in the reference file
+  
+  - 8728 rows were removed due to INFO values below the designated threshold of 0.9
+  
+  - 9618 rows were removed due to missing MAF information or MAFs below the designated threshold of 0.01
+  
+  - 1172487 remaining rows in the sumstats
+  
+  
 
 ***
 
@@ -303,7 +319,7 @@ whole_brain_corr$value_corrected<-ifelse(whole_brain_corr$value>1,1,whole_brain_
 ```
 
 
-The vertical line through the diagnonal indicates the genetic correlation of a brain area with itself, and the vertical lines that run parallel to it indicate the strong genetic correlation with their contralateral counterpart.
+The vertical line through the diagnonal indicates the genetic correlation of a brain area with itself, and the vertical lines that run parallel to it indicate the strong genetic correlation with their contralateral counterpart. The only region that does not exhibit this bilateral symmetry is the brain stem.
 
 
 
@@ -425,7 +441,7 @@ Note that we found correlations slightly above 1 for the following traits:
 
 <br/>
 
-These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, nearly all negative correlations involve either the frontal pole or the bankssts, which are both known to be hard to segment, and therefore could index only noise (which is a potential explanation for the negative correlations with more reliably measured brain volumes). 
+These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, nearly all negative correlations involve either the frontal pole or the bankssts, which are both known to be difficult to segment, and therefore could potentially index noise (which could explain the negative correlations with more reliably measured brain volumes). 
 
 ```{r}
 kable(traits_corr_below0[,c("Var1","Var2","value")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation"), caption = "Negative Genetic Correlations")

@@ -410,7 +410,7 @@ body{
 <hr />
 <div id="preparation" class="section level2">
 <h2>Preparation</h2>
-<p>Before I ran this quality control pipeline, I reduced the full UKB genetic data set to the 39,947 participants with complete phenotypic data.</p>
+<p>Before running this quality control pipeline, the full UKB genetic data set has been reduced to the 39,947 participants with complete phenotypic data. This step is performed in PLINK.</p>
 <pre class="bash"><code>plink \
 --bed /ukb_binary_v2.bed  \
 --bim /ukb_binary_v2.bim \
@@ -539,6 +539,37 @@ bash ~/Genotyped_Data_QC_JRIC_240119.sh \
 <h2>Cleaning imputed data</h2>
 <p>Refer to the last script in the <a href="SGDP_pipeline.html">SGDP quality control pipeline</a> for the code used to clean imputed genotype data.</p>
 <p>UKBB data as received is vast and larger than most users will use for common-variant analyses. Thin the UKBB data to MAF &gt;= 0.01 and INFO &gt;= 0.4.</p>
+<pre class="bash"><code>awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr1_v3.txt &gt; ukb_mfi_chr1_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr2_v3.txt &gt; ukb_mfi_chr2_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr3_v3.txt &gt; ukb_mfi_chr3_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr4_v3.txt &gt; ukb_mfi_chr4_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr5_v3.txt &gt; ukb_mfi_chr5_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr6_v3.txt &gt; ukb_mfi_chr6_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr7_v3.txt &gt; ukb_mfi_chr7_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr8_v3.txt &gt; ukb_mfi_chr8_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr9_v3.txt &gt; ukb_mfi_chr9_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr10_v3.txt &gt; ukb_mfi_chr10_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr11_v3.txt &gt; ukb_mfi_chr11_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr12_v3.txt &gt; ukb_mfi_chr12_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr13_v3.txt &gt; ukb_mfi_chr13_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr14_v3.txt &gt; ukb_mfi_chr14_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr15_v3.txt &gt; ukb_mfi_chr15_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr16_v3.txt &gt; ukb_mfi_chr16_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr17_v3.txt &gt; ukb_mfi_chr17_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr18_v3.txt &gt; ukb_mfi_chr18_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr19_v3.txt &gt; ukb_mfi_chr19_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr20_v3.txt &gt; ukb_mfi_chr20_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr21_v3.txt &gt; ukb_mfi_chr21_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chr22_v3.txt &gt; ukb_mfi_chr22_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chrX_v3.txt &gt; ukb_mfi_chrX_v3_MAF1_INFO4.txt
+awk &#39;$6 &gt;= 0.01 &amp;&amp; $8 &gt;= 0.4 {print $2}&#39; ukb_mfi_chrXY_v3.txt &gt; ukb_mfi_chrXY_v3_MAF1_INFO4.txt
+
+for i in {22..1} X XY
+do
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3.bgen -i ukb_imp_chr${i}_v3.bgen.bgi -incl-rsids ukb_mfi_chr${i}_v3_MAF1_INFO4.txt &gt; ukb_imp_chr${i}_v3_MAF1_INFO4.bgen
+
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3_MAF1_INFO4.bgen -index
+done</code></pre>
 </div>
 
 &nbsp;

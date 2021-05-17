@@ -431,7 +431,7 @@ As stated in the pre-registration, we planned to include covariates with correla
 
 ## Format output files
 
-As most covariates in this selection, apart from age and sex, are not associated with brain volumes more than .10, we only include age and sex and drop acquisition site, time of year and the x, y and z coordinates from the analyses. 
+As most covariates in this selection, apart from age and sex, are not correlated with brain volumes (average correlation <.10), we only include age and sex and drop acquisition site, time of year and the x, y and z coordinates from the analyses. 
 
 Next, we create the input files for either the following genetic quality control steps or the GWAS analyses. 
 
@@ -517,7 +517,7 @@ write.table(pheno_file, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/Ph
   
 ## Calculate phenotypic correlations
 
-As this study aims to compare correlations of regional volumes between genetic and phenotypic measures, we calculate phenotypic correlations between all regional brain volumes considered in the genetic analyses.
+As this study aims to compare correlations of regional volumes between genetic and phenotypic measures, we calculate phenotypic correlations between all regional brain volumes considered in the genetic analyses. Additionally, we calculate correlations between age and each of the brain volumes. The phenotypes have been residualised for age and sex to match the phenotypes used in the GWAS.
 
 ```{r pheno_cor, eval=F, echo=T}
 ## Phenotypic part of the analysis
@@ -769,4 +769,3 @@ save(list = c("cor_matrix","eigenvalues","eigenvectors","explained_variance","st
 
 The resulting .RData file contains phenotypic correlations, eigenvalues and -vectors, standardised loadings and age correlation for each of the 83 brain volumes. This information will be used in subsequent analysis steps for comparison with genetic correlations.
 
-Note that the volumetric measures have been residualised for age and sex to match the phenotypes used in the GWAS. 

@@ -27,7 +27,7 @@ opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
 
-Here, we evaluate the GWAS summary statistics created in a previous step. 
+Here, we evaluate the GWAS summary statistics created in the [previous step](gwas.html). 
 The following properties of the summary statistics are assessed:
 
  - Heritability
@@ -285,8 +285,8 @@ $$\\[1in]$$
 
 To get an index for the ratio of true signal to spurious signal, we can divide the mean chi-squared value within a set of summary statistics by the univariate intercept-1. 
 
-This mean chi-squared value is an index of the average association signal across all SNPs. However, it includes the chi-squared values expected under the null hypothesis, which is 1.0 (see above under *Univariate intercepts*). In order to get the mean signal beyond the null hypothesis, we subtract 1.0 from the mean chi-squared values across all SNPs. Finally, the ratio between mean chi-squared - 1 and intercept - 1 is the ratio of true signal to confounding. A comprehensive and intuitive explanation of the interpretation of this ratio can be found [here](https://www.nature.com/articles/s41588-018-0144-6#Sec3)(Section 4 in Supplementary materials).
-Note to self: Keep in mind, that there is no point considering confidence intervals in this case because the ldsc heritability is a signal-to-noise ratio and already has a standard error.
+This mean chi-squared value is an index of the average association signal across all SNPs. However, it includes the chi-squared values expected under the null hypothesis, which is 1.0 (see above under *Univariate intercepts*). In order to get the mean signal beyond the null hypothesis, we subtract 1.0 from the mean chi-squared values across all SNPs. Finally, the ratio between mean chi-squared - 1 and intercept - 1 is the ratio of true signal to confounding. A comprehensive and intuitive explanation of the interpretation of this ratio can be found [here](https://www.nature.com/articles/s41588-018-0144-6#Sec3) (Section 4 in Supplementary materials).
+Note to self: Keep in mind, that there is no point considering confidence intervals in this context because the ldsc heritability is a signal-to-noise ratio and already has a standard error.
 
 ```{r }
 #calculate the ratio of the mean chisq-1 to the univariate intercept-1 to get a sense of the ratio of true signal to spurious signal

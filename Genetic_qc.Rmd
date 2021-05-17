@@ -48,7 +48,8 @@ $$\\[0.5in]$$
 
 ## Preparation
 
-Before I ran this quality control pipeline, I reduced the full UKB genetic data set to the 39,947 participants with complete phenotypic data. 
+Before running this quality control pipeline, the full UKB genetic data set has been reduced  to the 39,947 participants with complete phenotypic data. This step is performed in PLINK.
+
 ```{bash, eval = F}
 plink \
 --bed /ukb_binary_v2.bed  \
@@ -145,4 +146,38 @@ Out of 805,426 variants, we retained a total of 587,583 variants.
 Refer to the last script in the [SGDP quality control pipeline](SGDP_pipeline.html) for the code used to clean imputed genotype data.
 
 UKBB data as received is vast and larger than most users will use for common-variant analyses. Thin the UKBB data to MAF >= 0.01 and INFO >= 0.4.
+
+```{bash, eval=F, echo=T}
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr1_v3.txt > ukb_mfi_chr1_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr2_v3.txt > ukb_mfi_chr2_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr3_v3.txt > ukb_mfi_chr3_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr4_v3.txt > ukb_mfi_chr4_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr5_v3.txt > ukb_mfi_chr5_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr6_v3.txt > ukb_mfi_chr6_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr7_v3.txt > ukb_mfi_chr7_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr8_v3.txt > ukb_mfi_chr8_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr9_v3.txt > ukb_mfi_chr9_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr10_v3.txt > ukb_mfi_chr10_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr11_v3.txt > ukb_mfi_chr11_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr12_v3.txt > ukb_mfi_chr12_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr13_v3.txt > ukb_mfi_chr13_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr14_v3.txt > ukb_mfi_chr14_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr15_v3.txt > ukb_mfi_chr15_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr16_v3.txt > ukb_mfi_chr16_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr17_v3.txt > ukb_mfi_chr17_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr18_v3.txt > ukb_mfi_chr18_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr19_v3.txt > ukb_mfi_chr19_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr20_v3.txt > ukb_mfi_chr20_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr21_v3.txt > ukb_mfi_chr21_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chr22_v3.txt > ukb_mfi_chr22_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chrX_v3.txt > ukb_mfi_chrX_v3_MAF1_INFO4.txt
+awk '$6 >= 0.01 && $8 >= 0.4 {print $2}' ukb_mfi_chrXY_v3.txt > ukb_mfi_chrXY_v3_MAF1_INFO4.txt
+
+for i in {22..1} X XY
+do
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3.bgen -i ukb_imp_chr${i}_v3.bgen.bgi -incl-rsids ukb_mfi_chr${i}_v3_MAF1_INFO4.txt > ukb_imp_chr${i}_v3_MAF1_INFO4.bgen
+
+    bgen_tools/bin/bgenix -g ukb_imp_chr${i}_v3_MAF1_INFO4.bgen -index
+done
+```
 
