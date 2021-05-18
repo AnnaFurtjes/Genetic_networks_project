@@ -200,12 +200,12 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
 #tiff("PC_pheno_loadings.tiff", width = 6.25, height = 5, units = 'in', res=1000)
 
  loadings_pheno_plot<-ggplot(data_pheno, aes(x=stand_loadings,y=network))+
-              geom_density_ridges(rel_min_height = 0.005, aes(fill=as.factor(network)),stat="density_ridges", position = "identity", quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_ridges)) +
+              geom_density_ridges(rel_min_height = 0.005, aes(fill=as.factor(network)),stat="density_ridges", position = "identity", quantile_lines =TRUE,na.rm=TRUE, n=nrow(data_pheno)) +
               theme_ridges()+
               #scale_fill_brewer(values = mycolors)+
               scale_fill_manual(values=mycolors,guide=FALSE)+
               scale_x_continuous(n.breaks = 5)+
-              xlab("PC loadings")+ylab("")+
+              xlab("Phenotypic PC loadings")+ylab("")+
               theme(legend.position = "none",
                     axis.text.x = element_text(size=24),
                     axis.text.y = element_text(size=24),
@@ -218,7 +218,7 @@ loadings_pheno_plot
 #dev.off()
 ```
 
-Note that the vertical lines indicate the quantiles. 
+Note that the vertical lines indicate quantiles. 
 
 
 
@@ -335,9 +335,9 @@ explained_all_traits<-ls(pattern="explained_var")
 
 ```
 
-## Save PC loadings in separate files
+#### Save PC loadings in separate files
 
-This step is done to be able to create the network specific summary statistics, in which multiple regions are combined and weighted according to their PC loadings. 
+PC loadings are saved in a separate file to be able to create the network specific summary statistics in a [later step](Hypothesis3.html), in which multiple regions are combined and weighted according to their PC loadings. 
 
 ```{r eval=F}
 
@@ -445,7 +445,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
               #scale_fill_brewer(values = mycolors)+
               scale_fill_manual(values=mycolors,guide=FALSE)+
               scale_x_continuous(n.breaks = 5)+
-              xlab("PC loadings")+ylab("")+
+              xlab("Genetic PC loadings")+ylab("")+
               theme(legend.position = "none",
                     axis.text.x = element_text(size=24),
                     axis.text.y = element_text(size=24),
@@ -458,7 +458,7 @@ loadings_plot
 #dev.off()
 ```
 
-Note that the vertical lines indicate the quantiles. 
+Note that the vertical lines indicate quantiles. 
 
 ***
 
@@ -508,17 +508,35 @@ for(i in network_names){
 }
 ```
 
-```{r parallel_analysis_graphics, echo=FALSE, out.width = '80%',fig.cap=c("Central Executive","Cingulo-opercular","Default Mode","Whole brain")}
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/central_exec_PA.png")
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/cingulo_PA.PNG")
-knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/default_mode_PA.PNG")
-break
-#knitr::include_graphics("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/PA_output/whole_brain_PA.png")
-```
+
+<br/>
+
+
+![Parallel analysis: Central Executive network](central_exec_PA.png)
+
+<br/>
+
+![Parallel analysis: Cingulo-opercular network](cingulo_PA.PNG)
+
+
+<br/>
+
+
+![Parallel analysis: Default mode network](default_mode_PA.PNG)
+
+
+<br/>
+
+
+![Parallel analysis: Whole-brain network (suggesting to extract 14 components)](Whole_brain_PA.PNG)
+
+
+<br/>
+
 
 # Exploratory analyses
 
-## The first PC of larger networks explains less variance than the PC of smaller networks
+### The first PC of larger networks explains less variance than the PC of smaller networks
 
 ```{r}
 volumes<-table$number_included
@@ -531,12 +549,12 @@ abline(lm(explained_var~volumes),col="red")
 ```
 
 
-## Parallel analysis suggests to extract more PCs for larger networks
+### Parallel analysis suggests to extract more PCs for larger networks
 
 ```{r pa}
 networks<-c("central","cingulo","default","hippo","multiple","pfit","salience","sensori","temporo","whole_brain")
 volumes<-table$number_included
-components<-c(2,2,3,4,2,7,2,2,7,NA);break
+components<-c(2,2,3,4,2,7,2,2,7,14)
 
 test<-cbind(networks,volumes,components)
 

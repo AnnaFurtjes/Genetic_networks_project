@@ -137,20 +137,33 @@ plot_corr
 
 We correlated phenotypic with genetic correlations among these areas, and we obtained a significant correlation of `r cor_cor`. This indicates that phenotypic correlations predict genetic correlations fairly well.
 
-### How many of the genetic correlations are negative?
-```{r negative_gen_cor}
-# negative genetic correlations
-neg_cor<-sum(gen_pheno$genetic_cor<=0 & !is.na(gen_pheno$genetic_cor))
-total_cor<-sum(!is.na(gen_pheno$genetic_cor))
-percent_neg<-round((neg_cor/total_cor)*100,digits = 2)
+<br/>
+<br/>
 
-# negative phenotypic correlations
-neg_pheno<-sum(gen_pheno$phenotypic_cor<=0 & !is.na(gen_pheno$phenotypic_cor))
-total_pheno<-sum(!is.na(gen_pheno$phenotypic_cor))
-percent_neg_pheno<-neg_pheno/total_pheno
+
+```{r neg_SEs}
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+load("whole_brain.RData")
+ldscoutput<-LDSCoutput_wholebrain
+  dimnames(ldscoutput$S_Stand)[[1]]<-dimnames(ldscoutput$S)[[2]]
+  dimnames(ldscoutput$S_Stand)[[2]]<-dimnames(ldscoutput$S)[[2]]
+
+k<-nrow(ldscoutput$S)
+SE<-matrix(0, k, k)
+SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(ldscoutput$V))
+
+get_lower_tri<-function(cormatrix){
+  cormatrix[upper.tri(cormatrix)] <- NA
+  return(cormatrix)
+}
+
+SE_lower<-get_lower_tri(SE)
+SE_lower<-reshape2::melt(SE_lower)
 ```
 
-Genetic correlations are negative in `r percent_neg`% of the cases (negative correlations = `r neg_cor`, total correlations = `r total_cor`). In contrast, there are `r percent_neg_pheno`% negative phenotypic associations. 
+
 
 ***
 <br>

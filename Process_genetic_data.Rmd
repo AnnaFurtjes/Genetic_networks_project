@@ -391,7 +391,58 @@ dev.off()
 
 # Sanity checks
 
-#### Display genetic correlations
+
+## Plot standard errors
+
+Here we display the standard errors for the lower triangle of the genetic correlation matrix. 
+
+```{r standard_errors, warning=F, message=F}
+temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
+setwd(temporarywd)
+
+load("whole_brain.RData")
+ldscoutput<-LDSCoutput_wholebrain
+
+
+k<-nrow(ldscoutput$S)
+SE<-matrix(0, k, k)
+SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(ldscoutput$V))
+
+  dimnames(SE)[[1]]<-dimnames(ldscoutput$S)[[2]]
+  dimnames(SE)[[2]]<-dimnames(ldscoutput$S)[[2]]
+
+get_lower_tri<-function(cormatrix){
+  cormatrix[upper.tri(cormatrix)] <- NA
+  return(cormatrix)
+}
+
+SE_lower<-get_lower_tri(SE)
+SE_lower<-reshape2::melt(SE_lower)
+
+
+###############################################
+##### plot all SEs across the entire brain
+
+library(ggridges)
+
+ggplot(SE_lower, aes(value,color="indianred2",fill="indianred2"))+
+  geom_density(show.legend=FALSE)+
+              theme_ridges()+
+              scale_x_continuous(n.breaks = 5)+
+              xlab("Standard errors of genetic correlations")+ylab("")+
+              theme(legend.position = "none",
+                    axis.text.x = element_text(size=24),
+                    axis.text.y = element_text(size=24),
+                    axis.title.x = element_text(size=26),
+                    panel.background = element_blank(), 
+                    axis.line = element_line(color="black"), 
+                    axis.line.x = element_line(color="black"))+theme_bw()
+
+
+```
+
+
+## Display genetic correlations
 ```{r plot_var_corr,message=F,warning=F}
 library(plyr)
 library(TeachingDemos)
@@ -431,63 +482,51 @@ library(DT)
 datatable(display, rownames=FALSE, filter="top",options= list(pageLength=5,scrollX=T))
 
 # work out which correlations are above 1 and below 0
-traits_corr_above1<-as.data.frame(whole_brain_corr[which(whole_brain_corr$value >1.0001),])
-traits_corr_below0<-whole_brain_corr[which(whole_brain_corr$value<0),]
+traits_corr_above1<-as.data.frame(lower_triangle[which(lower_triangle$value >1.0000000001),c("Var1","Var2","value")])
+traits_corr_below0<-lower_triangle[which(lower_triangle$value<0),c("Var1","Var2","value")]
 ```
 
 Note that we found correlations slightly above 1 for the following traits:
 <br/>
-`r paste0(traits_corr_above1[1,1]," & ",traits_corr_above1[1,2], "; ",traits_corr_above1[2,1]," & ",traits_corr_above1[2,2], "; ",traits_corr_above1[3,1]," & ",traits_corr_above1[3,2], "; ",traits_corr_above1[4,1]," & ",traits_corr_above1[4,2])`.
+`r paste0(traits_corr_above1[1,1]," & ",traits_corr_above1[1,2], "; ",traits_corr_above1[2,1]," & ",traits_corr_above1[2,2])`.
 
 <br/>
 
-These genetic correlations include `r nrow(traits_corr_below0)` negative correlations. As you can see in the table below, nearly all negative correlations involve either the frontal pole or the bankssts, which are both known to be difficult to segment, and therefore could potentially index noise (which could explain the negative correlations with more reliably measured brain volumes). 
+
+### Negative genetic correlations
 
 ```{r}
-kable(traits_corr_below0[,c("Var1","Var2","value")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation"), caption = "Negative Genetic Correlations")
-```
+# work out CIs for negative correlations
+SE_lower_comp<-SE_lower
+names(SE_lower_comp)<-c("Var2","Var1","SE")
+df<-merge(traits_corr_below0,SE_lower_comp,by=c("Var1","Var2"),all=T)
 
-## Plot standard errors
 
-Here we display the standard errors for the lower triangle of the genetic correlation matrix. 
-
-```{r standard_errors, warning=F, message=F}
-temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
-setwd(temporarywd)
-
-load("whole_brain.RData")
-ldscoutput<-LDSCoutput_wholebrain
-  dimnames(ldscoutput$S_Stand)[[1]]<-dimnames(ldscoutput$S)[[2]]
-  dimnames(ldscoutput$S_Stand)[[2]]<-dimnames(ldscoutput$S)[[2]]
-
-k<-nrow(ldscoutput$S)
-SE<-matrix(0, k, k)
-SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(ldscoutput$V))
-
-get_lower_tri<-function(cormatrix){
-  cormatrix[upper.tri(cormatrix)] <- NA
-  return(cormatrix)
+## after merging the correlations below 1 and the SEs, some genetic correlations have not been assigned an SE because the brain volumes have been flipped (Var1 vs. Var2)
+# In the following loop we identify these traits, flip them, and assign the standard error to the entry with the non-missing genetic correlation 
+for(i in df$Var1[which(is.na(df$SE) & !is.na(df$value))]){
+  for(j in df$Var2[which(is.na(df$SE) & !is.na(df$value))]){
+    df[which(df$Var1 == i & df$Var2 ==j),"SE"]<-df[which(df$Var1 == j & df$Var2 ==i),"SE"]
+  }
 }
 
-SE_lower<-get_lower_tri(SE)
-SE_lower<-reshape2::melt(SE_lower)
+neg_cor_with_SE<-df[which(!is.na(df$value)),]
+# calculate CIs 95%
+neg_cor_with_SE$CI95<-paste(round(neg_cor_with_SE$value-(1.96*neg_cor_with_SE$SE),digits = 3)," - ", round(neg_cor_with_SE$value+(1.96*neg_cor_with_SE$SE),digits=3))
 
-library(ggridges)
+kable(neg_cor_with_SE[,c("Var1","Var2","value","CI95")], digits = 3, row.names = F, col.names = c("Volume 1","Volume 2","Genetic correlation","95% CI"), caption = "Negative Genetic Correlations")
 
-ggplot(SE_lower, aes(value,color="indianred2",fill="indianred2"))+
-  geom_density(show.legend=FALSE)+
-              theme_ridges()+
-              scale_x_continuous(n.breaks = 5)+
-              xlab("Standard errors of genetic correlations")+ylab("")+
-              theme(legend.position = "none",
-                    axis.text.x = element_text(size=24),
-                    axis.text.y = element_text(size=24),
-                    axis.title.x = element_text(size=26),
-                    panel.background = element_blank(), 
-                    axis.line = element_line(color="black"), 
-                    axis.line.x = element_line(color="black"))+theme_bw()
+# negative genetic correlations
+neg_cor<-sum(neg_cor_with_SE$value<=0 & !is.na(neg_cor_with_SE$value))
+total_cor<-(83*(83-1))/2
+percent_neg<-round((neg_cor/total_cor)*100,digits = 2)
 
 ```
+
+Genetic correlations are negative in `r percent_neg`% of the cases (negative correlations = `r neg_cor`, total correlations = `r total_cor`).
+
+
+As you can see in the table below, nearly all negative correlations involve either the frontal pole or the bankssts, which are both known to be difficult to segment, and therefore could potentially index noise (which could explain the negative correlations with more reliably measured brain volumes). 
 
 
 ***
