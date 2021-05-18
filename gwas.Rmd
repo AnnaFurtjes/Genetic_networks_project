@@ -274,3 +274,82 @@ trait_files<-get(i)
 print("Done all traits")
 ```
 
+## Manhattan and quantile-quantile plot 
+
+For sanity checks of the 83 brain volume gwas, refer to the [next step](Evaluate_gwas.html) of this project. The [qqman package](https://www.biorxiv.org/content/10.1101/005165v1) was used (and slightly modified, see below) to generate these plots.
+
+```{r plots, eval=F}
+### Note: 
+# I have modified the manhattan function in order to print larger labels for the axes and SNP IDs
+# This was not possible just by adding aestetic arguments because "cex = 1" is referred to many times in the function and R doesn't know which incidence to allocate it to
+# Therefore, I needed to go in manually and change the cex arguments in the function
+# To do that, I copied the manhattan source code from here: https://github.com/stephenturner/qqman/blob/master/R/manhattan.R
+# into a separate document called: manhattan_big.R
+# modify the cex arguments 
+# copy and paste the function into the console
+# make sure you load the dependency "calibrate" for the textxy function 
+# run the code below to create pngs for each brain volume
+
+
+#### citation for qqman: Turner, S.D. qqman: an R package for visualizing GWAS results using Q-Q and manhattan plots. biorXiv DOI: 10.1101/005165 (2014).
+
+# load dependencies
+library(data.table)
+library(qqman)
+library(stringr)
+library(calibrate)
+
+# set wd to where the gwas files are stored
+setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/step2/")
+
+# list all files of interest
+files_of_interest <- list.files(pattern="GWAS_22chr_noTBVcontrol_")
+
+
+###testing
+### file<-fread("GWAS_22chr_noTBVcontrol_Left_accumbens_area.txt", header=T,data.table=F)
+
+for(i in files_of_interest){
+	# read in GWAS file
+	file<-fread(i, header=T,data.table=F) 
+	#file<-file[c(1:1270000),]
+
+	trait_name <- str_remove(i, pattern = "GWAS_22chr_noTBVcontrol_")
+	trait_name <- str_remove(trait_name, pattern = ".txt")
+
+	png(filename = paste0("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/",trait_name,".png"), width = 1575, height=700, units="px")
+	layout_matrix <- matrix(1:2, nrow = 1, ncol=2)
+	layout(layout_matrix,  widths = 2:1) #heights = 1.5:1,
+	par(mar=c(5, 4, 4, 2))
+	par(oma = c(3,3,3,3))
+
+	# Make MANHATTAN PLOT
+	#manhattan(file, chr="CHR",bp="POS",snp="MarkerName",p="P")
+	# optional: annotate SNPs with a minimum pvalue, here 0.01 is above the bottom cut-off line
+	
+	trait_name <- str_replace_all(trait_name, pattern = "_", replacement = " ")
+
+	
+	main = paste0("Manhattan plot: ", trait_name)
+	manhattan_big(file, main = main, col = c("#e70000","#1E90FF"), chr="CHROM",bp="GENPOS",snp="ID",p="P", annotatePval=0.01, cex.axis = 1.5)
+
+	### Assess systematic bias in GWAS using Genomic Inflation Factor
+	chisq <- qchisq(1-file$P,1)
+	lambda <- median(chisq)/qchisq(0.5,1)
+
+	# MAKE QQ PLOT
+	main <- paste0("QQ plot: ", trait_name, " (Lambda = ",round(lambda,digits=3),")")
+	qq(file$P, main = main, cex=1,cex.axis = 1.5)
+
+	dev.off() 
+}
+
+#dev.off()
+
+```
+
+![Brain stem GWAS](Brain_stem.png)
+
+![Right pallidum GWAS](Right_pallidum.png)
+
+![Left rostral middle frontal GWAS](Left_rostral_middle_frontal.png)
