@@ -531,6 +531,115 @@ echo Done
 
 ### sbatch -p brc,shared ~/anna/PhD/scripts/regenie/regenie_gwas_step2.sh</code></pre>
 </div>
+<div id="merge-regenie-output" class="section level2">
+<h2>Merge regenie output</h2>
+<p>The regenie software outputs the results for each autosomes separately. The following script merges and formats the 22 autosomes to one file and re-names some of the columns according to naming conventions.</p>
+<pre class="r"><code>#### merge all regenie output files
+
+library(data.table)
+library(stringr)
+
+setwd(&quot;~/PhD/output/regenie/step2/&quot;)
+
+ref&lt;-fread(&quot;~/PhD/scripts/pheno_preparation/region_codes.txt&quot;,data.table=F)
+
+# test whether all 83 traits have 22 chromosome files assigned to them 
+for(i in 1:nrow(ref)){
+    num&lt;-length(list.files(pattern=paste0(ref$Region[i],&quot;.regenie&quot;)))
+    print(num)
+    if(num != 22) {break}
+    
+    # save files names for each trait
+    file_names&lt;-list.files(pattern=paste0(ref$Region[i],&quot;.regenie&quot;))
+    vector_name&lt;-paste0(ref$Region[i],&quot;_files&quot;)
+    print(vector_name)
+    assign(vector_name, file_names)
+}
+
+# throw an error if we don&#39;t end up with 83 files
+if(length(ls(pattern=&quot;_files&quot;)) != 83){&quot;You don&#39;t have 83 files&quot;; break}
+
+
+
+#######################################################################
+# Read in the files for each area and merge them 
+
+all_traits&lt;-ls(pattern=&quot;_files&quot;)
+
+for(i in all_traits){
+
+trait_files&lt;-get(i)
+
+    # set object to count number of rows to 0
+    expected_rows&lt;-0
+    
+    # read in all files that belong to an area (eg. Brain stem) and save them in dat
+    
+    num&lt;-length(trait_files)
+    dat&lt;-vector(&quot;list&quot;,num)
+
+            print(paste0(&quot;Number of chromosomes read in for &quot;,i))
+        for(j in 1:length(trait_files)){
+            
+            print(j)
+            file&lt;-trait_files[j]
+            dat[[j]]&lt;-fread(file,header=T,data.table=F)
+            
+            # calculate number of rows we are expecting in output file
+            expected_rows&lt;-expected_rows+nrow(dat[[j]])
+            }
+
+    
+    # merge the files by all existing columns
+    merged_file&lt;-Reduce(function(x,y) merge(x = x, y = y, by = c(&quot;CHROM&quot;,&quot;GENPOS&quot;,&quot;ID&quot;,&quot;ALLELE0&quot;,&quot;ALLELE1&quot;,&quot;A1FREQ&quot;,&quot;INFO&quot;,&quot;N&quot;,&quot;TEST&quot;,&quot;BETA&quot;,&quot;SE&quot;,&quot;CHISQ&quot;,&quot;LOG10P&quot;), all=T), dat)
+    
+    print(&quot;Done merging chromosome files&quot;)
+    
+    ## Sanity checks: Does the resulting file have the expected dimensions?
+    if(nrow(merged_file)!= expected_rows){print(&quot;Resulting merged file does not match the expected numeber of rows&quot;);break}
+    
+    if(ncol(merged_file) != 13){print(&quot;Resulting merged files does not match the expected number of columns&quot;); break}
+    
+    print(&quot;File has dimensions as expected&quot;)
+    print(dim(merged_file))
+    
+    # transform pvalues from log transformation to regular
+    # https://www.biostars.org/p/358046/
+    merged_file$P&lt;-10^(-merged_file$LOG10P)
+    if(min(merged_file$P,na.rm=T)&lt;=0 | max(merged_file$P,na.rm=T) &gt;= 1){&quot;Transformed p-value is out of bounds&quot;; break}
+    
+    print(&quot;Done transform p-value column, and p-values are between 0 and 1&quot;)
+    
+    # rename some of the columns (more intuitive)
+    
+    names(merged_file)[which(names(merged_file) == &quot;ALLELE0&quot;)]&lt;-&quot;EA&quot;
+    names(merged_file)[which(names(merged_file) == &quot;ALLELE1&quot;)]&lt;-&quot;OA&quot;
+    names(merged_file)[which(names(merged_file) == &quot;A1FREQ&quot;)]&lt;-&quot;MAF&quot;
+
+    print(&quot;Done renaming columns&quot;)
+
+    print(paste0(&quot;This is the file head for &quot;,i))
+    print(head(merged_file))
+    
+
+    
+    # define file name to save the merged file
+    region_name&lt;-str_remove(i,pattern=&quot;_files&quot;)
+    filename_print &lt;- paste0(&quot;~/PhD/output/regenie/step2/GWAS_22chr_noTBVcontrol_&quot;, region_name)
+    
+                    # for testing
+                    #   assign(region_name,merged_file)
+            
+    
+    # save merged file
+    write.table(merged_file, paste0(filename_print,&quot;.txt&quot;), sep = &quot;\t&quot;, row.names = FALSE, col.names = TRUE)
+    
+    print(paste0(&quot;Done writing file for &quot;, region_name))
+}
+    
+
+print(&quot;Done all traits&quot;)</code></pre>
+</div>
 
 &nbsp;
 <hr />
@@ -589,7 +698,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
+  window.initializeCodeFolding("hide" === "show");
 });
 </script>
 

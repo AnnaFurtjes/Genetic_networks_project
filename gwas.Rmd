@@ -3,7 +3,7 @@ title: "GWAS calculation"
 highlighter: prettify
 output: 
   html_document:
-    code_folding: show
+    code_folding: hide
     toc: yes
     toc_depth: 2
     toc_float: yes
@@ -161,5 +161,116 @@ echo Done
 ### This script is an adapted version of Ryan Arathimos' script at https://github.com/applyfun/gwas_methods/blob/main/regenie_gwas_step2.sh
 
 ### sbatch -p brc,shared ~/anna/PhD/scripts/regenie/regenie_gwas_step2.sh
+```
+
+## Merge regenie output
+The regenie software outputs the results for each autosomes separately. The following script merges and formats the 22 autosomes to one file and re-names some of the columns according to naming conventions. 
+
+```{r merge_regenie, eval=F}
+#### merge all regenie output files
+
+library(data.table)
+library(stringr)
+
+setwd("~/PhD/output/regenie/step2/")
+
+ref<-fread("~/PhD/scripts/pheno_preparation/region_codes.txt",data.table=F)
+
+# test whether all 83 traits have 22 chromosome files assigned to them 
+for(i in 1:nrow(ref)){
+	num<-length(list.files(pattern=paste0(ref$Region[i],".regenie")))
+	print(num)
+	if(num != 22) {break}
+	
+	# save files names for each trait
+	file_names<-list.files(pattern=paste0(ref$Region[i],".regenie"))
+	vector_name<-paste0(ref$Region[i],"_files")
+	print(vector_name)
+	assign(vector_name, file_names)
+}
+
+# throw an error if we don't end up with 83 files
+if(length(ls(pattern="_files")) != 83){"You don't have 83 files"; break}
+
+
+
+#######################################################################
+# Read in the files for each area and merge them 
+
+all_traits<-ls(pattern="_files")
+
+for(i in all_traits){
+
+trait_files<-get(i)
+
+	# set object to count number of rows to 0
+	expected_rows<-0
+	
+	# read in all files that belong to an area (eg. Brain stem) and save them in dat
+	
+	num<-length(trait_files)
+	dat<-vector("list",num)
+
+			print(paste0("Number of chromosomes read in for ",i))
+		for(j in 1:length(trait_files)){
+			
+			print(j)
+			file<-trait_files[j]
+			dat[[j]]<-fread(file,header=T,data.table=F)
+			
+			# calculate number of rows we are expecting in output file
+			expected_rows<-expected_rows+nrow(dat[[j]])
+			}
+
+	
+	# merge the files by all existing columns
+	merged_file<-Reduce(function(x,y) merge(x = x, y = y, by = c("CHROM","GENPOS","ID","ALLELE0","ALLELE1","A1FREQ","INFO","N","TEST","BETA","SE","CHISQ","LOG10P"), all=T), dat)
+	
+	print("Done merging chromosome files")
+	
+	## Sanity checks: Does the resulting file have the expected dimensions?
+	if(nrow(merged_file)!= expected_rows){print("Resulting merged file does not match the expected numeber of rows");break}
+	
+	if(ncol(merged_file) != 13){print("Resulting merged files does not match the expected number of columns"); break}
+	
+	print("File has dimensions as expected")
+	print(dim(merged_file))
+	
+	# transform pvalues from log transformation to regular
+    # https://www.biostars.org/p/358046/
+	merged_file$P<-10^(-merged_file$LOG10P)
+	if(min(merged_file$P,na.rm=T)<=0 | max(merged_file$P,na.rm=T) >= 1){"Transformed p-value is out of bounds"; break}
+	
+	print("Done transform p-value column, and p-values are between 0 and 1")
+	
+	# rename some of the columns (more intuitive)
+	
+	names(merged_file)[which(names(merged_file) == "ALLELE0")]<-"EA"
+	names(merged_file)[which(names(merged_file) == "ALLELE1")]<-"OA"
+	names(merged_file)[which(names(merged_file) == "A1FREQ")]<-"MAF"
+
+	print("Done renaming columns")
+
+	print(paste0("This is the file head for ",i))
+	print(head(merged_file))
+	
+
+	
+	# define file name to save the merged file
+	region_name<-str_remove(i,pattern="_files")
+	filename_print <- paste0("~/PhD/output/regenie/step2/GWAS_22chr_noTBVcontrol_", region_name)
+	
+					# for testing
+					#	assign(region_name,merged_file)
+			
+	
+	# save merged file
+	write.table(merged_file, paste0(filename_print,".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+	
+	print(paste0("Done writing file for ", region_name))
+}
+	
+
+print("Done all traits")
 ```
 
