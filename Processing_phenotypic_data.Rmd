@@ -700,6 +700,25 @@ if(nrow(file)!=36778){print("Wrong number of participants");break}
 
 print("Done merging the files, and the resulting object match the expected number of participants")
 
+
+##################################################################################################################
+# calculate age correlations first
+# before residualising volumes for age
+##################################################################################################################
+
+age_cor<-as.data.frame(sapply(file[,-which(names(file)%in%c("eid","age_in_months","sex"))],function(x) cor(x,file$age_in_months,use="pairwise.complete.obs",method="pearson")))
+age_cor<-cbind(age_cor,rownames(age_cor))
+rownames(age_cor)<-NULL
+names(age_cor)<-c("age_cor","Region")
+print("head age_cor table")
+head(age_cor)
+
+# print all correlations with full statistics
+print("print age correlations")
+print(sapply(file[,-which(names(file)%in%c("eid","age_in_months","sex"))],function(x) cor.test(x,file$age_in_months,method="pearson",na.action=na.omit)))
+
+
+
 ##################################################################################################################
 # Residualise the brain volumes for age and sex
 ##################################################################################################################
@@ -746,22 +765,6 @@ stand_loadings<-setDT(as.data.frame(stand_loadings), keep.rownames = TRUE)[,1:2]
 names(stand_loadings)<-c("Regions","stand_loadings")
 print("print head phenotypic standardised loadings")
 head(stand_loadings)
-
-##################################################################################################################
-# calculate age correlations and save in table
-##################################################################################################################
-
-
-age_cor<-as.data.frame(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor(x,file$age_in_months,use="pairwise.complete.obs",method="pearson")))
-age_cor<-cbind(age_cor,rownames(age_cor))
-rownames(age_cor)<-NULL
-names(age_cor)<-c("age_cor","Region")
-print("head age_cor table")
-head(age_cor)
-
-# print all correlations with full statistics
-print("print age correlations")
-print(sapply(file[,-which(names(file)%in%c("eid","age_in_months"))],function(x) cor.test(x,file$age_in_months,method="pearson",na.action=na.omit)))
 
 save(list = c("cor_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
 
