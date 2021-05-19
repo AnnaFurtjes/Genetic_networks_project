@@ -416,7 +416,7 @@ age_cor_pval<-round(age_correlation_result$p.value,digits = 3)
 
 ```
 
-Genetic loadings do not significantly correlate with age sensitivity (*r* = `r age_cor_estimate`, *p-value* = `r age_cor_pval`).
+Genetic loadings are significantly correlated with age sensitivity (*r* = `r age_cor_estimate`, *p-value* = `r age_cor_pval`).
 
 ```{r lot_age_cor,echo=F,message=F,warning=F}
 plot_age_geno<-ggplot(data, aes(x=gen_stand_loadings,y=age_cor))+#
