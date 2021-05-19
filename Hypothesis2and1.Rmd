@@ -399,7 +399,8 @@ plot_age_pheno<-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
 plot_age_pheno
 ```
 
-
+<br>
+<br>
 
 ## Association between genetic PC loadings and age-volume correlations
 
