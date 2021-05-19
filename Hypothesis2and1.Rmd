@@ -446,6 +446,9 @@ plot_age_geno
 
 ```
 
+<br>
+<br>
+
 ### Plot all four correlation plots
 ```{r merge_plots_gen_pheno,eval=F,message=F,warning=F}
 library(cowplot)
