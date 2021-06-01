@@ -614,9 +614,12 @@ trait_files&lt;-get(i)
     
     names(merged_file)[which(names(merged_file) == &quot;ALLELE0&quot;)]&lt;-&quot;EA&quot;
     names(merged_file)[which(names(merged_file) == &quot;ALLELE1&quot;)]&lt;-&quot;OA&quot;
-    names(merged_file)[which(names(merged_file) == &quot;A1FREQ&quot;)]&lt;-&quot;MAF&quot;
+    names(merged_file)[which(names(merged_file) == &quot;A1FREQ&quot;)]&lt;-&quot;OAFREQ&quot;
 
     print(&quot;Done renaming columns&quot;)
+    
+    # create MAF column
+    merged_file$MAF&lt;-ifelse(merged_file$OAFREQ &lt; 0.5, merged_file$OAFREQ, 1-merged_file$OAFREQ))
 
     print(paste0(&quot;This is the file head for &quot;,i))
     print(head(merged_file))
