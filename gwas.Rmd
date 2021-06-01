@@ -247,9 +247,12 @@ trait_files<-get(i)
 	
 	names(merged_file)[which(names(merged_file) == "ALLELE0")]<-"EA"
 	names(merged_file)[which(names(merged_file) == "ALLELE1")]<-"OA"
-	names(merged_file)[which(names(merged_file) == "A1FREQ")]<-"MAF"
+	names(merged_file)[which(names(merged_file) == "A1FREQ")]<-"OAFREQ"
 
 	print("Done renaming columns")
+	
+	# create MAF column
+	merged_file$MAF<-ifelse(merged_file$OAFREQ < 0.5, merged_file$OAFREQ, 1-merged_file$OAFREQ))
 
 	print(paste0("This is the file head for ",i))
 	print(head(merged_file))
