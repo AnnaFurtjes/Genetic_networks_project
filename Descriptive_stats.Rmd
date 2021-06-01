@@ -339,7 +339,7 @@ explained_all_traits<-ls(pattern="explained_var")
 
 PC loadings are saved in a separate file to be able to create the network specific summary statistics in a [later step](Hypothesis3.html), in which multiple regions are combined and weighted according to their PC loadings. 
 
-```{r eval=F}
+```{r save_stand_load, eval=F}
 
 setwd(paste0(workingd,"data_my_own/standardised_loadings/"))
 
