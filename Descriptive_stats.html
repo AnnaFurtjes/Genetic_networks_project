@@ -819,7 +819,7 @@ explained_all_traits&lt;-ls(pattern=&quot;explained_var&quot;)</code></pre>
 <div id="save-pc-loadings-in-separate-files" class="section level4">
 <h4>Save PC loadings in separate files</h4>
 <p>PC loadings are saved in a separate file to be able to create the network specific summary statistics in a <a href="Hypothesis3.html">later step</a>, in which multiple regions are combined and weighted according to their PC loadings.</p>
-<pre class="r"><code>setwd(paste0(workingd,&quot;data_my_own/standardised_loadings/&quot;))
+<pre class="r"><code>setwd(paste0(workingd,&quot;/data_my_own/standardised_loadings/&quot;))
 
 for (i in loadings_all_traits){
     loadings&lt;-get(i)

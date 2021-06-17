@@ -341,7 +341,7 @@ PC loadings are saved in a separate file to be able to create the network specif
 
 ```{r save_stand_load, eval=F}
 
-setwd(paste0(workingd,"data_my_own/standardised_loadings/"))
+setwd(paste0(workingd,"/data_my_own/standardised_loadings/"))
 
 for (i in loadings_all_traits){
 	loadings<-get(i)
