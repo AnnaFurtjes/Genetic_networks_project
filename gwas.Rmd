@@ -245,9 +245,9 @@ trait_files<-get(i)
 	
 	# rename some of the columns (more intuitive)
 	
-	names(merged_file)[which(names(merged_file) == "ALLELE0")]<-"EA"
-	names(merged_file)[which(names(merged_file) == "ALLELE1")]<-"OA"
-	names(merged_file)[which(names(merged_file) == "A1FREQ")]<-"OAFREQ"
+	names(merged_file)[which(names(merged_file) == "ALLELE0")]<-"OA"
+	names(merged_file)[which(names(merged_file) == "ALLELE1")]<-"EA"
+	names(merged_file)[which(names(merged_file) == "A1FREQ")]<-"EAFREQ"
 
 	print("Done renaming columns")
 	

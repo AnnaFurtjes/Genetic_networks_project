@@ -41,6 +41,7 @@ $$\\[0.5in]$$
 # Heritability
 
 Are all traits heritable?
+Note that these h2 values must be interpreted with caution, as they have been obtained based on GWAS using mixed linear models which might produce inaccurate heritability estimates. However, they can be robustly used to calculate genetic correlations.
 ```{bash univariate_ldsc, eval=F,echo=T}
 #!/bin/bash -l
 

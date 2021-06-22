@@ -1,9 +1,22 @@
 ---
 title: "Hypothesis 3"
-author: "Anna Elisabeth Furtjes"
-date: "01/06/2021"
-output: html_document
+highlighter: prettify
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    theme: readable
+    includes:
+      after_body: footer.html   
 ---
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
 
 ## Hypothesis 3
 Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019),
@@ -20,7 +33,7 @@ in cognitive abilities.
 
 ### Calculate PC sumstats
 #### 1. Format GWAS with columns expected by software
-```{r format_files, eval=F,echo=T}
+```{r format_files_hapmap, eval=F,echo=T}
 ##### format GWAS files for GWAMA
 # documentation of the Baselman function
 # https://github.com/baselmans/multivariate_GWAMA/blob/master/README.md
@@ -38,6 +51,7 @@ in cognitive abilities.
 #___________________________________________________________________________________________________________________________________
 
 ## this script will only consider Hapmap3 SNPs in already munged files 
+
 
 
 #load dependencies
@@ -106,18 +120,21 @@ for (i in 1:nrow(all_files)){
 	# name according to GWAMA expectations
 	# In genomicSEM A1 is the effect allele
 	names(merged_file)[which(names(merged_file) == "SNP")]<-"SNPID"
-	names(merged_file)[which(names(merged_file) == "A1")]<-"EA"
-	names(merged_file)[which(names(merged_file) == "A2")]<-"OA"
+
 
 
 	# only keep required columns
-	merged_file<-merged_file[,c("SNPID","CHR","BP","EA","OA","EAF","N","Z","P")]
+	merged_file<-merged_file[,c("SNPID","CHR","BP","A1","A2","EAF","N","Z","P")]
+	names(merged_file)[which(names(merged_file) == "A1")]<-"EA"
+	names(merged_file)[which(names(merged_file) == "A2")]<-"OA"
+	
 	print(head(merged_file))
 	
 	## print file
 	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/GWAMA_format/")
 	fwrite(merged_file,file=paste0("gwama_format_",ref_trait), quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
 }
+
 
 ```
 
@@ -270,6 +287,7 @@ print("Done creating all GWAMA scores, excluding whole brain")
 Note that same script was used for whole brain, but submitted to the cluster separately because it needed more resources.
 
 #### 3. Format and munge PC sumstats to perform LDSC
+This step is more of a sanity check, and shouldn't exclude any additional rows. 
 ```{r munge_PC_sumstats,echo=T,eval=F}
 ### Munge the PC_sumstats files and calculate ldsc with the cognitive GWAS files (already munged)
 
