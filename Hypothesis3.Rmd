@@ -18,7 +18,7 @@ body{
 }
 </style>
 
-## Hypothesis 3
+# Hypothesis 3
 Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019),
 we will extract a latent genetic g factor which represents common genetic variation
 shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it with brainwide and network-specific genetic indices. As brain volumes and intelligence
@@ -31,8 +31,8 @@ brains into subnetworks – such as the central executive network – is worthwh
 future cognitive research as it provides a more parsimonious model to predict variation
 in cognitive abilities.
 
-### Calculate PC sumstats
-#### 1. Format GWAS with columns expected by software
+## Calculate PC sumstats
+### 1. Format GWAS with columns expected by GWAMA software
 ```{r format_files_hapmap, eval=F,echo=T}
 ##### format GWAS files for GWAMA
 # documentation of the Baselman function
@@ -53,7 +53,6 @@ in cognitive abilities.
 ## this script will only consider Hapmap3 SNPs in already munged files 
 
 
-
 #load dependencies
 library(data.table)
 library(stringr)
@@ -66,12 +65,14 @@ setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/s
 
 ref_files<-list.files(pattern="GWAS_22chr_noTBVcontrol_")
 
+if(length(ref_files)!=83){print("Detected the wrong number of reference files");break}else{print("As expected, we have 83 reference files")}
 
 
 # read in munged gwas files that were used in the PC analyses
 setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/gwas_munged/")
 
 munged_files<-list.files(pattern=".sumstats.gz")
+if(length(munged_files)!=83){print("Detected the wrong number of munged files");break}else{print("As expected, we have 83 munged files")}
 
 all_files<-data.frame(munged_files, ref_files)
 print(all_files)
@@ -102,29 +103,25 @@ for (i in 1:nrow(all_files)){
 	names(ref_file)[which(names(ref_file)=="ID")]<-"SNP"
 	names(ref_file)[which(names(ref_file)=="GENPOS")]<-"BP"
 	names(ref_file)[which(names(ref_file)=="CHROM")]<-"CHR"
+	names(ref_file)[which(names(ref_file)=="EAFREQ")]<-"EAF_prelim"
 
-
-	ref_file<-ref_file[,c("BP","CHR","SNP","P","EA","OAFREQ")]
+	# only keep relevant columns from the reference file
+	ref_file<-ref_file[,c("BP","CHR","SNP","P","EA","EAF_prelim")]
 
 
 	# merge munged and ref file
 	merged_file<-merge(munged_file, ref_file, by=c("SNP"), all.x=T)
 
-	# determine EAF
-	# it states in the regenie documentation: https://rgcgithub.github.io/regenie/options/#output
-	# that A1FREQ (I named it OAFREQ in the merging step) indicates the frequency of the alternative/other allele
-	# GWAMA expects the frequency of the effect allele -> EAF
 
-	merged_file$EAF<-ifelse(merged_file$A1 != merged_file$EA, merged_file$OAFREQ, 1-merged_file$OAFREQ)
-		
-	# name according to GWAMA expectations
-	# In genomicSEM A1 is the effect allele
-	names(merged_file)[which(names(merged_file) == "SNP")]<-"SNPID"
-
-
+	# create an effect allele frequency column that matches the allele used in the munged file (because we take the frequency from the reference file that might have flipped effect and other alleles)
+	merged_file$EAF<-ifelse(merged_file$A1 == merged_file$EA, merged_file$EAF_prelim, 1-merged_file$EAF_prelim)
 
 	# only keep required columns
+	names(merged_file)[which(names(merged_file) == "SNP")]<-"SNPID"
 	merged_file<-merged_file[,c("SNPID","CHR","BP","A1","A2","EAF","N","Z","P")]
+	
+	# name according to GWAMA expectations
+	# In genomicSEM A1 is the effect allele
 	names(merged_file)[which(names(merged_file) == "A1")]<-"EA"
 	names(merged_file)[which(names(merged_file) == "A2")]<-"OA"
 	
@@ -135,11 +132,10 @@ for (i in 1:nrow(all_files)){
 	fwrite(merged_file,file=paste0("gwama_format_",ref_trait), quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
 }
 
-
 ```
 
 
-#### 2. Create the PC sumstats weighted with loadings
+### 2. Create the PC sumstats weighted with loadings
 
 ```{r create_sumstats,eval=F,echo=T}
 ### calculate PC summary statistics for whole brain

@@ -67,7 +67,7 @@ $$\\[0.05in]$$
 
 * [Hypothesis 2 and 1: Comparison of genetic and phenotypic brain measures](Hypothesis2and1.html)
 
-* [Hypothesis 3: Genetic correlation between general cognitive abilities and brain networks](.html)
+* [Hypothesis 3: Genetic correlation between general cognitive abilities and brain networks](Hypothesis3.html)
 
 * [Genetic correlation between brain age and whole-brain shared morphology](.html)
 
