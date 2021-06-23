@@ -84,3 +84,5 @@ $$\\[0.1in]$$
 ### Acknowledgements
 
 I learned the basics of how to create websites on GitHub in a tutorial by Dr. Oliver Pain (KCL). Some of the design was inspired by [this awesome website by Yan Holtz](https://holtzy.github.io/Pimp-my-rmd/). Thank you!
+<br>
+The authors acknowledge use of the research computing facility at King’s College London, Rosalind (https://rosalind.kcl.ac.uk).

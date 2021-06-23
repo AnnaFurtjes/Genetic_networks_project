@@ -612,9 +612,9 @@ trait_files&lt;-get(i)
     
     # rename some of the columns (more intuitive)
     
-    names(merged_file)[which(names(merged_file) == &quot;ALLELE0&quot;)]&lt;-&quot;EA&quot;
-    names(merged_file)[which(names(merged_file) == &quot;ALLELE1&quot;)]&lt;-&quot;OA&quot;
-    names(merged_file)[which(names(merged_file) == &quot;A1FREQ&quot;)]&lt;-&quot;OAFREQ&quot;
+    names(merged_file)[which(names(merged_file) == &quot;ALLELE0&quot;)]&lt;-&quot;OA&quot;
+    names(merged_file)[which(names(merged_file) == &quot;ALLELE1&quot;)]&lt;-&quot;EA&quot;
+    names(merged_file)[which(names(merged_file) == &quot;A1FREQ&quot;)]&lt;-&quot;EAFREQ&quot;
 
     print(&quot;Done renaming columns&quot;)
     
