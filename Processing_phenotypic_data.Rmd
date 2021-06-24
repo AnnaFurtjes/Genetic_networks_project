@@ -750,6 +750,16 @@ dim(cor_matrix) # should be 83 for all brain_areas
 print("Dimension names of cormatrix")
 dimnames(cor_matrix)[1]
 
+###### calculate standard errors for each estimate in the correlation matrix
+se_matrix<-matrix(nrow=dim(cor_matrix)[1],ncol=dim(cor_matrix)[2])
+
+for(i in 1:nrow(se_matrix)){
+	for(j in 1:ncol(se_matrix)){
+	
+	se_matrix[i,j]<-sqrt((1-(cor_matrix[i,j])^2)/(nrow(file)-2))
+}}
+
+
 # 5. caclulate values and vectors
 eigenvalues<-eigen(cor_matrix)$values 
 eigenvectors<-eigen(cor_matrix)$vectors
@@ -766,7 +776,7 @@ names(stand_loadings)<-c("Regions","stand_loadings")
 print("print head phenotypic standardised loadings")
 head(stand_loadings)
 
-save(list = c("cor_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
+save(list = c("cor_matrix","se_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
 
 ```
 

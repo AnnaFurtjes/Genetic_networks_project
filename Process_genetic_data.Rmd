@@ -441,6 +441,10 @@ ggplot(SE_lower, aes(value,color="indianred2",fill="indianred2"))+
 
 ```
 
+Standard errors of the genetic correlation estimates have an average of `r round(mean(SE_lower$value, na.rm=T), digit=3)` (SD = `r round(sd(SE_lower$value, na.rm=T),digit=3)`), and range between `r round(min(SE_lower$value, na.rm=T),digit=3)` and `r round(max(SE_lower$value, na.rm=T),digit=3)`.
+
+<br>
+<br>
 
 ## Display genetic correlations
 ```{r plot_var_corr,message=F,warning=F}
@@ -564,7 +568,7 @@ setwd(temporarywd)
 heritability<-read.table("heritability_brain_volumes_14052021.txt",header=T)
 
 heritability$name<-rep("SNP-heritability",83)
-heritability$outlier<-ifelse(heritability$p2=="Brain_stem", "Brain stem",NA)
+heritability$outlier<-NA
 
 # plot SNP-heritability
 plot_heritability<-
