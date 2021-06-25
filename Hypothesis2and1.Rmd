@@ -48,6 +48,10 @@ phenotypic variation in regional volumes also control the dimension of genetic s
 across these brain volumes. That is, it would suggest that phenotypic structural
 integrity recapitulates genetic integrity and that they are underpinned by similar
 general biological mechanisms.
+
+<br>
+
+
 ## Association between phenotypic and genetic correlations
 
 Previously, we have calculated a phenotypic and genetic correlation matrix between 83 brain areas. Here we test whether phenotypic correlations were equivalent to genetic correlations.

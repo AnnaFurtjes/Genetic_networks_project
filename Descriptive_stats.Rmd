@@ -386,7 +386,7 @@ for(i in 1:length(loadings_all_traits)){
 table$number_included<-c(8,10,16,12,12,36,10,12,30,83)
 
 
-kable(table,caption="Explained variance and loadings on first PC",format="markdown",digits=3,row.names = F)
+kable(table,caption="Explained variance and loadings on first PC",format="markdown",digits=2,row.names = F)
 
 ```
 
