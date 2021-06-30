@@ -18,7 +18,14 @@ body{
 }
 </style>
 
-# Hypothesis 3
+
+```{r setup, include=F,echo=F}
+require(knitr)
+opts_knit$set(root.dir = "C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+```
+
+
 Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019),
 we will extract a latent genetic g factor which represents common genetic variation
 shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it with brainwide and network-specific genetic indices. As brain volumes and intelligence
@@ -31,8 +38,8 @@ brains into subnetworks – such as the central executive network – is worthwh
 future cognitive research as it provides a more parsimonious model to predict variation
 in cognitive abilities.
 
-## Calculate PC sumstats
-### 1. Format GWAS with columns expected by GWAMA software
+# Calculate PC sumstats
+## 1. Format GWAS with columns expected by GWAMA software
 ```{r format_files_hapmap, eval=F,echo=T}
 ##### format GWAS files for GWAMA
 # documentation of the Baselman function
@@ -135,7 +142,7 @@ for (i in 1:nrow(all_files)){
 ```
 
 
-### 2. Create the PC sumstats weighted with loadings
+## 2. Create the PC sumstats weighted with loadings
 
 ```{r create_sumstats,eval=F,echo=T}
 ### calculate PC summary statistics for whole brain
@@ -280,9 +287,9 @@ for (i in loadings_all_traits){
 }
 print("Done creating all GWAMA scores, excluding whole brain")
 ```
-Note that same script was used for whole brain, but submitted to the cluster separately because it needed more resources.
+Note that same script was used for whole brain, but submitted to the cluster separately because it needed more resources (the GWAMA function reads in all 83 files simultaneously).
 
-#### 3. Format and munge PC sumstats to perform LDSC
+## 3. Format and munge PC sumstats to perform LDSC
 This step is more of a sanity check, and shouldn't exclude any additional rows. 
 ```{r munge_PC_sumstats,echo=T,eval=F}
 ### Munge the PC_sumstats files and calculate ldsc with the cognitive GWAS files (already munged)
@@ -375,7 +382,9 @@ for (i in 1:nrow(info)){
 }
 ```
 
-### Perform LDSC between PC sumstats and cognitive traits
+Note that the munging step here is only to get the sumstats in shape. No SNPs are excluded because we only included SNPs in the meta-analysis that survived the munging process in the first place.
+
+# Perform LDSC between PC sumstats and cognitive traits
 ```{r ldsc_cognitive_PC_sumstats,eval=F,echo=T}
 #### run ldsc for cognitive traits and all networks included 
 
@@ -421,7 +430,7 @@ LDSCoutput<-ldsc(traits=traits,
 					population.prev=population.prev,
 					stand=T)
 					
-save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/network_ldsc/all_networks_and_cognitivetraits.RData")
+save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/network_ldsc/all_networks_cognitive.RData")
 ```
 ```{r heatmap,eval=T,echo=F,message=F,warning=F}
 # heat map genetic correlations between networks and cognitive performance
@@ -438,6 +447,7 @@ load("all_networks_cognitive.RData")
 
 ldscoutput<-LDSCoutput
 trait_names<-dimnames(ldscoutput$S)[[2]]
+# clean up names
 trait_names[grep("/genetic_networks/data/PC_munged/",trait_names)]<-
 substring(trait_names[grep("/genetic_networks/data/PC_munged/",trait_names)], 57)
 
@@ -483,11 +493,10 @@ heatmap
 
 ```
 
-It seems that Tower is driving most of the associations, which is surprising.
 
 
 
-### Sanity check: Are all network-specific PC sumstats heritable?
+## Sanity check: Are all network-specific PC sumstats heritable?
 ```{r PC_sumstats_h2,message=F,warning=F}
 temporarywd<-paste0(workingd,"/data/heritability_volumes/")
 setwd(temporarywd)
@@ -495,11 +504,11 @@ break
 h2<-fread("heritability_networks_14072020.txt",header=T)
 kable(h2,caption="Heritability of networks",format="markdown",digits = 3)
 ```
-Heritability estimates from genetic PCs cannot be interpreted because they are not phenotypic PCs.
+Heritability estimates from genetic PCs cannot be interpreted because they are not phenotypic PCs, but they give an idea of the signal-to-noise ratio contained in the sumstats.
 
 
 
-### Calculate the genetic association between network-specific PC sumstats and a genetic factor *g*
+# Calculate genetic correlation between network-specific PC sumstats and a genetic factor *g*
 
 ```{r calculate_corr, eval=T,warning=F,message=F,results='hide'}
 #load dependencies
@@ -555,7 +564,7 @@ results<-ls(pattern="_cognitive_SEM_results")
 ```
 
 
-#### Summarise the model fit across all networks associated with genetic *g*
+## Summarise the model fit across all networks associated with genetic *g*
 
 ```{r print_model_fit}
 library(knitr)
@@ -575,7 +584,7 @@ kable(fit_table,caption="Model fit across models",format="markdown",digits = c(0
 
 
 
-#### Print correlations for each network-specific PC sumstats with genetic *g*
+## Print correlations for each network-specific PC sumstats with genetic *g*
 ```{r print_corr}
 network_assoc<-NULL
 

@@ -207,9 +207,9 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
               scale_x_continuous(n.breaks = 5)+
               xlab("Phenotypic PC loadings")+ylab("")+
               theme(legend.position = "none",
-                    axis.text.x = element_text(size=24),
-                    axis.text.y = element_text(size=24),
-                    axis.title.x = element_text(size=26),
+                    axis.text.x = element_text(size=26),
+                    axis.text.y = element_text(size=26),
+                    axis.title.x = element_text(face="bold",size=30),
                     panel.background = element_blank(), 
                     axis.line = element_line(color="black"), 
                     axis.line.x = element_line(color="black"))+theme_bw() 
@@ -232,12 +232,12 @@ Note that the vertical lines indicate quantiles.
 ## Eigendecomposition
 ```{r eigendecomp, warning=FALSE,message=F}
 ### eigen decomposition of networks
-rm(list=ls())
+rm(list=setdiff(ls(),"loadings_pheno_plot"))
 library(stringr)
 library(data.table)
 
 # set wd where ldsc_output is saved
-workingd<-getwd()
+#workingd<-getwd()
 temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
@@ -447,9 +447,9 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
               scale_x_continuous(n.breaks = 5)+
               xlab("Genetic PC loadings")+ylab("")+
               theme(legend.position = "none",
-                    axis.text.x = element_text(size=24),
-                    axis.text.y = element_text(size=24),
-                    axis.title.x = element_text(size=26),
+                    axis.text.x = element_text(size=26),
+                    axis.text.y = element_text(size=26),
+                    axis.title.x = element_text(face="bold",size=30),
                     panel.background = element_blank(), 
                     axis.line = element_line(color="black"), 
                     axis.line.x = element_line(color="black"))+theme_bw() 
@@ -459,6 +459,17 @@ loadings_plot
 ```
 
 Note that the vertical lines indicate quantiles. 
+
+```{r merge_plots, eval=FALSE}
+library(cowplot)
+
+tiff("loadings.tiff", width = 11, height = 6, units = 'in', res=1000)
+
+plot_grid(loadings_pheno_plot,loadings_plot,nrow = 1,ncol = 2,labels=c("A","B"),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85)
+
+dev.off()
+```
+
 
 ***
 
