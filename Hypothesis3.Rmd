@@ -618,4 +618,83 @@ Note that the adjusted *p*-values were corrected using false discovery rate (FDR
 ![](C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/Path_diagram_central_exec.jpg)
 
 
+# Genetic correlation with brain age
+Previous research modelling phenotypic canonical networks showed that larger shared morphology within the whole brain (PC loadings) were negatively associated with age sensitivity, even when connectivity measures had been residualised for age [34]. Consequently, the authors suggested that previously described patterns of brain structural aging, a construct labelled as brain age [Ref](https://www.sciencedirect.com/science/article/pii/S0006322320316796), might not capture how quickly ones regional volumes decline compared to their peers, but rather healthy morphology across the brain. This could vary between people for many non-age-related reasons, including genetic predisposition. Genetic predisposition towards strong whole-brain connectivity might contribute to healthier well-connected brains, that could be more resilient towards harmful environmental factors, properties that should be captured by younger brain age.
+To test this theory, we calculated genetic correlations between shared morphology across the whole-brain and brain age. Bivariate LDSC was calculated between whole-brain PC summary statistics, created using the methods demonstrated above, and brain age GWAS summary statistics [REF](https://www.nature.com/articles/s41593-019-0471-7). 
 
+```{r brain_age,eval=F}
+## this script calculates the genetic correlation between whole brain PC sumstats and brainage gwas 
+# brain age gwas was downloaded from https://github.com/tobias-kaufmann/brainage/find/master
+# fileparts combined using: cat Brainage_GWAS_sumstat_final.gz* > /scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/Brainage_GWAS_sumstat_final.gz
+# unzipped using gunzip Brainage_GWAS_sumstat_final.gz
+
+# load dependencies
+library(devtools)
+library(GenomicSEM)
+library(data.table)
+
+#########################
+## format brain age file
+########################
+setwd("/scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/")
+brainage<-fread("Brainage_GWAS_sumstat_final.txt",header=T,data.table=F)
+
+brainage$N<-45615
+
+fwrite(brainage, file="/scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/brain_age_gwas_header.txt",quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
+
+
+###################
+## munge brainage gwas
+
+hm3<-"/scratch/users/k1894405/genetic_networks/data/w_hm3.noMHC.snplist"
+
+files<-"brain_age_gwas_header.txt"
+trait.names<-"brainage"
+
+munge(files=files,
+		hm3=hm3,
+		trait.names=trait.names,
+		info.filter = 0.9)
+
+################################################
+### LDSC brain age and whole brain PC 
+################################################
+
+# specify traits and their location
+traits<-c("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/brainage.sumstats.gz","/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_munged/whole_brain.sumstats.gz")
+trait.names<-c("brainage","whole_brain_PC")
+
+
+# ld scores and weights previously downloaded (European population)
+ld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
+wld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
+
+
+# no sample or population prevalence required because they are continuous traits
+desired_length<-length(traits)
+sample.prev<-rep(NA, desired_length)
+population.prev<-rep(NA, desired_length)
+
+LDSCoutput<-ldsc(traits=traits,
+					ld=ld,wld=wld,
+					trait.names = trait.names,
+					ldsc.log="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/whole_brain_vs_brainage.log",
+					sample.prev=sample.prev,
+					population.prev=population.prev,
+					stand=T)
+					
+save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/whole_brain_vs_brainage.RData")
+```
+```{r}
+setwd(paste0(workingd,"/data_my_own/brainage"))
+load("whole_brain_vs_brainage.RData")
+brainage_cor<-round(LDSCoutput$S_Stand[1,2], digits = 2)
+k<-nrow(LDSCoutput$S)
+SE<-matrix(0, k, k)
+SE[lower.tri(SE,diag=TRUE)]<-sqrt(diag(LDSCoutput$V_Stand))
+SE_brainage<-round(SE[2,1],digits=3)
+```
+
+
+We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (rg = `r brainage_cor`; SE = `r SE_brainage`), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.
