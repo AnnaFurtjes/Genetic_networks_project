@@ -414,7 +414,10 @@ body{
 <p><br> <br></p>
 <div id="hypothesis-2" class="section level1">
 <h1>Hypothesis 2</h1>
-<p>We hypothesise a positive association and high congruence between the two sets of factor loadings which would implicate that the same dimensions that underlie phenotypic variation in regional volumes also control the dimension of genetic sharing across these brain volumes. That is, it would suggest that phenotypic structural integrity recapitulates genetic integrity and that they are underpinned by similar general biological mechanisms. ## Association between phenotypic and genetic correlations</p>
+<p>We hypothesise a positive association and high congruence between the two sets of factor loadings which would implicate that the same dimensions that underlie phenotypic variation in regional volumes also control the dimension of genetic sharing across these brain volumes. That is, it would suggest that phenotypic structural integrity recapitulates genetic integrity and that they are underpinned by similar general biological mechanisms.</p>
+<p><br></p>
+<div id="association-between-phenotypic-and-genetic-correlations" class="section level2">
+<h2>Association between phenotypic and genetic correlations</h2>
 <p>Previously, we have calculated a phenotypic and genetic correlation matrix between 83 brain areas. Here we test whether phenotypic correlations were equivalent to genetic correlations.</p>
 <pre class="r"><code>##### correlate genetic and phenotypic correlations between brain regions
 ##### load genetic data
@@ -518,6 +521,7 @@ SE_lower&lt;-get_lower_tri(SE)
 SE_lower&lt;-reshape2::melt(SE_lower)</code></pre>
 <hr />
 <p><br></p>
+</div>
 <div id="association-between-phenotypic-and-genetic-loadings-on-the-first-pc" class="section level2">
 <h2>Association between phenotypic and genetic loadings on the first PC</h2>
 <pre class="r"><code># load phenotypic loadings
@@ -586,8 +590,23 @@ pval&lt;-signif(summary(model)$coefficient[2,4],digits =3)
 <pre class="r"><code>library(ggplot2)
 library(ggpubr)
 
+# read in area names of central executive areas
+central_areas&lt;-fread(paste0(workingd,&quot;/Scripts/my_own_gwas/2Perform_ldsc/central_executive_areas.txt&quot;),header=F,data.table=F)
+central_areas&lt;-as.vector(central_areas[,1])
+
+# create vector encoding which areas are part of central executive network
+stand_loadings$central_exec&lt;-FALSE
+
+for(i in central_areas){
+  stand_loadings$central_exec[which(stand_loadings$Regions==i)]&lt;-TRUE
+}
+
+# chose which colors to assign to central executive areas
+stand_loadings$central_col&lt;-ifelse(stand_loadings$central_exec==1,&quot;red&quot;,&quot;darkblue&quot;)
+
+
 plot_loadings&lt;-ggplot(stand_loadings, aes(x=gen_stand_loadings,y=pheno_stand_loadings))+#
-                        geom_point(size=4,alpha=0.4)+#,color=stand_loadings$central_col
+                        geom_point(size=4,alpha=0.4,color=stand_loadings$central_col)+
                         geom_smooth(method=lm, se=TRUE) #+
                         #ggtitle(&quot;Phenotypic vs. genetic PC loadings&quot;)
   
@@ -616,7 +635,7 @@ plot_loadings&lt;-ggplot(stand_loadings, aes(x=gen_stand_loadings,y=pheno_stand_
               axis.title.x = element_text(face=&quot;bold&quot;, colour=&#39;black&#39;, size=17))
 plot_loadings</code></pre>
 <p><img src="Hypothesis2and1_files/figure-html/plot_loadings-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p><strong>The red line is the line of identity.</strong></p>
+<p><strong>The red line is the line of identity. PC loadings marked in red belong to regions that are part of the central executive network.</strong></p>
 <hr />
 <p><br></p>
 </div>
@@ -767,7 +786,7 @@ names(age_cor)[2]&lt;-&quot;Regions&quot;
 phenotest&lt;-merge(stand_loadings,age_cor,by=&quot;Regions&quot;)
 
 plot_age_pheno&lt;-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
-  geom_point(size=4,alpha=0.4)+
+  geom_point(size=4,alpha=0.4,color=phenotest$central_col)+
   geom_smooth(method=lm, se=TRUE)#,color=&quot;blue&quot;) #+
   #ggtitle(&quot;Phenotypic age correlations vs. phenotypic PC loadings&quot;)
   
@@ -795,6 +814,7 @@ plot_age_pheno&lt;-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
 
 plot_age_pheno</code></pre>
 <p><img src="Hypothesis2and1_files/figure-html/corr_phenotypes-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><strong>PC loadings marked in red belong to regions that are part of the central executive network.</strong></p>
 <p><br> <br></p>
 </div>
 <div id="association-between-genetic-pc-loadings-and-age-volume-correlations" class="section level2">
@@ -809,6 +829,7 @@ age_cor_estimate&lt;-round(age_correlation_result$estimate,digits = 2)
 age_cor_pval&lt;-round(age_correlation_result$p.value,digits = 3)</code></pre>
 <p>Genetic loadings are significantly correlated with age sensitivity (<em>r</em> = -0.27, <em>p-value</em> = 0.012).</p>
 <p><img src="Hypothesis2and1_files/figure-html/lot_age_cor-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><strong>PC loadings marked in red belong to regions that are part of the central executive network.</strong></p>
 <p><br> <br></p>
 <div id="plot-all-four-correlation-plots" class="section level3">
 <h3>Plot all four correlation plots</h3>

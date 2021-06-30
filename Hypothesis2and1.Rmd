@@ -225,8 +225,23 @@ Genetic loadings significantly predict phenotypic loadings (*b* = `r beta`, *SE*
 library(ggplot2)
 library(ggpubr)
 
+# read in area names of central executive areas
+central_areas<-fread(paste0(workingd,"/Scripts/my_own_gwas/2Perform_ldsc/central_executive_areas.txt"),header=F,data.table=F)
+central_areas<-as.vector(central_areas[,1])
+
+# create vector encoding which areas are part of central executive network
+stand_loadings$central_exec<-FALSE
+
+for(i in central_areas){
+  stand_loadings$central_exec[which(stand_loadings$Regions==i)]<-TRUE
+}
+
+# chose which colors to assign to central executive areas
+stand_loadings$central_col<-ifelse(stand_loadings$central_exec==1,"red","darkblue")
+
+
 plot_loadings<-ggplot(stand_loadings, aes(x=gen_stand_loadings,y=pheno_stand_loadings))+#
-                        geom_point(size=4,alpha=0.4)+#,color=stand_loadings$central_col
+                        geom_point(size=4,alpha=0.4,color=stand_loadings$central_col)+
                         geom_smooth(method=lm, se=TRUE) #+
                         #ggtitle("Phenotypic vs. genetic PC loadings")
   
@@ -256,7 +271,7 @@ plot_loadings<-ggplot(stand_loadings, aes(x=gen_stand_loadings,y=pheno_stand_loa
 plot_loadings
 ```
 
-**The red line is the line of identity.**
+**The red line is the line of identity. PC loadings marked in red belong to regions that are part of the central executive network.**
 
 ***
 <br>
@@ -374,7 +389,7 @@ names(age_cor)[2]<-"Regions"
 phenotest<-merge(stand_loadings,age_cor,by="Regions")
 
 plot_age_pheno<-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
-  geom_point(size=4,alpha=0.4)+
+  geom_point(size=4,alpha=0.4,color=phenotest$central_col)+
   geom_smooth(method=lm, se=TRUE)#,color="blue") #+
   #ggtitle("Phenotypic age correlations vs. phenotypic PC loadings")
   
@@ -403,6 +418,10 @@ plot_age_pheno<-ggplot(phenotest, aes(x=pheno_stand_loadings,y=age_cor))+#
 plot_age_pheno
 ```
 
+
+**PC loadings marked in red belong to regions that are part of the central executive network.**
+
+
 <br>
 <br>
 
@@ -424,7 +443,7 @@ Genetic loadings are significantly correlated with age sensitivity (*r* = `r age
 
 ```{r lot_age_cor,echo=F,message=F,warning=F}
 plot_age_geno<-ggplot(data, aes(x=gen_stand_loadings,y=age_cor))+#
-  geom_point(size=4,alpha=0.4)+#,color=data$central_col
+  geom_point(size=4,alpha=0.4,color=data$central_col)+#,color=data$central_col
   geom_smooth(method=lm, se=TRUE) #+
   #ggtitle("Phenotypic age correlations vs. PC genetic loadings")
   
@@ -450,6 +469,9 @@ plot_age_geno<-
 plot_age_geno
 
 ```
+
+**PC loadings marked in red belong to regions that are part of the central executive network.**
+
 
 <br>
 <br>
