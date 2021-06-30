@@ -69,7 +69,7 @@ $$\\[0.05in]$$
 
 * [Hypothesis 3: Genetic correlation between general cognitive abilities and brain networks](Hypothesis3.html)
 
-* [Genetic correlation between brain age and whole-brain shared morphology](.html)
+* [Genetic correlation between brain age and whole-brain shared morphology](Hypothesis3.html#Genetic_correlation_with_brain_age)
 
 $$\\[0.1in]$$
 

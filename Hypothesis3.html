@@ -408,7 +408,7 @@ body{
   line-height: 24px;
 }
 </style>
-<p>Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019), we will extract a latent genetic g factor which represents common genetic variation shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it with brainwide and network-specific genetic indices. As brain volumes and intelligence genetically overlap, we hypothesise that the genetic whole-brain scores positively correlate with genetic g. Additionally, we hypothesise, on the basis of previous phenotypic findings, that the central executive network shows a stronger genetic correlation than other networks, when accounting for the number of included nodes. If so, the results provide an additional piece of evidence that partitioning anatomical brains into subnetworks – such as the central executive network – is worthwhile for future cognitive research as it provides a more parsimonious model to predict variation in cognitive abilities.</p>
+<p>Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019), we will extract a latent genetic g factor which represents common genetic variation shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it with brainwide and network-specific genetic indices. As brain volumes and intelligence genetically overlap, we hypothesise that the genetic whole-brain scores positively correlate with genetic g. Additionally, we hypothesise, on the basis of previous phenotypic findings, that the central executive network shows a stronger genetic correlation than other networks, when accounting for the number of included nodes.</p>
 <div id="calculate-pc-sumstats" class="section level1">
 <h1>Calculate PC sumstats</h1>
 <div id="format-gwas-as-expected-by-gwama-software" class="section level2">
@@ -797,9 +797,13 @@ LDSCoutput&lt;-ldsc(traits=traits,
                     
 save(LDSCoutput, file=&quot;~/output/genetic_networks_project/network_ldsc/all_networks_cognitive.RData&quot;)</code></pre>
 <p><img src="Hypothesis3_files/figure-html/heatmap-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Note the small correlations of reaction time with the networks as well as the other cognitive traits.</p>
+<p><br></p>
+<p><br> <br></p>
 </div>
-<div id="genetic-g-genomic-sem" class="section level1">
-<h1>Genetic <em>g</em> genomic SEM</h1>
+<div id="genomic-sem-genetic-intelligence-factor-g" class="section level1">
+<h1>Genomic SEM: Genetic intelligence factor <em>g</em></h1>
+<p>Here we assess the genetic correlations between network morphology and a factor of general cognitive ability <em>g</em> which is modeled from seven cognitive trait GWAS.</p>
 <pre class="r"><code>#load dependencies
 
 library(stringr)
@@ -1000,12 +1004,11 @@ genetic_cor$ci_u&lt;-round(genetic_cor$ci_u,digits = 2)
 genetic_cor$CI&lt;-with(genetic_cor, paste(ci_u,ci_l,sep = &quot; - &quot;))
 
 genetic_cor&lt;-genetic_cor[,c(&quot;model&quot;,&quot;STD_Genotype&quot;,&quot;STD_Genotype_SE&quot;,&quot;CI&quot;,&quot;p_value&quot;,&quot;p_adjust&quot;)]
-kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and genetic g&quot;,format=&quot;markdown&quot;)</code></pre>
+kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and genetic g&quot;,format=&quot;markdown&quot;, row.names = F)</code></pre>
 <table>
 <caption>Genetic correlations between PC sumstats and genetic g</caption>
 <thead>
 <tr class="header">
-<th align="left"></th>
 <th align="left">model</th>
 <th align="right">STD_Genotype</th>
 <th align="right">STD_Genotype_SE</th>
@@ -1016,7 +1019,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">2</td>
 <td align="left">central_exec_cognitive</td>
 <td align="right">0.20</td>
 <td align="right">0.037</td>
@@ -1025,7 +1027,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">3.00e-07</td>
 </tr>
 <tr class="even">
-<td align="left">21</td>
 <td align="left">cingulo_cognitive</td>
 <td align="right">0.20</td>
 <td align="right">0.038</td>
@@ -1034,7 +1035,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">3.00e-07</td>
 </tr>
 <tr class="odd">
-<td align="left">22</td>
 <td align="left">default_mode_cognitive</td>
 <td align="right">0.19</td>
 <td align="right">0.037</td>
@@ -1043,7 +1043,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">3.00e-07</td>
 </tr>
 <tr class="even">
-<td align="left">23</td>
 <td align="left">hippocampal_cognitive</td>
 <td align="right">0.17</td>
 <td align="right">0.039</td>
@@ -1052,7 +1051,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">2.66e-05</td>
 </tr>
 <tr class="odd">
-<td align="left">24</td>
 <td align="left">multiple_cognitive</td>
 <td align="right">0.19</td>
 <td align="right">0.039</td>
@@ -1061,7 +1059,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">9.00e-07</td>
 </tr>
 <tr class="even">
-<td align="left">25</td>
 <td align="left">p_fit_cognitive</td>
 <td align="right">0.20</td>
 <td align="right">0.038</td>
@@ -1070,7 +1067,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">3.00e-07</td>
 </tr>
 <tr class="odd">
-<td align="left">26</td>
 <td align="left">salience_cognitive</td>
 <td align="right">0.19</td>
 <td align="right">0.036</td>
@@ -1079,7 +1075,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">4.00e-07</td>
 </tr>
 <tr class="even">
-<td align="left">27</td>
 <td align="left">sensori_cognitive</td>
 <td align="right">0.19</td>
 <td align="right">0.039</td>
@@ -1088,7 +1083,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">1.30e-06</td>
 </tr>
 <tr class="odd">
-<td align="left">28</td>
 <td align="left">temporo_cognitive</td>
 <td align="right">0.20</td>
 <td align="right">0.038</td>
@@ -1097,7 +1091,6 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <td align="right">4.00e-07</td>
 </tr>
 <tr class="even">
-<td align="left">29</td>
 <td align="left">whole_brain_cognitive</td>
 <td align="right">0.21</td>
 <td align="right">0.039</td>
@@ -1108,10 +1101,16 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 </tbody>
 </table>
 <p>Note that the adjusted <em>p</em>-values were adjusted using a 5% false discovery rate.</p>
-<p><img src="Path_diagram_central_exec.tif" /> # Compare networks based on their correlation magnitudes with general cognitive abilities</p>
+<p><img src="Path_diagram_central_exec.jpg" /></p>
+<p><br> <br> <br></p>
+</div>
+</div>
+<div id="compare-networks-based-on-their-correlation-magnitudes-with-general-cognitive-abilities" class="section level1">
+<h1>Compare networks based on their correlation magnitudes with general cognitive abilities</h1>
 <p>Next, we build SEMs to understand whether magnitudes between genetic <em>g</em> and PC sumstats for the Central Executive network are significantly different from the associations between genetic g and the other networks. We do this for raw correlations displayed above, but also for correlations adjusted for the number of nodes contributing to individual networks.</p>
 <p><img src="Path_diagram_compare_corr.jpg" /></p>
-</div>
+<p><br></p>
+<hr />
 <div id="raw-correlations" class="section level2">
 <h2>Raw correlations</h2>
 <pre class="r"><code>library(stringr)
@@ -1168,8 +1167,8 @@ for(i in other_networks){
             }
 
 results&lt;-ls(pattern=&quot;_model_central_exec_&quot;)</code></pre>
-<div id="summarise-the-model-fit-constrained-vs.-freely-varying-models" class="section level3">
-<h3>Summarise the model fit constrained vs. freely varying models</h3>
+<div id="model-fit-constrained-vs.-freely-varying-models" class="section level3">
+<h3>Model fit constrained vs. freely varying models</h3>
 <pre class="r"><code>constrained_results&lt;-ls(pattern=&quot;constrained_model_central_exec_&quot;)
 
 table&lt;-data.frame()
@@ -1389,10 +1388,13 @@ kable(display_chi,caption=&quot;Significance test of difference in chi-squared v
 </tr>
 </tbody>
 </table>
+<p><br> <br></p>
+<hr />
 </div>
 </div>
 <div id="adjusted-correlations" class="section level2">
 <h2>Adjusted correlations</h2>
+<p>To account for different sizes of the networks (i.e. different number of included brain volumes), we compare whether associations with <em>g</em> differ between networks, when the associations have been divided by their number of included volumes.</p>
 <pre class="r"><code>library(stringr)
 library(data.table)
 library(devtools)
@@ -1471,8 +1473,8 @@ for(i in other_networks){
             }
             
 results&lt;-ls(pattern=&quot;_model_central_exec_&quot;)</code></pre>
-<div id="summarise-the-model-fit-constrained-vs.-freely-varying-models-1" class="section level3">
-<h3>Summarise the model fit constrained vs. freely varying models</h3>
+<div id="model-fit-constrained-vs.-freely-varying-models-1" class="section level3">
+<h3>Model fit constrained vs. freely varying models</h3>
 <pre class="r"><code>constrained_results&lt;-ls(pattern=&quot;constrained_model_central_exec_&quot;)
 
 table&lt;-data.frame()
@@ -1695,6 +1697,8 @@ kable(display_chi,caption=&quot;Significance test of difference in chi-squared v
 </tr>
 </tbody>
 </table>
+<p><br> <br> <br> <br></p>
+<hr />
 </div>
 </div>
 </div>
@@ -1770,7 +1774,7 @@ k&lt;-nrow(LDSCoutput$S)
 SE&lt;-matrix(0, k, k)
 SE[lower.tri(SE,diag=TRUE)]&lt;-sqrt(diag(LDSCoutput$V_Stand))
 SE_brainage&lt;-round(SE[2,1],digits=3)</code></pre>
-<p>We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (rg = -0.34; SE = 0.065), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.</p>
+<p>We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (<strong>rg = -0.34; SE = 0.065</strong>), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.</p>
 </div>
 
 &nbsp;

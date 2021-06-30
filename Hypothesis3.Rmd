@@ -33,11 +33,7 @@ shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it wi
 genetically overlap, we hypothesise that the genetic whole-brain scores positively
 correlate with genetic g. Additionally, we hypothesise, on the basis of previous
 phenotypic findings, that the central executive network shows a stronger genetic
-correlation than other networks, when accounting for the number of included nodes. If
-so, the results provide an additional piece of evidence that partitioning anatomical
-brains into subnetworks – such as the central executive network – is worthwhile for
-future cognitive research as it provides a more parsimonious model to predict variation
-in cognitive abilities.
+correlation than other networks, when accounting for the number of included nodes.
 
 # Calculate PC sumstats
 ## 1. Format GWAS as expected by GWAMA software
@@ -497,8 +493,16 @@ heatmap
 ```
 
 
+Note the small correlations of reaction time with the networks as well as the other cognitive traits.
 
-# Genetic *g* genomic SEM
+<br>
+
+<br>
+<br>
+
+# Genomic SEM: Genetic intelligence factor *g* 
+
+Here we assess the genetic correlations between network morphology and a factor of general cognitive ability *g* which is modeled from seven cognitive trait GWAS.
 
 ```{r calculate_corr, eval=T,warning=F,message=F,results='hide'}
 #load dependencies
@@ -602,19 +606,32 @@ genetic_cor$ci_u<-round(genetic_cor$ci_u,digits = 2)
 genetic_cor$CI<-with(genetic_cor, paste(ci_u,ci_l,sep = " - "))
 
 genetic_cor<-genetic_cor[,c("model","STD_Genotype","STD_Genotype_SE","CI","p_value","p_adjust")]
-kable(genetic_cor,caption="Genetic correlations between PC sumstats and genetic g",format="markdown")
+kable(genetic_cor,caption="Genetic correlations between PC sumstats and genetic g",format="markdown", row.names = F)
 ```
 
 Note that the adjusted *p*-values were adjusted using a 5% false discovery rate.
 
 
-![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_central_exec.tif)
+
+![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_central_exec.jpg)
+
+
+<br>
+<br>
+<br>
+
 # Compare networks based on their correlation magnitudes with general cognitive abilities 
 
 Next, we build SEMs to understand whether magnitudes between genetic *g* and PC sumstats for the Central Executive network are significantly different from the associations between genetic g and the other networks. 
 We do this for raw correlations displayed above, but also for correlations adjusted for the number of nodes contributing to individual networks.
 
 ![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_compare_corr.jpg)
+
+<br>
+
+***
+
+
 
 ## Raw correlations
 
@@ -675,7 +692,7 @@ for(i in other_networks){
 results<-ls(pattern="_model_central_exec_")
 ```
 
-### Summarise the model fit constrained vs. freely varying models
+### Model fit constrained vs. freely varying models
 
 ```{r fit_const_free}
 constrained_results<-ls(pattern="constrained_model_central_exec_")
@@ -716,7 +733,20 @@ kable(display_chi,caption="Significance test of difference in chi-squared values
 kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits = 3)
 ```
 
+
+<br>
+<br>
+
+
+
+
+***
+
+
+
 ## Adjusted correlations
+
+To account for different sizes of the networks (i.e. different number of included brain volumes), we compare whether associations with *g* differ between networks, when the associations have been divided by their number of included volumes.
 
 ```{r compare_adjust, eval=T,warning=F,message=F,results='hide'}
 library(stringr)
@@ -800,7 +830,7 @@ results<-ls(pattern="_model_central_exec_")
 ```
 
 
-### Summarise the model fit constrained vs. freely varying models
+### Model fit constrained vs. freely varying models
 
 ```{r fit_adjust}
 constrained_results<-ls(pattern="constrained_model_central_exec_")
@@ -843,6 +873,14 @@ display_fit_other<-model_fit_all[,c("model","constrained_AIC","free_AIC","constr
 kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,3,0,3,3))
 kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits=3)
 ```
+
+<br>
+<br>
+<br>
+<br>
+
+
+***
 
 
 # Genetic correlation with brain age
@@ -924,4 +962,4 @@ SE_brainage<-round(SE[2,1],digits=3)
 ```
 
 
-We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (rg = `r brainage_cor`; SE = `r SE_brainage`), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.
+We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (**rg = `r brainage_cor`; SE = `r SE_brainage`**), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.
