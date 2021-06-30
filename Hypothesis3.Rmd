@@ -3,6 +3,7 @@ title: "Hypothesis 3"
 highlighter: prettify
 output: 
   html_document:
+    code_folding: hide
     toc: yes
     toc_depth: 2
     toc_float: yes
@@ -39,7 +40,7 @@ future cognitive research as it provides a more parsimonious model to predict va
 in cognitive abilities.
 
 # Calculate PC sumstats
-## 1. Format GWAS with columns expected by GWAMA software
+## 1. Format GWAS as expected by GWAMA software
 ```{r format_files_hapmap, eval=F,echo=T}
 ##### format GWAS files for GWAMA
 # documentation of the Baselman function
@@ -68,7 +69,7 @@ library(R.utils)
 
 ## read in one original gwas for extra info on BP, CHR, P
 # both OAFREQ and SE should not change even when flipping the effects when A1 and EA don't match
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/step2/")
+setwd("~/output/regenie/step2/")
 
 ref_files<-list.files(pattern="GWAS_22chr_noTBVcontrol_")
 
@@ -76,7 +77,7 @@ if(length(ref_files)!=83){print("Detected the wrong number of reference files");
 
 
 # read in munged gwas files that were used in the PC analyses
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/gwas_munged/")
+setwd("~/output/genetic_networks_project/gwas_munged/")
 
 munged_files<-list.files(pattern=".sumstats.gz")
 if(length(munged_files)!=83){print("Detected the wrong number of munged files");break}else{print("As expected, we have 83 munged files")}
@@ -99,11 +100,11 @@ for (i in 1:nrow(all_files)){
 	if(munged_trait != ref_trait){print("Munged trait and reference trait don't match");break}else{print("Munged and reference input files match")}
 	
 	# read in file
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/gwas_munged/")
+	setwd("~/output/genetic_networks_project/gwas_munged/")
 	munged_file<-fread(as.character(all_files$munged_files[i]),header=T,data.table=F)
 	
 	# read in reference file
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/step2/")
+	setwd("~/output/regenie/step2/")
 	ref_file<-fread(as.character(all_files$ref_files[i]),header=T,data.table=F)
 	
 	# format ref file
@@ -135,14 +136,14 @@ for (i in 1:nrow(all_files)){
 	print(head(merged_file))
 	
 	## print file
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/GWAMA_format/")
+	setwd("~/output/genetic_networks_project/GWAMA_format/")
 	fwrite(merged_file,file=paste0("gwama_format_",ref_trait), quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
 }
 
 ```
 
 
-## 2. Create the PC sumstats weighted with loadings
+## 2. Create PC sumstats weighted with loadings
 
 ```{r create_sumstats,eval=F,echo=T}
 ### calculate PC summary statistics for whole brain
@@ -153,13 +154,13 @@ source("https://github.com/baselmans/multivariate_GWAMA/blob/master/Test_Data/N_
 library(data.table)
 library(stringr)
 
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/genetic_networks_project/gwama/")
+setwd("~/scripts/genetic_networks_project/gwama/")
 source("my_GWAMA_26032020.R")
 
 #### before reading in any files, create a data frame that contains matched file_names, Regions and loadings
 
 # set wd to where GWAMA formatted files are saved
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/GWAMA_format/")
+setwd("~/output/genetic_networks_project/GWAMA_format/")
 
 # create vector with file_names
 file_names<-list.files(pattern="gwama_format_")
@@ -176,7 +177,7 @@ df$Regions<-as.character(df$Regions)
 str(df)
 
 # load in loadings (they have been calculated with script: 5Eigendecomp/ eigen_decomposition_18052020.R, and transferred onto server)
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/data/standardised_loadings/")
+setwd("~/data/standardised_loadings/")
 
 networks<-list.files(pattern=".txt")
 
@@ -210,7 +211,7 @@ for (i in loadings_all_traits){
 	print(info) # for central exec we are expecting 8 nodes etc.
 	
 	# set wd to where GWAMA formatted files are stored
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/GWAMA_format/")
+	setwd("~/output/genetic_networks_project/GWAMA_format/")
 
 	# create list to hold GWASs
 	num<-nrow(info)
@@ -237,7 +238,7 @@ for (i in loadings_all_traits){
 	network_name<-paste0(network_name,".RData")
 	print(network_name)
 	
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/ldsc/")
+	setwd("~/output/genetic_networks_project/ldsc/")
 	intercept_file<-list.files(pattern=network_name)
 	#print(intercept_file)
 	intercept_file<-load(intercept_file)
@@ -273,7 +274,7 @@ for (i in loadings_all_traits){
 	stand_loadings<-stand_loadings}
 	print(stand_loadings)
 
-	setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_sumstats/")
+	setwd("~/output/genetic_networks_project/PC_sumstats/")
 	print("Starting to create GWAMA scores")
 				my_GWAMA(x=dat,
 						  cov_Z=intercepts,
@@ -289,8 +290,10 @@ print("Done creating all GWAMA scores, excluding whole brain")
 ```
 Note that same script was used for whole brain, but submitted to the cluster separately because it needed more resources (the GWAMA function reads in all 83 files simultaneously).
 
-## 3. Format and munge PC sumstats to perform LDSC
-This step is more of a sanity check, and shouldn't exclude any additional rows. 
+## 3. Format and munge PC sumstats
+
+This step is only performed the get the sumstats in shape, and no SNPs should be excluded because the GWAMA analyses were only performed on SNPs that survived the munging process in the first place.
+
 ```{r munge_PC_sumstats,echo=T,eval=F}
 ### Munge the PC_sumstats files and calculate ldsc with the cognitive GWAS files (already munged)
 
@@ -302,7 +305,7 @@ library(devtools)
 library(GenomicSEM)
 
 # set wd to where formatted files are saved
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_sumstats")
+setwd("~/output/genetic_networks_project/PC_sumstats")
 
 ## change header names for PC_sumstats
 
@@ -314,7 +317,7 @@ for (i in 1:length(PC_files)) assign(PC_files[i],fread(PC_files[i],header=T,data
 print(ls(pattern="N_weighted_GWAMA.results.txt"))
 
 # read in file that contains info columns
-info_file<-fread("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/regenie/step2/GWAS_22chr_noTBVcontrol_Right_transverse_temporal.txt",header=T,data.table=F)
+info_file<-fread("~/output/regenie/step2/GWAS_22chr_noTBVcontrol_Right_transverse_temporal.txt",header=T,data.table=F)
 names(info_file)[which(names(info_file)=="CHROM")]<-"CHR"
 names(info_file)[which(names(info_file)=="GENPOS")]<-"BP"
 names(info_file)[which(names(info_file)=="ID")]<-"SNPID"
@@ -332,7 +335,7 @@ for (i in PC_files){
 		print(head(file))
 		
 		
-		setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_header/")
+		setwd("~/output/genetic_networks_project/PC_header/")
 		file_name<-paste0(i,"_ready_to_munge")
 		file_name<-str_remove(file_name,pattern=".N_weighted_GWAMA.results.txt")
 		print(file_name)
@@ -350,10 +353,10 @@ library(data.table)
 library(devtools)
 library(GenomicSEM)
 
-hm3<-"/scratch/users/k1894405/genetic_networks/data/w_hm3.noMHC.snplist"
+hm3<-"~/data/w_hm3.noMHC.snplist"
 
 # list PC_sumstats files you want to munge
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_header/")
+setwd("~/output/genetic_networks_project/PC_header/")
 PC_files<-list.files(pattern="_ready_to_munge")
 print(length(PC_files))
 
@@ -370,7 +373,7 @@ print(str(info))
 
 
 for (i in 1:nrow(info)){
-		setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_header/")
+		setwd("~/output/genetic_networks_project/PC_header/")
 		files<-info[i,"PC_files"]
 		print(files)
 		trait.names<-info[i,"network_names"]
@@ -382,9 +385,9 @@ for (i in 1:nrow(info)){
 }
 ```
 
-Note that the munging step here is only to get the sumstats in shape. No SNPs are excluded because we only included SNPs in the meta-analysis that survived the munging process in the first place.
 
-# Perform LDSC between PC sumstats and cognitive traits
+
+# Genetic correlations between network morphology and cognitive traits
 ```{r ldsc_cognitive_PC_sumstats,eval=F,echo=T}
 #### run ldsc for cognitive traits and all networks included 
 
@@ -396,26 +399,26 @@ library(devtools)
 library(GenomicSEM)
 
 # list munged PC sumstats
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_munged/")
+setwd("~/output/genetic_networks_project/PC_munged/")
 
 # list files you would like to munge
 PC_files<-list.files(pattern=".sumstats.gz")
-PC_files<-paste0("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_munged/",PC_files)
+PC_files<-paste0("~/output/genetic_networks_project/PC_munged/",PC_files)
 print(PC_files)
 
 # list cognitive traits
-setwd("/scratch/users/k1894405/genetic_networks/data/cognititve_GWAS")
+setwd("~/data/cognititve_GWAS")
 
 cognitive_files<-list.files(pattern=".sumstats.gz")
 
 # specify traits used for ldsc
 traits<-append(PC_files,cognitive_files)
 trait.names<-str_replace(traits,pattern=".sumstats.gz",replacement="")
-trait.names<-str_remove(trait.names, pattern="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_munged/")
+trait.names<-str_remove(trait.names, pattern="~/output/genetic_networks_project/PC_munged/")
 
 # ld scores and weights previously downloaded (European population)
-ld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
-wld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
+ld<-"~/data/eur_w_ld_chr/"
+wld<-"~/data/eur_w_ld_chr/"
 
 # no sample or population prevalence required: NA for all traits
 desired_length<-length(traits)
@@ -425,12 +428,12 @@ population.prev<-rep(NA, desired_length)
 LDSCoutput<-ldsc(traits=traits,
 					ld=ld,wld=wld,
 					trait.names = trait.names,
-					ldsc.log="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/network_ldsc/ldsc_all_networks_cognitivetraits.log",
+					ldsc.log="~/output/genetic_networks_project/network_ldsc/ldsc_all_networks_cognitivetraits.log",
 					sample.prev=sample.prev,
 					population.prev=population.prev,
 					stand=T)
 					
-save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/network_ldsc/all_networks_cognitive.RData")
+save(LDSCoutput, file="~/output/genetic_networks_project/network_ldsc/all_networks_cognitive.RData")
 ```
 ```{r heatmap,eval=T,echo=F,message=F,warning=F}
 # heat map genetic correlations between networks and cognitive performance
@@ -439,7 +442,7 @@ save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/
 library(stringr)
 library(reshape2)
 library(ggplot2)
-
+workingd<-getwd()
 temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
 setwd(temporarywd)
 
@@ -481,7 +484,7 @@ heatmap<-
         legend.justification = c(1,0),
         #legend.position = c(0.45,0.7),
         legend.direction = "horizontal")+  
-  scale_fill_gradient2(low="royalblue2",high="indianred4",mid ="white",
+  scale_fill_gradient2(low="indianred",high="dodgerblue",mid ="white",
                        midpoint=0,limit=c(-1,1),na.value="white",
                        name="Genetic\ncorrelation")+
   guides(fill=guide_colorbar(barwidth = 7,barheight = 1,title.position = "top",title.hjust = 0.5))+
@@ -495,20 +498,7 @@ heatmap
 
 
 
-
-## Sanity check: Are all network-specific PC sumstats heritable?
-```{r PC_sumstats_h2,message=F,warning=F}
-temporarywd<-paste0(workingd,"/data/heritability_volumes/")
-setwd(temporarywd)
-break
-h2<-fread("heritability_networks_14072020.txt",header=T)
-kable(h2,caption="Heritability of networks",format="markdown",digits = 3)
-```
-Heritability estimates from genetic PCs cannot be interpreted because they are not phenotypic PCs, but they give an idea of the signal-to-noise ratio contained in the sumstats.
-
-
-
-# Calculate genetic correlation between network-specific PC sumstats and a genetic factor *g*
+# Genetic *g* genomic SEM
 
 ```{r calculate_corr, eval=T,warning=F,message=F,results='hide'}
 #load dependencies
@@ -522,14 +512,11 @@ library(GenomicSEM)
 temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
 setwd(temporarywd)
 
-load("all_networks_and_cognitivetraits.RData")
+load("all_networks_cognitive.RData")
 ldscoutput<-LDSCoutput
 
 #name the traits accordingly
 trait_names<-dimnames(ldscoutput$S)[[2]]
-trait_names[grep("/genetic_networks/data/PC_munged/",trait_names)]<-
-substring(trait_names[grep("/genetic_networks/data/PC_munged/",trait_names)], 57)
-
 
 dimnames(ldscoutput$S)[[1]]<-trait_names
 dimnames(ldscoutput$S)[[2]]<-trait_names
@@ -564,7 +551,7 @@ results<-ls(pattern="_cognitive_SEM_results")
 ```
 
 
-## Summarise the model fit across all networks associated with genetic *g*
+### Model fit for associations with genetic *g*
 
 ```{r print_model_fit}
 library(knitr)
@@ -584,7 +571,7 @@ kable(fit_table,caption="Model fit across models",format="markdown",digits = c(0
 
 
 
-## Print correlations for each network-specific PC sumstats with genetic *g*
+## Genetic correlation between network morphology and a genetic *g* factor 
 ```{r print_corr}
 network_assoc<-NULL
 
@@ -604,18 +591,258 @@ genetic_cor$ci_l<-genetic_cor$STD_Genotype+(1.96*genetic_cor$STD_Genotype_SE)
 genetic_cor$p_adjust<-p.adjust(genetic_cor$p_value,method="fdr",n=nrow(genetic_cor))
 
 # round your numbers
-genetic_cor<-data.frame(lapply(genetic_cor, function(y) if(is.numeric(y)) round(y, 4) else y))
+#genetic_cor<-data.frame(lapply(genetic_cor, function(y) if(is.numeric(y)) signif(y) else y))
+genetic_cor$STD_Genotype<-round(genetic_cor$STD_Genotype,digits = 2)
+genetic_cor$STD_Genotype_SE<-round(genetic_cor$STD_Genotype_SE, digits = 3)
+genetic_cor$p_value<-signif(genetic_cor$p_value)
+genetic_cor$p_adjust<-signif(genetic_cor$p_adjust)
+genetic_cor$ci_l<-round(genetic_cor$ci_l,digits = 2)
+genetic_cor$ci_u<-round(genetic_cor$ci_u,digits = 2)
 
 genetic_cor$CI<-with(genetic_cor, paste(ci_u,ci_l,sep = " - "))
 
 genetic_cor<-genetic_cor[,c("model","STD_Genotype","STD_Genotype_SE","CI","p_value","p_adjust")]
-kable(genetic_cor,caption="Genetic correlations between PC sumstats and genetic g",format="markdown",digits = 3)
+kable(genetic_cor,caption="Genetic correlations between PC sumstats and genetic g",format="markdown")
 ```
 
-Note that the adjusted *p*-values were corrected using false discovery rate (FDR).
+Note that the adjusted *p*-values were adjusted using a 5% false discovery rate.
 
 
-![](C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Rmarkdown/Path_diagram_central_exec.jpg)
+![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_central_exec.tif)
+# Compare networks based on their correlation magnitudes with general cognitive abilities 
+
+Next, we build SEMs to understand whether magnitudes between genetic *g* and PC sumstats for the Central Executive network are significantly different from the associations between genetic g and the other networks. 
+We do this for raw correlations displayed above, but also for correlations adjusted for the number of nodes contributing to individual networks.
+
+![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_compare_corr.jpg)
+
+## Raw correlations
+
+```{r compare_raw, eval=T,warning=F,message=F,results='hide'}
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
+setwd(temporarywd)
+
+load("all_networks_cognitive.RData")
+ldscoutput<-LDSCoutput
+
+#### genomic SEM
+# compare central_exec to all other networks
+other_networks<-c("cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain")
+
+# run constrained model
+for(i in other_networks){
+
+			# specify covariance structure of interest
+			dimnames(LDSCoutput$S)[[2]]<-dimnames(LDSCoutput$S)[[2]]
+			covstruc <- LDSCoutput
+
+			#specify estimation method
+			estimation<- "DWLS"
+			
+			# specify your constrained model
+			constrained<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+								G ~~ 1*G 
+								G ~ a*central_exec
+								G ~ a*",i,"
+								central_exec ~~ ",i) 
+
+			# run your constrained model	
+			constrained_model<-usermodel(covstruc=covstruc, model=constrained, estimation=estimation, imp_cov=T)
+
+			# save the model under appropriate name
+			model_name<-paste0("constrained_model_central_exec_",i)
+			assign(model_name,constrained_model)
+
+
+			# specify your freely-varying model
+			free<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+								G ~~ 1*G 
+								G ~ central_exec
+								G ~ ",i,"
+								central_exec ~~ ",i)			
+			
+			free_model<-usermodel(covstruc=covstruc, model=free, estimation=estimation, imp_cov=T)
+			
+			model_name<-paste0("free_model_central_exec_",i)
+			assign(model_name,free_model)
+			}
+
+results<-ls(pattern="_model_central_exec_")
+```
+
+### Summarise the model fit constrained vs. freely varying models
+
+```{r fit_const_free}
+constrained_results<-ls(pattern="constrained_model_central_exec_")
+
+table<-data.frame()
+for (i in constrained_results){
+	results<-get(i)
+	names(results$modelfit)<-paste0("constrained_",names(results$modelfit))
+	table<-rbind(table,results$modelfit)
+	assign("constrained_table",table)
+	}
+constrained_table$model<-str_replace(constrained_results,pattern="constrained_model_",replacement="")
+
+
+free_results<-ls(pattern="free_model_central_exec_")
+
+table<-data.frame()
+for (i in free_results){
+	results<-get(i)
+	names(results$modelfit)<-paste0("free_",names(results$modelfit))
+	table<-rbind(table,results$modelfit)
+	assign("free_table",table)
+	}
+
+free_table$model<-str_replace(free_results,pattern="free_model_",replacement="")
+
+# differences in chi-squared are chi-squared distributed with differences in degrees of freedom and can be checked manually for significance using a chi-squared table
+#https://www.psychologie.uzh.ch/dam/jcr:ffffffff-b371-2797-0000-00000fda8f29/chisquare_diff_en.pdf
+model_fit_all<-merge(constrained_table,free_table,by="model")
+model_fit_all$delta_chisq<-with(model_fit_all, constrained_chisq-free_chisq)
+model_fit_all$delta_df<-with(model_fit_all, constrained_df-free_df)
+model_fit_all$chi_comp_p<-with(model_fit_all, 1-pchisq(delta_chisq,delta_df))
+model_fit_all$comp_p_adjust<-p.adjust(model_fit_all$chi_comp_p,method="fdr",n=nrow(model_fit_all))
+
+display_chi<-model_fit_all[,c("model","delta_chisq","delta_df","chi_comp_p","comp_p_adjust")]
+display_fit_other<-model_fit_all[,c("model","constrained_AIC","constrained_CFI","constrained_SRMR","free_AIC","free_CFI","free_SRMR")]
+kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,3,0,3,3))
+kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits = 3)
+```
+
+## Adjusted correlations
+
+```{r compare_adjust, eval=T,warning=F,message=F,results='hide'}
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
+setwd(temporarywd)
+
+load("all_networks_cognitive.RData")
+
+#### genomic SEM
+# compare central_exec to all other networks
+other_networks<-c("cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain")
+
+# run constrained and freely varying model
+for(i in other_networks){
+
+			# specify covariance structure of interest
+			var_names<-str_replace(dimnames(LDSCoutput$S)[[2]],pattern="~/data/PC_munged/",replacement="")
+			dimnames(LDSCoutput$S)[[2]]<-var_names
+			covstruc <- LDSCoutput
+
+			#specify estimation method
+			# I would have thought we want to use ML but
+			# consider Javiers explanation
+			estimation<- "DWLS"
+
+			
+			# specify number of nodes for each network to adjust the correlation
+			if(i == "cingulo" | i == "salience"){
+			nodes=10}
+				else if(i == "default_mode"){
+				nodes=16}
+					else if(i == "hippocampal" | i =="multiple" | i == "sensori"){
+					nodes=12}
+						else if(i == "p_fit"){
+						nodes=36}
+							else if(i == "temporo"){
+							nodes=30}
+			          else if(i == "whole_brain"){
+			            nodes=83}
+								  else{break}
+			print(i)
+			print(nodes)
+			
+			
+			
+			# specify your constrained model
+			constrained<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\nG ~~ 1*G\nG ~ slope_central*central_exec\nG ~ slope_other*",i,"\nslope_central/8 == slope_other/",nodes,"\ncentral_exec ~~ ",i)
+			#constrained<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+			#					G ~~ 1*G
+			#					G ~ slope_central*central_exec
+			#					G ~ slope_other*",i,"
+			#					slope_central/8 = slope_other/",nodes,"
+			#					central_exec ~~ ",i)
+			print(constrained)
+			
+			# run your contsrained model	
+			constrained_model<-usermodel(covstruc=covstruc, model=constrained, estimation=estimation, imp_cov=T)
+
+			model_name<-paste0("constrained_model_central_exec_",i)
+			assign(model_name,constrained_model)
+			
+			
+			# specify your freely-varying model
+			free<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+								G ~~ 1*G 
+								G ~ central_exec
+								G ~ ",i,"
+								central_exec ~~ ",i)			
+			
+			free_model<-usermodel(covstruc=covstruc, model=free, estimation=estimation, imp_cov=T)
+			
+			model_name<-paste0("free_model_central_exec_",i)
+			assign(model_name,free_model)
+			}
+			
+results<-ls(pattern="_model_central_exec_")
+```
+
+
+### Summarise the model fit constrained vs. freely varying models
+
+```{r fit_adjust}
+constrained_results<-ls(pattern="constrained_model_central_exec_")
+
+table<-data.frame()
+for (i in constrained_results){
+	results<-get(i)
+	names(results$modelfit)<-paste0("constrained_",names(results$modelfit))
+	table<-rbind(table,results$modelfit)
+	assign("constrained_table",table)
+	}
+constrained_table$model<-str_replace(constrained_results,pattern="constrained_model_",replacement="")
+
+
+free_results<-ls(pattern="free_model_central_exec_")
+
+table<-data.frame()
+for (i in free_results){
+	results<-get(i)
+	names(results$modelfit)<-paste0("free_",names(results$modelfit))
+	table<-rbind(table,results$modelfit)
+	assign("free_table",table)
+	}
+
+free_table$model<-str_replace(free_results,pattern="free_model_",replacement="")
+
+# combine constrained and free models
+model_fit_all<-merge(constrained_table,free_table,by="model")
+
+# differences in chi-squared are chi-squared distributed with differences in degrees of freedom
+#https://www.psychologie.uzh.ch/dam/jcr:ffffffff-b371-2797-0000-00000fda8f29/chisquare_diff_en.pdf
+model_fit_all<-merge(constrained_table,free_table,by="model")
+model_fit_all$delta_chisq<-with(model_fit_all, constrained_chisq-free_chisq)
+model_fit_all$delta_df<-with(model_fit_all, constrained_df-free_df)
+model_fit_all$chi_comp_p<-with(model_fit_all, 1-pchisq(delta_chisq,delta_df))
+model_fit_all$comp_p_adjust<-p.adjust(model_fit_all$chi_comp_p,method="fdr",n=nrow(model_fit_all))
+
+display_chi<-model_fit_all[,c("model","delta_chisq","delta_df","chi_comp_p","comp_p_adjust")]
+display_fit_other<-model_fit_all[,c("model","constrained_AIC","free_AIC","constrained_CFI","free_CFI","constrained_SRMR","free_SRMR")]
+kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,3,0,3,3))
+kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits=3)
+```
 
 
 # Genetic correlation with brain age
@@ -625,7 +852,7 @@ To test this theory, we calculated genetic correlations between shared morpholog
 ```{r brain_age,eval=F}
 ## this script calculates the genetic correlation between whole brain PC sumstats and brainage gwas 
 # brain age gwas was downloaded from https://github.com/tobias-kaufmann/brainage/find/master
-# fileparts combined using: cat Brainage_GWAS_sumstat_final.gz* > /scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/Brainage_GWAS_sumstat_final.gz
+# fileparts combined using: cat Brainage_GWAS_sumstat_final.gz* > ~/data/brain_age_GWAS/Brainage_GWAS_sumstat_final.gz
 # unzipped using gunzip Brainage_GWAS_sumstat_final.gz
 
 # load dependencies
@@ -636,18 +863,18 @@ library(data.table)
 #########################
 ## format brain age file
 ########################
-setwd("/scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/")
+setwd("~/data/brain_age_GWAS/")
 brainage<-fread("Brainage_GWAS_sumstat_final.txt",header=T,data.table=F)
 
 brainage$N<-45615
 
-fwrite(brainage, file="/scratch/users/k1894405/genetic_networks/data/brain_age_GWAS/brain_age_gwas_header.txt",quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
+fwrite(brainage, file="~/data/brain_age_GWAS/brain_age_gwas_header.txt",quote=FALSE,col.names=TRUE,row.names=F,sep=" ",na="NA")
 
 
 ###################
 ## munge brainage gwas
 
-hm3<-"/scratch/users/k1894405/genetic_networks/data/w_hm3.noMHC.snplist"
+hm3<-"~/data/w_hm3.noMHC.snplist"
 
 files<-"brain_age_gwas_header.txt"
 trait.names<-"brainage"
@@ -662,13 +889,13 @@ munge(files=files,
 ################################################
 
 # specify traits and their location
-traits<-c("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/brainage.sumstats.gz","/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/PC_munged/whole_brain.sumstats.gz")
+traits<-c("~/output/genetic_networks_project/brainage/brainage.sumstats.gz","~/output/genetic_networks_project/PC_munged/whole_brain.sumstats.gz")
 trait.names<-c("brainage","whole_brain_PC")
 
 
 # ld scores and weights previously downloaded (European population)
-ld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
-wld<-"/scratch/users/k1894405/genetic_networks/data/eur_w_ld_chr/"
+ld<-"~/data/eur_w_ld_chr/"
+wld<-"~/data/eur_w_ld_chr/"
 
 
 # no sample or population prevalence required because they are continuous traits
@@ -679,12 +906,12 @@ population.prev<-rep(NA, desired_length)
 LDSCoutput<-ldsc(traits=traits,
 					ld=ld,wld=wld,
 					trait.names = trait.names,
-					ldsc.log="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/whole_brain_vs_brainage.log",
+					ldsc.log="~/output/genetic_networks_project/brainage/whole_brain_vs_brainage.log",
 					sample.prev=sample.prev,
 					population.prev=population.prev,
 					stand=T)
 					
-save(LDSCoutput, file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/genetic_networks_project/brainage/whole_brain_vs_brainage.RData")
+save(LDSCoutput, file="~/output/genetic_networks_project/brainage/whole_brain_vs_brainage.RData")
 ```
 ```{r}
 setwd(paste0(workingd,"/data_my_own/brainage"))

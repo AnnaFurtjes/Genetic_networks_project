@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Hypothesis 3</title>
+
+<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h2 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h3 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h4 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h5 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h6 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fas fa-home"></span>
+     
+    Home
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://osf.io/7n4qj">
+    <span class="fas fa-hand-spock-o"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Hypothesis 3</h1>
+
+</div>
+
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>
+<p>Using genomic structural equation modelling (genomic SEM; Grotzinger et al., 2019), we will extract a latent genetic g factor which represents common genetic variation shared by seven cognitive traits (de la Fuente et al., 2019) and correlate it with brainwide and network-specific genetic indices. As brain volumes and intelligence genetically overlap, we hypothesise that the genetic whole-brain scores positively correlate with genetic g. Additionally, we hypothesise, on the basis of previous phenotypic findings, that the central executive network shows a stronger genetic correlation than other networks, when accounting for the number of included nodes. If so, the results provide an additional piece of evidence that partitioning anatomical brains into subnetworks – such as the central executive network – is worthwhile for future cognitive research as it provides a more parsimonious model to predict variation in cognitive abilities.</p>
+<div id="calculate-pc-sumstats" class="section level1">
+<h1>Calculate PC sumstats</h1>
+<div id="format-gwas-as-expected-by-gwama-software" class="section level2">
+<h2>1. Format GWAS as expected by GWAMA software</h2>
+<pre class="r"><code>##### format GWAS files for GWAMA
+# documentation of the Baselman function
+# https://github.com/baselmans/multivariate_GWAMA/blob/master/README.md
+
+# required format (same column names, same order):
+#  SNPID = RS number
+#  CHR = chromosome
+#  BP = base pair
+#  EA = effect allele
+#  OA = other allele
+#  EAF = frequency effect allele
+#  N = sample size
+#  Z = z-score
+#  P = p-value
+#___________________________________________________________________________________________________________________________________
+
+## this script will only consider Hapmap3 SNPs in already munged files 
+
+
+#load dependencies
+library(data.table)
+library(stringr)
+library(R.utils)
+
+
+## read in one original gwas for extra info on BP, CHR, P
+# both OAFREQ and SE should not change even when flipping the effects when A1 and EA don&#39;t match
+setwd(&quot;~/output/regenie/step2/&quot;)
+
+ref_files&lt;-list.files(pattern=&quot;GWAS_22chr_noTBVcontrol_&quot;)
+
+if(length(ref_files)!=83){print(&quot;Detected the wrong number of reference files&quot;);break}else{print(&quot;As expected, we have 83 reference files&quot;)}
+
+
+# read in munged gwas files that were used in the PC analyses
+setwd(&quot;~/output/genetic_networks_project/gwas_munged/&quot;)
+
+munged_files&lt;-list.files(pattern=&quot;.sumstats.gz&quot;)
+if(length(munged_files)!=83){print(&quot;Detected the wrong number of munged files&quot;);break}else{print(&quot;As expected, we have 83 munged files&quot;)}
+
+all_files&lt;-data.frame(munged_files, ref_files)
+print(all_files)
+
+
+for (i in 1:nrow(all_files)){
+    print(paste0(&quot;Now processing &quot;,i,&quot;st/nd/th trait&quot;))
+
+    ### test if matched munged and ref files are for same phenotype
+    ref_trait&lt;-str_remove(all_files$ref_files[i], pattern=&quot;GWAS_22chr_noTBVcontrol_&quot;)
+    ref_trait&lt;-str_remove(ref_trait, pattern=&quot;.txt&quot;)
+
+    munged_trait&lt;-str_remove(all_files$munged_files[i], pattern=&quot;.sumstats.gz&quot;)
+    print(ref_trait)
+    print(munged_trait)
+    
+    if(munged_trait != ref_trait){print(&quot;Munged trait and reference trait don&#39;t match&quot;);break}else{print(&quot;Munged and reference input files match&quot;)}
+    
+    # read in file
+    setwd(&quot;~/output/genetic_networks_project/gwas_munged/&quot;)
+    munged_file&lt;-fread(as.character(all_files$munged_files[i]),header=T,data.table=F)
+    
+    # read in reference file
+    setwd(&quot;~/output/regenie/step2/&quot;)
+    ref_file&lt;-fread(as.character(all_files$ref_files[i]),header=T,data.table=F)
+    
+    # format ref file
+    names(ref_file)[which(names(ref_file)==&quot;ID&quot;)]&lt;-&quot;SNP&quot;
+    names(ref_file)[which(names(ref_file)==&quot;GENPOS&quot;)]&lt;-&quot;BP&quot;
+    names(ref_file)[which(names(ref_file)==&quot;CHROM&quot;)]&lt;-&quot;CHR&quot;
+    names(ref_file)[which(names(ref_file)==&quot;EAFREQ&quot;)]&lt;-&quot;EAF_prelim&quot;
+
+    # only keep relevant columns from the reference file
+    ref_file&lt;-ref_file[,c(&quot;BP&quot;,&quot;CHR&quot;,&quot;SNP&quot;,&quot;P&quot;,&quot;EA&quot;,&quot;EAF_prelim&quot;)]
+
+
+    # merge munged and ref file
+    merged_file&lt;-merge(munged_file, ref_file, by=c(&quot;SNP&quot;), all.x=T)
+
+
+    # create an effect allele frequency column that matches the allele used in the munged file (because we take the frequency from the reference file that might have flipped effect and other alleles)
+    merged_file$EAF&lt;-ifelse(merged_file$A1 == merged_file$EA, merged_file$EAF_prelim, 1-merged_file$EAF_prelim)
+
+    # only keep required columns
+    names(merged_file)[which(names(merged_file) == &quot;SNP&quot;)]&lt;-&quot;SNPID&quot;
+    merged_file&lt;-merged_file[,c(&quot;SNPID&quot;,&quot;CHR&quot;,&quot;BP&quot;,&quot;A1&quot;,&quot;A2&quot;,&quot;EAF&quot;,&quot;N&quot;,&quot;Z&quot;,&quot;P&quot;)]
+    
+    # name according to GWAMA expectations
+    # In genomicSEM A1 is the effect allele
+    names(merged_file)[which(names(merged_file) == &quot;A1&quot;)]&lt;-&quot;EA&quot;
+    names(merged_file)[which(names(merged_file) == &quot;A2&quot;)]&lt;-&quot;OA&quot;
+    
+    print(head(merged_file))
+    
+    ## print file
+    setwd(&quot;~/output/genetic_networks_project/GWAMA_format/&quot;)
+    fwrite(merged_file,file=paste0(&quot;gwama_format_&quot;,ref_trait), quote=FALSE,col.names=TRUE,row.names=F,sep=&quot; &quot;,na=&quot;NA&quot;)
+}</code></pre>
+</div>
+<div id="create-pc-sumstats-weighted-with-loadings" class="section level2">
+<h2>2. Create PC sumstats weighted with loadings</h2>
+<pre class="r"><code>### calculate PC summary statistics for whole brain
+## challenge make sure the right loadings weight the right file
+
+# load dependencies
+source(&quot;https://github.com/baselmans/multivariate_GWAMA/blob/master/Test_Data/N_weighted_GWAMA.function.1_2_6.R?raw=TRUE&quot;)
+library(data.table)
+library(stringr)
+
+setwd(&quot;~/scripts/genetic_networks_project/gwama/&quot;)
+source(&quot;my_GWAMA_26032020.R&quot;)
+
+#### before reading in any files, create a data frame that contains matched file_names, Regions and loadings
+
+# set wd to where GWAMA formatted files are saved
+setwd(&quot;~/output/genetic_networks_project/GWAMA_format/&quot;)
+
+# create vector with file_names
+file_names&lt;-list.files(pattern=&quot;gwama_format_&quot;)
+
+# create vector with Regions
+Regions&lt;-str_remove(file_names,pattern=&quot;.txt&quot;)
+Regions&lt;-str_remove(Regions,pattern=&quot;gwama_format_&quot;)
+
+
+# combine file_names and Regions in one data.frame
+df&lt;-data.frame(cbind(file_names,Regions))
+df$file_names&lt;-as.character(df$file_names)
+df$Regions&lt;-as.character(df$Regions)
+str(df)
+
+# load in loadings (they have been calculated with script: 5Eigendecomp/ eigen_decomposition_18052020.R, and transferred onto server)
+setwd(&quot;~/data/standardised_loadings/&quot;)
+
+networks&lt;-list.files(pattern=&quot;.txt&quot;)
+
+# exclude whole brain, we are doing it separately because it needs so much memory
+networks&lt;-networks[-which(networks == &quot;stand_loadings_whole_brain.txt&quot;)]
+
+for(i in networks){
+    print(i)
+  loadings&lt;-fread(i,header=T,data.table=F)
+  print(dim(loadings))
+  name&lt;-str_replace(i,pattern=&quot;.txt&quot;,replacement = &quot;&quot;)
+  assign(name,loadings)
+}
+
+loadings_all_traits&lt;-ls(pattern=&quot;stand_loadings_&quot;)
+loadings_all_traits&lt;-loadings_all_traits[1:9]
+print(loadings_all_traits)
+
+
+
+###################### this will also be in the loop
+# merge data frames for file_names,Regions,loadings_all_traits
+
+for (i in loadings_all_traits){
+
+    # retain only regions for this network that are stored in 1st column of each loadings_all_traits
+    print(i)
+    loadings&lt;-get(i)
+    info&lt;-merge(loadings,df,by=&quot;Regions&quot;,all.x=T)
+    print(&quot;This is the info data.frame&quot;)
+    print(info) # for central exec we are expecting 8 nodes etc.
+    
+    # set wd to where GWAMA formatted files are stored
+    setwd(&quot;~/output/genetic_networks_project/GWAMA_format/&quot;)
+
+    # create list to hold GWASs
+    num&lt;-nrow(info)
+    dat&lt;-vector(&quot;list&quot;,num)
+
+    # read in files for brain regions in this network
+    print(&quot;Reading in GWAS files&quot;)
+    for(j in 1:nrow(info)){
+    print(j)
+    file&lt;-info$file_names[j]
+    dat_name&lt;-info$Regions[j]
+    print(file)
+    dat[[dat_name]]&lt;-fread(file,header=T,data.table=F)}
+    dat[sapply(dat,is.null)]&lt;-NULL
+    order&lt;-info$Regions
+    dat&lt;-dat[order]
+    print(str(dat))
+    
+    
+    ####### read in intercepts
+    print(&quot;Reading in intercepts&quot;)
+
+    network_name&lt;-str_replace(i,pattern=&quot;stand_loadings_&quot;,replacement=&quot;&quot;)
+    network_name&lt;-paste0(network_name,&quot;.RData&quot;)
+    print(network_name)
+    
+    setwd(&quot;~/output/genetic_networks_project/ldsc/&quot;)
+    intercept_file&lt;-list.files(pattern=network_name)
+    #print(intercept_file)
+    intercept_file&lt;-load(intercept_file)
+    #print(intercept_file)
+    
+    # name rows and columns after their corresponding brain regions
+    dimnames(LDSCoutput$I)[[1]]&lt;-dimnames(LDSCoutput$S)[[2]]
+    dimnames(LDSCoutput$I)[[2]]&lt;-dimnames(LDSCoutput$S)[[2]]
+    #print(LDSCoutput$I)
+    
+    # order intercept matrix in the same order as files were read in 
+    print(order)
+    intercepts&lt;-LDSCoutput$I[order,order]
+
+    if(names(dat) != dimnames(intercepts)[[2]]){print(&quot;Intercepts are not in same order as files read in&quot;);break}
+    print(intercepts)
+
+    # store stand_loadings and name of the resulting log file in variable
+    print(&quot;These are the standardised loadings for this network&quot;)
+    stand_loadings&lt;-info$stand_loadings
+    print(stand_loadings)
+    
+    print(&quot;This is the network:&quot;)
+    name&lt;-str_replace(network_name,pattern=&quot;.RData&quot;,replacement=&quot;&quot;)
+    print(name)
+    
+    # multiply the loadings with -1 for all networks apart from salience and sensori (they have positive loadings already)
+    median_loadings&lt;-median(stand_loadings)
+    mean_direction&lt;-sign(median_loadings)
+    if(mean_direction == -1){
+    stand_loadings&lt;-stand_loadings*(-1)
+    } else {
+    stand_loadings&lt;-stand_loadings}
+    print(stand_loadings)
+
+    setwd(&quot;~/output/genetic_networks_project/PC_sumstats/&quot;)
+    print(&quot;Starting to create GWAMA scores&quot;)
+                my_GWAMA(x=dat,
+                          cov_Z=intercepts,
+                          h2=stand_loadings,
+                          out=&quot;.&quot;,
+                          name=name,
+                          output_gz=F,
+                          check_columns=F)
+        rm(dat)
+        rm(LDSCoutput)
+}
+print(&quot;Done creating all GWAMA scores, excluding whole brain&quot;)</code></pre>
+<p>Note that same script was used for whole brain, but submitted to the cluster separately because it needed more resources (the GWAMA function reads in all 83 files simultaneously).</p>
+</div>
+<div id="format-and-munge-pc-sumstats" class="section level2">
+<h2>3. Format and munge PC sumstats</h2>
+<p>This step is only performed the get the sumstats in shape, and no SNPs should be excluded because the GWAMA analyses were only performed on SNPs that survived the munging process in the first place.</p>
+<pre class="r"><code>### Munge the PC_sumstats files and calculate ldsc with the cognitive GWAS files (already munged)
+
+# load dependencies
+library(tidyr)
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+# set wd to where formatted files are saved
+setwd(&quot;~/output/genetic_networks_project/PC_sumstats&quot;)
+
+## change header names for PC_sumstats
+
+# read PC_files into R
+PC_files&lt;-list.files(pattern=&quot;N_weighted_GWAMA.results.txt&quot;)
+print(PC_files)
+
+for (i in 1:length(PC_files)) assign(PC_files[i],fread(PC_files[i],header=T,data.table=F))
+print(ls(pattern=&quot;N_weighted_GWAMA.results.txt&quot;))
+
+# read in file that contains info columns
+info_file&lt;-fread(&quot;~/output/regenie/step2/GWAS_22chr_noTBVcontrol_Right_transverse_temporal.txt&quot;,header=T,data.table=F)
+names(info_file)[which(names(info_file)==&quot;CHROM&quot;)]&lt;-&quot;CHR&quot;
+names(info_file)[which(names(info_file)==&quot;GENPOS&quot;)]&lt;-&quot;BP&quot;
+names(info_file)[which(names(info_file)==&quot;ID&quot;)]&lt;-&quot;SNPID&quot;
+
+
+# rename columns
+for (i in PC_files){
+        file&lt;-get(i)
+        print(head(file))
+        names(file)&lt;-c(&quot;CPTID&quot;,&quot;SNPID&quot;,&quot;CHR&quot;,&quot;BP&quot;,&quot;EA&quot;,&quot;OA&quot;,&quot;EAF&quot;,&quot;MAF&quot;,&quot;N&quot;,&quot;N_obs&quot;,&quot;Direction&quot;,&quot;BETA&quot;,&quot;SE&quot;,&quot;Z&quot;,&quot;P&quot;)
+        print(head(file))
+        file&lt;-file[,c(&quot;SNPID&quot;,&quot;CHR&quot;,&quot;BP&quot;,&quot;EA&quot;,&quot;OA&quot;,&quot;MAF&quot;,&quot;N&quot;,&quot;BETA&quot;,&quot;SE&quot;,&quot;P&quot;)]
+        
+        file&lt;-merge(info_file[,c(&quot;CHR&quot;,&quot;BP&quot;,&quot;SNPID&quot;,&quot;INFO&quot;)],file, by=c(&quot;CHR&quot;,&quot;BP&quot;,&quot;SNPID&quot;), all.y=T)
+        print(head(file))
+        
+        
+        setwd(&quot;~/output/genetic_networks_project/PC_header/&quot;)
+        file_name&lt;-paste0(i,&quot;_ready_to_munge&quot;)
+        file_name&lt;-str_remove(file_name,pattern=&quot;.N_weighted_GWAMA.results.txt&quot;)
+        print(file_name)
+        fwrite(file, file=file_name,quote=FALSE,col.names=TRUE,row.names=F,sep=&quot; &quot;,na=&quot;NA&quot;)
+}
+rm(list=ls())
+
+######################## 
+## munge PC sumstats that have been formatted in previous step
+
+# load dependencies
+library(tidyr)
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+hm3&lt;-&quot;~/data/w_hm3.noMHC.snplist&quot;
+
+# list PC_sumstats files you want to munge
+setwd(&quot;~/output/genetic_networks_project/PC_header/&quot;)
+PC_files&lt;-list.files(pattern=&quot;_ready_to_munge&quot;)
+print(length(PC_files))
+
+# build a data frame that contains information on file_name and corresponding network
+
+network_names&lt;-str_remove(PC_files,pattern=&quot;_ready_to_munge&quot;)
+
+
+info&lt;-data.frame(cbind(PC_files,network_names))
+
+info$PC_files&lt;-as.character(info$PC_files)
+info$network_names&lt;-as.character(info$network_names)
+print(str(info))
+
+
+for (i in 1:nrow(info)){
+        setwd(&quot;~/output/genetic_networks_project/PC_header/&quot;)
+        files&lt;-info[i,&quot;PC_files&quot;]
+        print(files)
+        trait.names&lt;-info[i,&quot;network_names&quot;]
+        print(trait.names)
+        munge(files=files,
+                hm3=hm3,
+                trait.names=trait.names,
+                info.filter = 0.9)
+}</code></pre>
+</div>
+</div>
+<div id="genetic-correlations-between-network-morphology-and-cognitive-traits" class="section level1">
+<h1>Genetic correlations between network morphology and cognitive traits</h1>
+<pre class="r"><code>#### run ldsc for cognitive traits and all networks included 
+
+# load dependencies
+library(tidyr)
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+# list munged PC sumstats
+setwd(&quot;~/output/genetic_networks_project/PC_munged/&quot;)
+
+# list files you would like to munge
+PC_files&lt;-list.files(pattern=&quot;.sumstats.gz&quot;)
+PC_files&lt;-paste0(&quot;~/output/genetic_networks_project/PC_munged/&quot;,PC_files)
+print(PC_files)
+
+# list cognitive traits
+setwd(&quot;~/data/cognititve_GWAS&quot;)
+
+cognitive_files&lt;-list.files(pattern=&quot;.sumstats.gz&quot;)
+
+# specify traits used for ldsc
+traits&lt;-append(PC_files,cognitive_files)
+trait.names&lt;-str_replace(traits,pattern=&quot;.sumstats.gz&quot;,replacement=&quot;&quot;)
+trait.names&lt;-str_remove(trait.names, pattern=&quot;~/output/genetic_networks_project/PC_munged/&quot;)
+
+# ld scores and weights previously downloaded (European population)
+ld&lt;-&quot;~/data/eur_w_ld_chr/&quot;
+wld&lt;-&quot;~/data/eur_w_ld_chr/&quot;
+
+# no sample or population prevalence required: NA for all traits
+desired_length&lt;-length(traits)
+sample.prev&lt;-rep(NA, desired_length)
+population.prev&lt;-rep(NA, desired_length)
+
+LDSCoutput&lt;-ldsc(traits=traits,
+                    ld=ld,wld=wld,
+                    trait.names = trait.names,
+                    ldsc.log=&quot;~/output/genetic_networks_project/network_ldsc/ldsc_all_networks_cognitivetraits.log&quot;,
+                    sample.prev=sample.prev,
+                    population.prev=population.prev,
+                    stand=T)
+                    
+save(LDSCoutput, file=&quot;~/output/genetic_networks_project/network_ldsc/all_networks_cognitive.RData&quot;)</code></pre>
+<p><img src="Hypothesis3_files/figure-html/heatmap-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="genetic-g-genomic-sem" class="section level1">
+<h1>Genetic <em>g</em> genomic SEM</h1>
+<pre class="r"><code>#load dependencies
+
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+# load correlation matrix
+temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
+setwd(temporarywd)
+
+load(&quot;all_networks_cognitive.RData&quot;)
+ldscoutput&lt;-LDSCoutput
+
+#name the traits accordingly
+trait_names&lt;-dimnames(ldscoutput$S)[[2]]
+
+dimnames(ldscoutput$S)[[1]]&lt;-trait_names
+dimnames(ldscoutput$S)[[2]]&lt;-trait_names
+
+# list all networks names
+network_names&lt;-c(&quot;central_exec&quot;,&quot;cingulo&quot;,&quot;default_mode&quot;,&quot;hippocampal&quot;,&quot;multiple&quot;,&quot;p_fit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+
+#### genomic SEM
+
+for (i in network_names){
+            
+            # specify covariance structure of interest
+            covstruc &lt;- ldscoutput
+
+            #specify estimation method
+            estimation&lt;- &quot;DWLS&quot;
+
+            # specify your SEM
+            network_name&lt;-i
+            #PC_model&lt;- &#39;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+            #           G ~~ 1*G 
+            #           G ~ central_exec&#39;
+            
+            PC_model&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\n\t\t\t\t\t\tG ~~ 1*G \n\t\t\t\t\t\tG ~ &quot;,network_name)
+
+            # run your model    
+            SEM_model&lt;-usermodel(covstruc=covstruc, model=PC_model, estimation=estimation, imp_cov=T)
+            model_name&lt;-paste0(network_name,&quot;_cognitive_SEM_results&quot;)
+            assign(model_name,SEM_model)
+}
+results&lt;-ls(pattern=&quot;_cognitive_SEM_results&quot;)</code></pre>
+<div id="model-fit-for-associations-with-genetic-g" class="section level3">
+<h3>Model fit for associations with genetic <em>g</em></h3>
+<pre class="r"><code>library(knitr)
+
+fit_table&lt;-NULL
+
+for (i in results){
+    SEM_results&lt;-get(i)
+    fit_table&lt;-data.frame(rbind(fit_table,SEM_results$modelfit))
+}
+
+model&lt;-str_replace(results,pattern=&quot;_SEM_results&quot;,replacement=&quot;&quot;)
+fit_table$model&lt;-model
+fit_table&lt;-fit_table[,c(&quot;model&quot;,&quot;chisq&quot;,&quot;df&quot;,&quot;p_chisq&quot;,&quot;AIC&quot;,&quot;CFI&quot;,&quot;SRMR&quot;)]
+kable(fit_table,caption=&quot;Model fit across models&quot;,format=&quot;markdown&quot;,digits = c(0,3,0,60,3,3,3,3),row.names = F)</code></pre>
+<table>
+<caption>Model fit across models</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">chisq</th>
+<th align="right">df</th>
+<th align="right">p_chisq</th>
+<th align="right">AIC</th>
+<th align="right">CFI</th>
+<th align="right">SRMR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec_cognitive</td>
+<td align="right">142.042</td>
+<td align="right">20</td>
+<td align="right">2.072577e-20</td>
+<td align="right">174.042</td>
+<td align="right">0.967</td>
+<td align="right">0.080</td>
+</tr>
+<tr class="even">
+<td align="left">cingulo_cognitive</td>
+<td align="right">156.497</td>
+<td align="right">20</td>
+<td align="right">3.556284e-23</td>
+<td align="right">188.497</td>
+<td align="right">0.964</td>
+<td align="right">0.080</td>
+</tr>
+<tr class="odd">
+<td align="left">default_mode_cognitive</td>
+<td align="right">150.830</td>
+<td align="right">20</td>
+<td align="right">4.358856e-22</td>
+<td align="right">182.830</td>
+<td align="right">0.965</td>
+<td align="right">0.082</td>
+</tr>
+<tr class="even">
+<td align="left">hippocampal_cognitive</td>
+<td align="right">143.686</td>
+<td align="right">20</td>
+<td align="right">1.008826e-20</td>
+<td align="right">175.686</td>
+<td align="right">0.965</td>
+<td align="right">0.080</td>
+</tr>
+<tr class="odd">
+<td align="left">multiple_cognitive</td>
+<td align="right">143.057</td>
+<td align="right">20</td>
+<td align="right">1.328876e-20</td>
+<td align="right">175.057</td>
+<td align="right">0.966</td>
+<td align="right">0.079</td>
+</tr>
+<tr class="even">
+<td align="left">p_fit_cognitive</td>
+<td align="right">161.077</td>
+<td align="right">20</td>
+<td align="right">4.651080e-24</td>
+<td align="right">193.077</td>
+<td align="right">0.962</td>
+<td align="right">0.082</td>
+</tr>
+<tr class="odd">
+<td align="left">salience_cognitive</td>
+<td align="right">144.919</td>
+<td align="right">20</td>
+<td align="right">5.874374e-21</td>
+<td align="right">176.919</td>
+<td align="right">0.965</td>
+<td align="right">0.080</td>
+</tr>
+<tr class="even">
+<td align="left">sensori_cognitive</td>
+<td align="right">146.204</td>
+<td align="right">20</td>
+<td align="right">3.341985e-21</td>
+<td align="right">178.204</td>
+<td align="right">0.965</td>
+<td align="right">0.078</td>
+</tr>
+<tr class="odd">
+<td align="left">temporo_cognitive</td>
+<td align="right">165.980</td>
+<td align="right">20</td>
+<td align="right">5.230664e-25</td>
+<td align="right">197.980</td>
+<td align="right">0.960</td>
+<td align="right">0.084</td>
+</tr>
+<tr class="even">
+<td align="left">whole_brain_cognitive</td>
+<td align="right">157.748</td>
+<td align="right">20</td>
+<td align="right">2.041427e-23</td>
+<td align="right">189.748</td>
+<td align="right">0.962</td>
+<td align="right">0.081</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="genetic-correlation-between-network-morphology-and-a-genetic-g-factor" class="section level2">
+<h2>Genetic correlation between network morphology and a genetic <em>g</em> factor</h2>
+<pre class="r"><code>network_assoc&lt;-NULL
+
+for(i in results){
+    SEM_results&lt;-get(i)
+    network_assoc&lt;-rbind(network_assoc,SEM_results$results[2,c(&quot;STD_Genotype&quot;,&quot;STD_Genotype_SE&quot;,&quot;p_value&quot;)])
+}
+
+genetic_cor&lt;-data.frame(cbind(model,network_assoc))
+
+##create CI column
+genetic_cor$STD_Genotype_SE&lt;-as.numeric(genetic_cor$STD_Genotype_SE)
+genetic_cor$ci_u&lt;-genetic_cor$STD_Genotype-(1.96*genetic_cor$STD_Genotype_SE)
+genetic_cor$ci_l&lt;-genetic_cor$STD_Genotype+(1.96*genetic_cor$STD_Genotype_SE)
+
+# adjust for multiple testing
+genetic_cor$p_adjust&lt;-p.adjust(genetic_cor$p_value,method=&quot;fdr&quot;,n=nrow(genetic_cor))
+
+# round your numbers
+#genetic_cor&lt;-data.frame(lapply(genetic_cor, function(y) if(is.numeric(y)) signif(y) else y))
+genetic_cor$STD_Genotype&lt;-round(genetic_cor$STD_Genotype,digits = 2)
+genetic_cor$STD_Genotype_SE&lt;-round(genetic_cor$STD_Genotype_SE, digits = 3)
+genetic_cor$p_value&lt;-signif(genetic_cor$p_value)
+genetic_cor$p_adjust&lt;-signif(genetic_cor$p_adjust)
+genetic_cor$ci_l&lt;-round(genetic_cor$ci_l,digits = 2)
+genetic_cor$ci_u&lt;-round(genetic_cor$ci_u,digits = 2)
+
+genetic_cor$CI&lt;-with(genetic_cor, paste(ci_u,ci_l,sep = &quot; - &quot;))
+
+genetic_cor&lt;-genetic_cor[,c(&quot;model&quot;,&quot;STD_Genotype&quot;,&quot;STD_Genotype_SE&quot;,&quot;CI&quot;,&quot;p_value&quot;,&quot;p_adjust&quot;)]
+kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and genetic g&quot;,format=&quot;markdown&quot;)</code></pre>
+<table>
+<caption>Genetic correlations between PC sumstats and genetic g</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">model</th>
+<th align="right">STD_Genotype</th>
+<th align="right">STD_Genotype_SE</th>
+<th align="left">CI</th>
+<th align="right">p_value</th>
+<th align="right">p_adjust</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">central_exec_cognitive</td>
+<td align="right">0.20</td>
+<td align="right">0.037</td>
+<td align="left">0.12 - 0.27</td>
+<td align="right">1.00e-07</td>
+<td align="right">3.00e-07</td>
+</tr>
+<tr class="even">
+<td align="left">21</td>
+<td align="left">cingulo_cognitive</td>
+<td align="right">0.20</td>
+<td align="right">0.038</td>
+<td align="left">0.13 - 0.27</td>
+<td align="right">1.00e-07</td>
+<td align="right">3.00e-07</td>
+</tr>
+<tr class="odd">
+<td align="left">22</td>
+<td align="left">default_mode_cognitive</td>
+<td align="right">0.19</td>
+<td align="right">0.037</td>
+<td align="left">0.12 - 0.26</td>
+<td align="right">2.00e-07</td>
+<td align="right">3.00e-07</td>
+</tr>
+<tr class="even">
+<td align="left">23</td>
+<td align="left">hippocampal_cognitive</td>
+<td align="right">0.17</td>
+<td align="right">0.039</td>
+<td align="left">0.09 - 0.24</td>
+<td align="right">2.66e-05</td>
+<td align="right">2.66e-05</td>
+</tr>
+<tr class="odd">
+<td align="left">24</td>
+<td align="left">multiple_cognitive</td>
+<td align="right">0.19</td>
+<td align="right">0.039</td>
+<td align="left">0.12 - 0.27</td>
+<td align="right">7.00e-07</td>
+<td align="right">9.00e-07</td>
+</tr>
+<tr class="even">
+<td align="left">25</td>
+<td align="left">p_fit_cognitive</td>
+<td align="right">0.20</td>
+<td align="right">0.038</td>
+<td align="left">0.12 - 0.27</td>
+<td align="right">2.00e-07</td>
+<td align="right">3.00e-07</td>
+</tr>
+<tr class="odd">
+<td align="left">26</td>
+<td align="left">salience_cognitive</td>
+<td align="right">0.19</td>
+<td align="right">0.036</td>
+<td align="left">0.12 - 0.26</td>
+<td align="right">3.00e-07</td>
+<td align="right">4.00e-07</td>
+</tr>
+<tr class="even">
+<td align="left">27</td>
+<td align="left">sensori_cognitive</td>
+<td align="right">0.19</td>
+<td align="right">0.039</td>
+<td align="left">0.11 - 0.27</td>
+<td align="right">1.20e-06</td>
+<td align="right">1.30e-06</td>
+</tr>
+<tr class="odd">
+<td align="left">28</td>
+<td align="left">temporo_cognitive</td>
+<td align="right">0.20</td>
+<td align="right">0.038</td>
+<td align="left">0.12 - 0.27</td>
+<td align="right">2.00e-07</td>
+<td align="right">4.00e-07</td>
+</tr>
+<tr class="even">
+<td align="left">29</td>
+<td align="left">whole_brain_cognitive</td>
+<td align="right">0.21</td>
+<td align="right">0.039</td>
+<td align="left">0.13 - 0.29</td>
+<td align="right">1.00e-07</td>
+<td align="right">3.00e-07</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the adjusted <em>p</em>-values were adjusted using a 5% false discovery rate.</p>
+<p><img src="Path_diagram_central_exec.tif" /> # Compare networks based on their correlation magnitudes with general cognitive abilities</p>
+<p>Next, we build SEMs to understand whether magnitudes between genetic <em>g</em> and PC sumstats for the Central Executive network are significantly different from the associations between genetic g and the other networks. We do this for raw correlations displayed above, but also for correlations adjusted for the number of nodes contributing to individual networks.</p>
+<p><img src="Path_diagram_compare_corr.jpg" /></p>
+</div>
+<div id="raw-correlations" class="section level2">
+<h2>Raw correlations</h2>
+<pre class="r"><code>library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
+setwd(temporarywd)
+
+load(&quot;all_networks_cognitive.RData&quot;)
+ldscoutput&lt;-LDSCoutput
+
+#### genomic SEM
+# compare central_exec to all other networks
+other_networks&lt;-c(&quot;cingulo&quot;,&quot;default_mode&quot;,&quot;hippocampal&quot;,&quot;multiple&quot;,&quot;p_fit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+
+# run constrained model
+for(i in other_networks){
+
+            # specify covariance structure of interest
+            dimnames(LDSCoutput$S)[[2]]&lt;-dimnames(LDSCoutput$S)[[2]]
+            covstruc &lt;- LDSCoutput
+
+            #specify estimation method
+            estimation&lt;- &quot;DWLS&quot;
+            
+            # specify your constrained model
+            constrained&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                                G ~~ 1*G 
+                                G ~ a*central_exec
+                                G ~ a*&quot;,i,&quot;
+                                central_exec ~~ &quot;,i) 
+
+            # run your constrained model    
+            constrained_model&lt;-usermodel(covstruc=covstruc, model=constrained, estimation=estimation, imp_cov=T)
+
+            # save the model under appropriate name
+            model_name&lt;-paste0(&quot;constrained_model_central_exec_&quot;,i)
+            assign(model_name,constrained_model)
+
+
+            # specify your freely-varying model
+            free&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                                G ~~ 1*G 
+                                G ~ central_exec
+                                G ~ &quot;,i,&quot;
+                                central_exec ~~ &quot;,i)            
+            
+            free_model&lt;-usermodel(covstruc=covstruc, model=free, estimation=estimation, imp_cov=T)
+            
+            model_name&lt;-paste0(&quot;free_model_central_exec_&quot;,i)
+            assign(model_name,free_model)
+            }
+
+results&lt;-ls(pattern=&quot;_model_central_exec_&quot;)</code></pre>
+<div id="summarise-the-model-fit-constrained-vs.-freely-varying-models" class="section level3">
+<h3>Summarise the model fit constrained vs. freely varying models</h3>
+<pre class="r"><code>constrained_results&lt;-ls(pattern=&quot;constrained_model_central_exec_&quot;)
+
+table&lt;-data.frame()
+for (i in constrained_results){
+    results&lt;-get(i)
+    names(results$modelfit)&lt;-paste0(&quot;constrained_&quot;,names(results$modelfit))
+    table&lt;-rbind(table,results$modelfit)
+    assign(&quot;constrained_table&quot;,table)
+    }
+constrained_table$model&lt;-str_replace(constrained_results,pattern=&quot;constrained_model_&quot;,replacement=&quot;&quot;)
+
+
+free_results&lt;-ls(pattern=&quot;free_model_central_exec_&quot;)
+
+table&lt;-data.frame()
+for (i in free_results){
+    results&lt;-get(i)
+    names(results$modelfit)&lt;-paste0(&quot;free_&quot;,names(results$modelfit))
+    table&lt;-rbind(table,results$modelfit)
+    assign(&quot;free_table&quot;,table)
+    }
+
+free_table$model&lt;-str_replace(free_results,pattern=&quot;free_model_&quot;,replacement=&quot;&quot;)
+
+# differences in chi-squared are chi-squared distributed with differences in degrees of freedom and can be checked manually for significance using a chi-squared table
+#https://www.psychologie.uzh.ch/dam/jcr:ffffffff-b371-2797-0000-00000fda8f29/chisquare_diff_en.pdf
+model_fit_all&lt;-merge(constrained_table,free_table,by=&quot;model&quot;)
+model_fit_all$delta_chisq&lt;-with(model_fit_all, constrained_chisq-free_chisq)
+model_fit_all$delta_df&lt;-with(model_fit_all, constrained_df-free_df)
+model_fit_all$chi_comp_p&lt;-with(model_fit_all, 1-pchisq(delta_chisq,delta_df))
+model_fit_all$comp_p_adjust&lt;-p.adjust(model_fit_all$chi_comp_p,method=&quot;fdr&quot;,n=nrow(model_fit_all))
+
+display_chi&lt;-model_fit_all[,c(&quot;model&quot;,&quot;delta_chisq&quot;,&quot;delta_df&quot;,&quot;chi_comp_p&quot;,&quot;comp_p_adjust&quot;)]
+display_fit_other&lt;-model_fit_all[,c(&quot;model&quot;,&quot;constrained_AIC&quot;,&quot;constrained_CFI&quot;,&quot;constrained_SRMR&quot;,&quot;free_AIC&quot;,&quot;free_CFI&quot;,&quot;free_SRMR&quot;)]
+kable(display_chi,caption=&quot;Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations&quot;,format=&quot;markdown&quot;,digits = c(0,3,0,3,3))</code></pre>
+<table>
+<caption>Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">delta_chisq</th>
+<th align="right">delta_df</th>
+<th align="right">chi_comp_p</th>
+<th align="right">comp_p_adjust</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec_cingulo</td>
+<td align="right">0.833</td>
+<td align="right">1</td>
+<td align="right">0.361</td>
+<td align="right">0.675</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_default_mode</td>
+<td align="right">-0.173</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_hippocampal</td>
+<td align="right">1.102</td>
+<td align="right">1</td>
+<td align="right">0.294</td>
+<td align="right">0.675</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_multiple</td>
+<td align="right">-0.584</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_p_fit</td>
+<td align="right">0.786</td>
+<td align="right">1</td>
+<td align="right">0.375</td>
+<td align="right">0.675</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_salience</td>
+<td align="right">0.046</td>
+<td align="right">1</td>
+<td align="right">0.831</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_sensori</td>
+<td align="right">0.036</td>
+<td align="right">1</td>
+<td align="right">0.850</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_temporo</td>
+<td align="right">0.955</td>
+<td align="right">1</td>
+<td align="right">0.328</td>
+<td align="right">0.675</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_whole_brain</td>
+<td align="right">3.226</td>
+<td align="right">1</td>
+<td align="right">0.072</td>
+<td align="right">0.652</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(display_fit_other,caption = &quot;Other fit indices of constrained vs. freely varying correlations&quot;,digits = 3)</code></pre>
+<table style="width:100%;">
+<caption>Other fit indices of constrained vs. freely varying correlations</caption>
+<colgroup>
+<col width="25%" />
+<col width="15%" />
+<col width="15%" />
+<col width="16%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">constrained_AIC</th>
+<th align="right">constrained_CFI</th>
+<th align="right">constrained_SRMR</th>
+<th align="right">free_AIC</th>
+<th align="right">free_CFI</th>
+<th align="right">free_SRMR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec_cingulo</td>
+<td align="right">209.981</td>
+<td align="right">0.988</td>
+<td align="right">0.073</td>
+<td align="right">211.148</td>
+<td align="right">0.988</td>
+<td align="right">0.074</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_default_mode</td>
+<td align="right">198.202</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+<td align="right">200.375</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_hippocampal</td>
+<td align="right">201.567</td>
+<td align="right">0.974</td>
+<td align="right">0.074</td>
+<td align="right">202.466</td>
+<td align="right">0.974</td>
+<td align="right">0.074</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_multiple</td>
+<td align="right">199.321</td>
+<td align="right">0.993</td>
+<td align="right">0.073</td>
+<td align="right">201.906</td>
+<td align="right">0.993</td>
+<td align="right">0.073</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_p_fit</td>
+<td align="right">217.691</td>
+<td align="right">0.995</td>
+<td align="right">0.075</td>
+<td align="right">218.904</td>
+<td align="right">0.995</td>
+<td align="right">0.075</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_salience</td>
+<td align="right">214.194</td>
+<td align="right">0.976</td>
+<td align="right">0.073</td>
+<td align="right">216.149</td>
+<td align="right">0.976</td>
+<td align="right">0.073</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_sensori</td>
+<td align="right">204.424</td>
+<td align="right">0.982</td>
+<td align="right">0.072</td>
+<td align="right">206.388</td>
+<td align="right">0.982</td>
+<td align="right">0.072</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_temporo</td>
+<td align="right">213.984</td>
+<td align="right">0.988</td>
+<td align="right">0.077</td>
+<td align="right">215.028</td>
+<td align="right">0.988</td>
+<td align="right">0.077</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_whole_brain</td>
+<td align="right">218.243</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+<td align="right">217.016</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="adjusted-correlations" class="section level2">
+<h2>Adjusted correlations</h2>
+<pre class="r"><code>library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
+setwd(temporarywd)
+
+load(&quot;all_networks_cognitive.RData&quot;)
+
+#### genomic SEM
+# compare central_exec to all other networks
+other_networks&lt;-c(&quot;cingulo&quot;,&quot;default_mode&quot;,&quot;hippocampal&quot;,&quot;multiple&quot;,&quot;p_fit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+
+# run constrained and freely varying model
+for(i in other_networks){
+
+            # specify covariance structure of interest
+            var_names&lt;-str_replace(dimnames(LDSCoutput$S)[[2]],pattern=&quot;~/data/PC_munged/&quot;,replacement=&quot;&quot;)
+            dimnames(LDSCoutput$S)[[2]]&lt;-var_names
+            covstruc &lt;- LDSCoutput
+
+            #specify estimation method
+            # I would have thought we want to use ML but
+            # consider Javiers explanation
+            estimation&lt;- &quot;DWLS&quot;
+
+            
+            # specify number of nodes for each network to adjust the correlation
+            if(i == &quot;cingulo&quot; | i == &quot;salience&quot;){
+            nodes=10}
+                else if(i == &quot;default_mode&quot;){
+                nodes=16}
+                    else if(i == &quot;hippocampal&quot; | i ==&quot;multiple&quot; | i == &quot;sensori&quot;){
+                    nodes=12}
+                        else if(i == &quot;p_fit&quot;){
+                        nodes=36}
+                            else if(i == &quot;temporo&quot;){
+                            nodes=30}
+                      else if(i == &quot;whole_brain&quot;){
+                        nodes=83}
+                                  else{break}
+            print(i)
+            print(nodes)
+            
+            
+            
+            # specify your constrained model
+            constrained&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\nG ~~ 1*G\nG ~ slope_central*central_exec\nG ~ slope_other*&quot;,i,&quot;\nslope_central/8 == slope_other/&quot;,nodes,&quot;\ncentral_exec ~~ &quot;,i)
+            #constrained&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+            #                   G ~~ 1*G
+            #                   G ~ slope_central*central_exec
+            #                   G ~ slope_other*&quot;,i,&quot;
+            #                   slope_central/8 = slope_other/&quot;,nodes,&quot;
+            #                   central_exec ~~ &quot;,i)
+            print(constrained)
+            
+            # run your contsrained model    
+            constrained_model&lt;-usermodel(covstruc=covstruc, model=constrained, estimation=estimation, imp_cov=T)
+
+            model_name&lt;-paste0(&quot;constrained_model_central_exec_&quot;,i)
+            assign(model_name,constrained_model)
+            
+            
+            # specify your freely-varying model
+            free&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                                G ~~ 1*G 
+                                G ~ central_exec
+                                G ~ &quot;,i,&quot;
+                                central_exec ~~ &quot;,i)            
+            
+            free_model&lt;-usermodel(covstruc=covstruc, model=free, estimation=estimation, imp_cov=T)
+            
+            model_name&lt;-paste0(&quot;free_model_central_exec_&quot;,i)
+            assign(model_name,free_model)
+            }
+            
+results&lt;-ls(pattern=&quot;_model_central_exec_&quot;)</code></pre>
+<div id="summarise-the-model-fit-constrained-vs.-freely-varying-models-1" class="section level3">
+<h3>Summarise the model fit constrained vs. freely varying models</h3>
+<pre class="r"><code>constrained_results&lt;-ls(pattern=&quot;constrained_model_central_exec_&quot;)
+
+table&lt;-data.frame()
+for (i in constrained_results){
+    results&lt;-get(i)
+    names(results$modelfit)&lt;-paste0(&quot;constrained_&quot;,names(results$modelfit))
+    table&lt;-rbind(table,results$modelfit)
+    assign(&quot;constrained_table&quot;,table)
+    }
+constrained_table$model&lt;-str_replace(constrained_results,pattern=&quot;constrained_model_&quot;,replacement=&quot;&quot;)
+
+
+free_results&lt;-ls(pattern=&quot;free_model_central_exec_&quot;)
+
+table&lt;-data.frame()
+for (i in free_results){
+    results&lt;-get(i)
+    names(results$modelfit)&lt;-paste0(&quot;free_&quot;,names(results$modelfit))
+    table&lt;-rbind(table,results$modelfit)
+    assign(&quot;free_table&quot;,table)
+    }
+
+free_table$model&lt;-str_replace(free_results,pattern=&quot;free_model_&quot;,replacement=&quot;&quot;)
+
+# combine constrained and free models
+model_fit_all&lt;-merge(constrained_table,free_table,by=&quot;model&quot;)
+
+# differences in chi-squared are chi-squared distributed with differences in degrees of freedom
+#https://www.psychologie.uzh.ch/dam/jcr:ffffffff-b371-2797-0000-00000fda8f29/chisquare_diff_en.pdf
+model_fit_all&lt;-merge(constrained_table,free_table,by=&quot;model&quot;)
+model_fit_all$delta_chisq&lt;-with(model_fit_all, constrained_chisq-free_chisq)
+model_fit_all$delta_df&lt;-with(model_fit_all, constrained_df-free_df)
+model_fit_all$chi_comp_p&lt;-with(model_fit_all, 1-pchisq(delta_chisq,delta_df))
+model_fit_all$comp_p_adjust&lt;-p.adjust(model_fit_all$chi_comp_p,method=&quot;fdr&quot;,n=nrow(model_fit_all))
+
+display_chi&lt;-model_fit_all[,c(&quot;model&quot;,&quot;delta_chisq&quot;,&quot;delta_df&quot;,&quot;chi_comp_p&quot;,&quot;comp_p_adjust&quot;)]
+display_fit_other&lt;-model_fit_all[,c(&quot;model&quot;,&quot;constrained_AIC&quot;,&quot;free_AIC&quot;,&quot;constrained_CFI&quot;,&quot;free_CFI&quot;,&quot;constrained_SRMR&quot;,&quot;free_SRMR&quot;)]
+kable(display_chi,caption=&quot;Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations&quot;,format=&quot;markdown&quot;,digits = c(0,3,0,3,3))</code></pre>
+<table>
+<caption>Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">delta_chisq</th>
+<th align="right">delta_df</th>
+<th align="right">chi_comp_p</th>
+<th align="right">comp_p_adjust</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec_cingulo</td>
+<td align="right">0.720</td>
+<td align="right">1</td>
+<td align="right">0.396</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_default_mode</td>
+<td align="right">-1.299</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_hippocampal</td>
+<td align="right">1.600</td>
+<td align="right">1</td>
+<td align="right">0.206</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_multiple</td>
+<td align="right">-1.013</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_p_fit</td>
+<td align="right">-2.647</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_salience</td>
+<td align="right">-0.041</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_sensori</td>
+<td align="right">0.644</td>
+<td align="right">1</td>
+<td align="right">0.422</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_temporo</td>
+<td align="right">-1.612</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_whole_brain</td>
+<td align="right">-0.439</td>
+<td align="right">1</td>
+<td align="right">1.000</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>kable(display_fit_other,caption = &quot;Other fit indices of constrained vs. freely varying correlations&quot;,digits=3)</code></pre>
+<table style="width:100%;">
+<caption>Other fit indices of constrained vs. freely varying correlations</caption>
+<colgroup>
+<col width="25%" />
+<col width="15%" />
+<col width="8%" />
+<col width="15%" />
+<col width="8%" />
+<col width="16%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">constrained_AIC</th>
+<th align="right">free_AIC</th>
+<th align="right">constrained_CFI</th>
+<th align="right">free_CFI</th>
+<th align="right">constrained_SRMR</th>
+<th align="right">free_SRMR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec_cingulo</td>
+<td align="right">209.868</td>
+<td align="right">211.148</td>
+<td align="right">0.988</td>
+<td align="right">0.988</td>
+<td align="right">0.073</td>
+<td align="right">0.074</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_default_mode</td>
+<td align="right">197.076</td>
+<td align="right">200.375</td>
+<td align="right">0.994</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+<td align="right">0.075</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_hippocampal</td>
+<td align="right">202.065</td>
+<td align="right">202.466</td>
+<td align="right">0.974</td>
+<td align="right">0.974</td>
+<td align="right">0.075</td>
+<td align="right">0.074</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_multiple</td>
+<td align="right">198.893</td>
+<td align="right">201.906</td>
+<td align="right">0.993</td>
+<td align="right">0.993</td>
+<td align="right">0.073</td>
+<td align="right">0.073</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_p_fit</td>
+<td align="right">214.258</td>
+<td align="right">218.904</td>
+<td align="right">0.995</td>
+<td align="right">0.995</td>
+<td align="right">0.075</td>
+<td align="right">0.075</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_salience</td>
+<td align="right">214.107</td>
+<td align="right">216.149</td>
+<td align="right">0.976</td>
+<td align="right">0.976</td>
+<td align="right">0.074</td>
+<td align="right">0.073</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_sensori</td>
+<td align="right">205.032</td>
+<td align="right">206.388</td>
+<td align="right">0.982</td>
+<td align="right">0.982</td>
+<td align="right">0.073</td>
+<td align="right">0.072</td>
+</tr>
+<tr class="even">
+<td align="left">central_exec_temporo</td>
+<td align="right">211.416</td>
+<td align="right">215.028</td>
+<td align="right">0.988</td>
+<td align="right">0.988</td>
+<td align="right">0.077</td>
+<td align="right">0.077</td>
+</tr>
+<tr class="odd">
+<td align="left">central_exec_whole_brain</td>
+<td align="right">214.577</td>
+<td align="right">217.016</td>
+<td align="right">0.994</td>
+<td align="right">0.994</td>
+<td align="right">0.075</td>
+<td align="right">0.075</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="genetic-correlation-with-brain-age" class="section level1">
+<h1>Genetic correlation with brain age</h1>
+<p>Previous research modelling phenotypic canonical networks showed that larger shared morphology within the whole brain (PC loadings) were negatively associated with age sensitivity, even when connectivity measures had been residualised for age [34]. Consequently, the authors suggested that previously described patterns of brain structural aging, a construct labelled as brain age <a href="https://www.sciencedirect.com/science/article/pii/S0006322320316796">Ref</a>, might not capture how quickly ones regional volumes decline compared to their peers, but rather healthy morphology across the brain. This could vary between people for many non-age-related reasons, including genetic predisposition. Genetic predisposition towards strong whole-brain connectivity might contribute to healthier well-connected brains, that could be more resilient towards harmful environmental factors, properties that should be captured by younger brain age. To test this theory, we calculated genetic correlations between shared morphology across the whole-brain and brain age. Bivariate LDSC was calculated between whole-brain PC summary statistics, created using the methods demonstrated above, and brain age GWAS summary statistics <a href="https://www.nature.com/articles/s41593-019-0471-7">REF</a>.</p>
+<pre class="r"><code>## this script calculates the genetic correlation between whole brain PC sumstats and brainage gwas 
+# brain age gwas was downloaded from https://github.com/tobias-kaufmann/brainage/find/master
+# fileparts combined using: cat Brainage_GWAS_sumstat_final.gz* &gt; ~/data/brain_age_GWAS/Brainage_GWAS_sumstat_final.gz
+# unzipped using gunzip Brainage_GWAS_sumstat_final.gz
+
+# load dependencies
+library(devtools)
+library(GenomicSEM)
+library(data.table)
+
+#########################
+## format brain age file
+########################
+setwd(&quot;~/data/brain_age_GWAS/&quot;)
+brainage&lt;-fread(&quot;Brainage_GWAS_sumstat_final.txt&quot;,header=T,data.table=F)
+
+brainage$N&lt;-45615
+
+fwrite(brainage, file=&quot;~/data/brain_age_GWAS/brain_age_gwas_header.txt&quot;,quote=FALSE,col.names=TRUE,row.names=F,sep=&quot; &quot;,na=&quot;NA&quot;)
+
+
+###################
+## munge brainage gwas
+
+hm3&lt;-&quot;~/data/w_hm3.noMHC.snplist&quot;
+
+files&lt;-&quot;brain_age_gwas_header.txt&quot;
+trait.names&lt;-&quot;brainage&quot;
+
+munge(files=files,
+        hm3=hm3,
+        trait.names=trait.names,
+        info.filter = 0.9)
+
+################################################
+### LDSC brain age and whole brain PC 
+################################################
+
+# specify traits and their location
+traits&lt;-c(&quot;~/output/genetic_networks_project/brainage/brainage.sumstats.gz&quot;,&quot;~/output/genetic_networks_project/PC_munged/whole_brain.sumstats.gz&quot;)
+trait.names&lt;-c(&quot;brainage&quot;,&quot;whole_brain_PC&quot;)
+
+
+# ld scores and weights previously downloaded (European population)
+ld&lt;-&quot;~/data/eur_w_ld_chr/&quot;
+wld&lt;-&quot;~/data/eur_w_ld_chr/&quot;
+
+
+# no sample or population prevalence required because they are continuous traits
+desired_length&lt;-length(traits)
+sample.prev&lt;-rep(NA, desired_length)
+population.prev&lt;-rep(NA, desired_length)
+
+LDSCoutput&lt;-ldsc(traits=traits,
+                    ld=ld,wld=wld,
+                    trait.names = trait.names,
+                    ldsc.log=&quot;~/output/genetic_networks_project/brainage/whole_brain_vs_brainage.log&quot;,
+                    sample.prev=sample.prev,
+                    population.prev=population.prev,
+                    stand=T)
+                    
+save(LDSCoutput, file=&quot;~/output/genetic_networks_project/brainage/whole_brain_vs_brainage.RData&quot;)</code></pre>
+<pre class="r"><code>setwd(paste0(workingd,&quot;/data_my_own/brainage&quot;))
+load(&quot;whole_brain_vs_brainage.RData&quot;)
+brainage_cor&lt;-round(LDSCoutput$S_Stand[1,2], digits = 2)
+k&lt;-nrow(LDSCoutput$S)
+SE&lt;-matrix(0, k, k)
+SE[lower.tri(SE,diag=TRUE)]&lt;-sqrt(diag(LDSCoutput$V_Stand))
+SE_brainage&lt;-round(SE[2,1],digits=3)</code></pre>
+<p>We found that younger brains were genetically correlated with brains demonstrating higher shared morphology (rg = -0.34; SE = 0.065), indicating that the neurostructural patterns shared by both concepts on a phenotypic level are at least partly governed by polygenic effects of brain health, rather than biological age-specific processes per se.</p>
+</div>
+
+&nbsp;
+<hr />
+<a href = "https://www.kcl.ac.uk/">
+<p style="text-align: center"><img src="KCL_logo.jpg" href="https://www.kcl.ac.uk/" style="width:70px;height:50px"> 
+</a>
+</p>
+
+<a href = "https://www.kcl.ac.uk/people/anna-furtjes">
+<p style="text-align: center;">By Anna Elisabeth Fürtjes</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>anna.furtjes@kcl.ac.uk</em></span></p>
+
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Add font awesome icons -->
+<p style="text-align: center;">
+    <a href="https://twitter.com/Anna_Furtjes" class="fa fa-twitter"></a>
+</p>
+
+&nbsp;
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
