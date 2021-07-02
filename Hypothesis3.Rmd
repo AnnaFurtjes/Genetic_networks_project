@@ -876,8 +876,114 @@ kable(display_fit_other,caption = "Other fit indices of constrained vs. freely v
 
 <br>
 <br>
+
+
+
+## Calculate genetic correlations between central executive network and specific cognitive abilities
+
+```{r indiv_results, eval=T,warning=F,message=F,results='hide'}
+library(stringr)
+library(data.table)
+library(devtools)
+library(GenomicSEM)
+
+temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
+setwd(temporarywd)
+
+load("all_networks_cognitive.RData")
+
+
+#### genomic SEM
+# what's the association between all networks and three cognitive abilities
+
+cognitive_abilities<-c("Matrix","Symbol Digit","Memory")
+networks<-c("central_exec","cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain")
+
+
+for(i in networks){
+  for(j in cognitive_abilities){
+
+    # covariance strutcure of interest
+    covstruc <- LDSCoutput
+    
+    # estimation method
+    estimation<- "DWLS"
+    
+    #specify model
+    model<-paste0(i," ~~ ",j)
+    
+    # run model
+    SEM_model<-usermodel(covstruc=covstruc, model=model, estimation=estimation, imp_cov=T)
+    
+    # name and save model
+    model_name<-paste0(i,"_",j,"_indivresults")
+    assign(model_name,SEM_model)
+}}
+
+results<-ls(pattern="_indivresults")
+```
+*There are no fit statistics and zero degrees of freedom because the models are fully saturated.*
+
+```{r display_indiv_results}
+table<-data.frame()
+for (i in results){
+    cor_results<-get(i)
+    table<-rbind(table,cor_results$results[2,c("STD_Genotype","STD_Genotype_SE","p_value")])
+}
+model<-str_replace(results,pattern="_results",replacement="")
+table$model<-model
+
+##create CI column
+table$STD_Genotype_SE<-as.numeric(table$STD_Genotype_SE)
+
+table$ci_u<-table$STD_Genotype-(1.96*table$STD_Genotype_SE)
+table$ci_l<-table$STD_Genotype+(1.96*table$STD_Genotype_SE)
+
+#adjust for multiple testing
+table$p_adjust<-p.adjust(table$p_value,method="fdr",n=nrow(table))
+
+# round numbers
+table<-data.frame(lapply(table, function(y) if(is.numeric(y)) round(y, 4) else y))
+# format CI column
+table$CI<-with(table, paste(ci_u,ci_l,sep = " - "))
+
+table<-table[,c("model","STD_Genotype","STD_Genotype_SE","CI","p_value","p_adjust")]
+
+# make model name shorter, delete redundatn info
+library(stringr)
+table$model<-str_remove(table$model,pattern="_indivresults")
+names(table)<-c("model","rg","SE","CI","p_value","p_adjust")
+
+library(DT)
+datatable(table, caption = "Genetic correlations between individual networks and specific cognitive abilities", rownames=FALSE,options = list(pageLength=5, scrollX=T))
+
+```
+
+
+**Most genetic associations between the networks and individual cognitive traits were significant.**
+
+
+<br>
+
+**The following table lists the traits that were non-significantly associated:**
+
+
+
+```{r non_sig, message=F, warning=F}
+## which results were significant?
+non_sig_models<-table[which(table$p_adjust>0.05),]
+
+
+library(tidyr)
+non_sig_models<-separate(non_sig_models,col="model",into=c("network","cognitive_trait"),sep = "_")
+
+kable(non_sig_models,row.names = F,caption = "Genetic correlations that were non-significant at an FDR adjusted p-value larger than 5%")
+```
+
+
 <br>
 <br>
+
 
 
 ***
