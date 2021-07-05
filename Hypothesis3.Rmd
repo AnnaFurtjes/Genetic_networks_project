@@ -526,7 +526,7 @@ datatable(only_networks, caption = "Genetic correlations among genetic networks"
 
 ```
 
-The genetic correlations between the networks range from `r max(only_networks$value,na.rm=T)` to `r min(only_networks$value,na.rm=T)` (mean rg `r round(mean(only_networks$value,na.rm=T),digits=2)`; SD = `r round(sd(only_networks$value,na.rm=T),digits=2)`). This indicates that the different networks index very similar polygenic signal. The largest genetic correlation of `r max(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==max(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==max(only_networks$value,na.rm=T))]`. The smallest genetic correlation of `r min(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==min(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==min(only_networks$value,na.rm=T))]`
+The genetic correlations between the networks range from `r max(only_networks$value,na.rm=T)` to `r min(only_networks$value,na.rm=T)` (mean rg `r round(mean(only_networks$value,na.rm=T),digits=2)`; SD = `r round(sd(only_networks$value,na.rm=T),digits=2)`). This indicates that the different networks index very similar polygenic signal. The largest genetic correlation of `r max(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==max(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==max(only_networks$value,na.rm=T))]`. The smallest genetic correlation of `r min(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==min(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==min(only_networks$value,na.rm=T))]`.
 
 <br>
 <br>
@@ -601,7 +601,7 @@ for (i in results){
 model<-str_replace(results,pattern="_SEM_results",replacement="")
 fit_table$model<-model
 fit_table<-fit_table[,c("model","chisq","df","p_chisq","AIC","CFI","SRMR")]
-kable(fit_table,caption="Model fit across models",format="markdown",digits = c(0,3,0,60,3,3,3,3),row.names = F)
+kable(fit_table,caption="Model fit across models",format="markdown",digits = 2,row.names = F)
 ```
 
 
@@ -761,7 +761,7 @@ model_fit_all$comp_p_adjust<-p.adjust(model_fit_all$chi_comp_p,method="fdr",n=nr
 display_chi<-model_fit_all[,c("model","delta_chisq","delta_df","chi_comp_p","comp_p_adjust")]
 display_fit_other<-model_fit_all[,c("model","constrained_AIC","constrained_CFI","constrained_SRMR","free_AIC","free_CFI","free_SRMR")]
 kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,3,0,3,3))
-kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits = 3)
+kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits = 2)
 ```
 
 
@@ -901,7 +901,7 @@ model_fit_all$comp_p_adjust<-p.adjust(model_fit_all$chi_comp_p,method="fdr",n=nr
 
 display_chi<-model_fit_all[,c("model","delta_chisq","delta_df","chi_comp_p","comp_p_adjust")]
 display_fit_other<-model_fit_all[,c("model","constrained_AIC","free_AIC","constrained_CFI","free_CFI","constrained_SRMR","free_SRMR")]
-kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,3,0,3,3))
+kable(display_chi,caption="Significance test of difference in chi-squared values obtained as model fit in constrained vs. freely varying correlations",format="markdown",digits = c(0,2,0,2,2))
 kable(display_fit_other,caption = "Other fit indices of constrained vs. freely varying correlations",digits=3)
 ```
 
@@ -1008,7 +1008,7 @@ non_sig_models<-table[which(table$p_adjust>0.05),]
 library(tidyr)
 non_sig_models<-separate(non_sig_models,col="model",into=c("network","cognitive_trait"),sep = "_")
 
-kable(non_sig_models,row.names = F,caption = "Genetic correlations that were non-significant at an FDR adjusted p-value larger than 5%")
+kable(non_sig_models,row.names = F,caption = "Genetic correlations that were non-significant at an FDR adjusted p-value larger than 5%",digits = 2)
 ```
 
 
