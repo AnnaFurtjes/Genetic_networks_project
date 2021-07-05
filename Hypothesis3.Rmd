@@ -600,8 +600,9 @@ for (i in results){
 
 model<-str_replace(results,pattern="_SEM_results",replacement="")
 fit_table$model<-model
+#fit_table$p_chisq<-signif(fit_table$p_chisq)
 fit_table<-fit_table[,c("model","chisq","df","p_chisq","AIC","CFI","SRMR")]
-kable(fit_table,caption="Model fit across models",format="markdown",digits = 2,row.names = F)
+kable(fit_table,caption="Model fit across models",format="markdown",digits = c(0,2,0,24,2,2,2),row.names = F)
 ```
 
 
