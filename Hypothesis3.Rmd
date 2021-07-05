@@ -497,6 +497,37 @@ Note the small correlations of reaction time with the networks as well as the ot
 
 <br>
 
+### Genetic correlations among networks
+
+The genetic networks are very closely correlated, which would explain why there is no evidence for significantly different magnitudes of association between networks and general cognitive ability.
+```{r corr_between_networks}
+temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
+setwd(temporarywd)
+
+load("all_networks_cognitive.RData")
+
+ldscoutput<-LDSCoutput
+trait_names<-dimnames(ldscoutput$S)[[2]]
+dimnames(ldscoutput$S_Stand)[[1]]<-trait_names
+dimnames(ldscoutput$S_Stand)[[2]]<-trait_names
+ldscoutput$S_Stand<-round(ldscoutput$S_Stand,digits = 2)
+diag(ldscoutput$S_Stand)<-NA
+
+only_networks<-ldscoutput$S_Stand[trait_names[1:10],trait_names[1:10]]
+only_networks<-get_lower_tri(only_networks)
+only_networks<-reshape2::melt(only_networks)
+
+# only keep non-missing
+# we only calculated 10*(10-1)/2=45, all others are redundant
+only_networks<-only_networks[which(!is.na(only_networks$value)),]
+
+library(DT)
+datatable(only_networks, caption = "Genetic correlations among genetic networks",colnames = c("Network 1","Network 2","rg"), rownames=FALSE,options = list(pageLength=5, scrollX=T))
+
+```
+
+The genetic correlations between the networks range from `r max(only_networks$value,na.rm=T)` to `r min(only_networks$value,na.rm=T)` (mean rg `r round(mean(only_networks$value,na.rm=T),digits=2)`; SD = `r round(sd(only_networks$value,na.rm=T),digits=2)`). This indicates that the different networks index very similar polygenic signal. The largest genetic correlation of `r max(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==max(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==max(only_networks$value,na.rm=T))]`. The smallest genetic correlation of `r min(only_networks$value,na.rm=T)` was between `r only_networks$Var1[which(only_networks$value==min(only_networks$value,na.rm=T))]` and `r only_networks$Var2[which(only_networks$value==min(only_networks$value,na.rm=T))]`
+
 <br>
 <br>
 

@@ -70,7 +70,7 @@ file<-fread(file,header=T,data.table=F)
 ## Identify the cortical and subcortical volume columns
 ########################################################################
 
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/")
+setwd("~/usr/anna/PhD/scripts/pheno_preparation/")
 ref<-fread("region_codes.txt",data.table=F)
 print("Print head references file containing brain area codes")
 head(ref)
@@ -337,7 +337,7 @@ table(non_missing$sex)
 # in this example the withdrawals have already been removed so this will not change the dimensions of the file
 # keeping it for completeness only 
 ##################################################################################################################
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/")
+setwd("~/usr/anna/PhD/scripts/pheno_preparation/")
 withdrawals <- read.csv("w18177_20210201_withdrawals.csv",header=F)
 names(withdrawals)[1]<-"withdrawn"
 
@@ -381,7 +381,7 @@ for(i in candidate_covar){
 print(all_vars_cor)
 summary(all_vars_cor)
 
-write.table(all_vars_cor, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/assoc_volumes_covars_13042021.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(all_vars_cor, "~/usr/anna/PhD/output/pheno_preparation/assoc_volumes_covars_13042021.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
 ```
 
@@ -472,7 +472,7 @@ names(PC_file)<-c("IID","FID",paste0("PC",1:40))
 
 covariates<-merge(covariates, PC_file, by="IID", all=FALSE)
 
-write.table(covariates, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/covariates_volume_gwas.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
+write.table(covariates, "~/usr/anna/PhD/output/pheno_preparation/covariates_volume_gwas.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
 
 ###############################################################################################################################
 ## save participant list
@@ -490,7 +490,7 @@ fam_file[which(fam_file$eid %in% IDs_of_interest),"Pheno"]<-1
 
 names(fam_file)<-c("ID","Pheno")
 
-write.table(fam_file, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/participants_of_interest_QC.txt",sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
+write.table(fam_file, "~/usr/anna/PhD/output/pheno_preparation/participants_of_interest_QC.txt",sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
 
 ###############################################################################################################################
 ## save phenotype file
@@ -504,14 +504,14 @@ pheno_file<-file[,c("IID","FID",keep_volumes)]
 print("Print dimensions of phenotype file containing 83 volumes and complete cases")
 dim(pheno_file)
 
-missing_genotype<-fread("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/participants_with_phenotypic_but_no_genetic_data1000.txt",header=T,data.table=F)
+missing_genotype<-fread("~/usr/anna/PhD/output/participants_with_phenotypic_but_no_genetic_data1000.txt",header=T,data.table=F)
 
 print("Now removing participants with missing genotype")
 pheno_file[pheno_file$eid %in% missing_genotype$eid,]<-NA
 pheno_file <- pheno_file[complete.cases(pheno_file),]
 
 
-write.table(pheno_file, "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/target_phenotypes_83volumes_gwas.txt",sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
+write.table(pheno_file, "~/usr/anna/PhD/output/pheno_preparation/target_phenotypes_83volumes_gwas.txt",sep = "\t", row.names = FALSE, col.names = TRUE, quote=F)
 
 ```
   
@@ -541,7 +541,7 @@ file<-fread(file,header=T,data.table=F)
 ## Identify the cortical and subcortical volume columns
 ########################################################################
 
-setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/scripts/pheno_preparation/")
+setwd("~/usr/anna/PhD/scripts/pheno_preparation/")
 ref<-fread("region_codes.txt",data.table=F)
 print("Print head references file containing brain area codes")
 head(ref)
@@ -688,7 +688,7 @@ colSums(!is.na(file))
 
 print("Now reading in fam file")
 
-fam<-fread("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/geno_qc/geneticQC_UKB_15042021__MAF0.01_GENO0.02_MIND0.02_CAUC1_UKBQC1_UNREL0.044_HWE0.00000001_SEX1.fam",header=F, data.table=F)
+fam<-fread("~/usr/anna/PhD/output/geno_qc/geneticQC_UKB_15042021__MAF0.01_GENO0.02_MIND0.02_CAUC1_UKBQC1_UNREL0.044_HWE0.00000001_SEX1.fam",header=F, data.table=F)
 
 
 names(fam)[1]<-"eid"
@@ -776,7 +776,7 @@ names(stand_loadings)<-c("Regions","stand_loadings")
 print("print head phenotypic standardised loadings")
 head(stand_loadings)
 
-save(list = c("cor_matrix","se_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
+save(list = c("cor_matrix","se_matrix","eigenvalues","eigenvectors","explained_variance","stand_loadings","age_cor"), file = "~/usr/anna/PhD/output/pheno_cor/pheno_decomposition.RData")
 
 ```
 
