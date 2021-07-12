@@ -360,7 +360,7 @@ mean(age_cor$age_cor)
 
 all_vars_cor <- age_cor
 
-candidate_covar <- c("sex","site","time_of_year","x_coordinate","y_coordinate","z_coordinate")
+candidate_covar <- c("sex","time_of_year","x_coordinate","y_coordinate","z_coordinate")
 
 for(i in candidate_covar){
 	# pick a name for the data.frame to be saved as
@@ -383,6 +383,58 @@ summary(all_vars_cor)
 
 write.table(all_vars_cor, "~/usr/anna/PhD/output/pheno_preparation/assoc_volumes_covars_13042021.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
+
+###################################################################################################
+# as site is a categorical variable we cannot calculate the correlation with brain volumes in the same way
+# we therefore calculate a linear model with site as predictor, and brain volume as outcome variable
+# we extract the R2 and take the sqrt(R2) to get the correlation
+
+### re-calculate assoc with aquisition site
+# Noticed a mistake in the previous script, in which acquision site was treated as continious variable 
+
+library(data.table)
+
+## get acquision site
+setwd("/scratch/datasets/ukbiobank/ukb18177/phenotypes/")
+
+age_file<-list.files(pattern="ukb37667.csv")
+age_file<-fread(age_file,header=T,data.table=F)
+
+print("Dimensions of age_file when loaded into R")
+dim(age_file)
+names(age_file)[grep("54-2",colnames(age_file))]<-"site"
+
+age_file<-age_file[,c("eid","site")]
+
+# setwd for target phenotypes
+setwd("/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/")
+
+phenos<-fread("target_phenotypes_83volumes_gwas.txt",header=T)
+names(phenos)[1]<-"eid"
+
+data<-merge(phenos,age_file, by= "eid", all.x=T)
+
+data$site<-as.factor(data$site)
+
+traits<-names(phenos)[3:length(phenos)]
+
+# run regressions for every trait individually
+traits_models<- lapply(traits, function(x) {
+  trait_descrip <- paste0(x, "~ site")
+  mod <- lm(trait_descrip, data = data, na.action = na.exclude) 
+  return(mod)
+})
+names(traits_models) <- traits
+
+#build output
+regress_output<-do.call(rbind, lapply(traits_models, function(z) summary(z)$r.squared))
+regress_output<-as.data.frame(regress_output)
+names(regress_output)<-"r2"
+regress_output$r<-sqrt(regress_output$r2)
+regress_output$Region<-row.names(regress_output)
+
+# print output
+fwrite(regress_output,file="/mnt/lustre/groups/ukbiobank/Edinburgh_Data/usr/anna/PhD/output/pheno_preparation/site_corr_volumes_12072021.txt",sep="\t", row.names=F,col.names=T)
 ```
 
 <br/>
@@ -392,14 +444,15 @@ write.table(all_vars_cor, "~/usr/anna/PhD/output/pheno_preparation/assoc_volumes
 
 As outlined in the amendment of our pre-registration, we only consider covariates that demonstrate a correlation with brain volumes > .10. Here, we display the correlations results between each of the 83 brain volumes, and all our candidate covariates: age, sex, acquisition site, time of year, and x, y, z coordinates. 
 
-```{r echo=F, eval=T}
-#workingd<-getwd()
-#temporarywd<-paste0(workingd,"data_my_own/Pheno_preparation/")
-#setwd(temporarywd)
-assoc<-read.table("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/data_my_own/Pheno_preparation/assoc_volumes_covars_13042021.txt",header=T)
-
+```{r echo=F, eval=T,warning=F,message=F}
+workingd<-getwd()
+temporarywd<-paste0(workingd,"/data_my_own/Pheno_preparation/")
+setwd(temporarywd)
+library(data.table)
+assoc<-fread("assoc_volumes_covars_13042021.txt",header=T,data.table = F)
 vars<-names(assoc)[2:ncol(assoc)]
 
+# round digits
 for(i in vars){
   var_to_round<-assoc[,i]
   
@@ -409,6 +462,15 @@ for(i in vars){
 
 assoc_display<-assoc
 names(assoc_display)<-c("Region","age","sex","site","time of year","x coordinate","y coordinate","z coordinate")
+assoc_display<-assoc_display[,c("Region","age","sex","time of year","x coordinate","y coordinate","z coordinate")]
+
+# read in table that contains site
+site<-fread("site_corr_volumes_12072021.txt",header=T,data.table = F)
+names(site)<-c("site_r2","site","Region")
+
+assoc_display<-merge(assoc_display,site[,c("Region","site")],by="Region")
+assoc_display$site<-round(assoc_display$site,digits = 2)
+
 
 library(DT)
 datatable(assoc_display,rownames=FALSE, options= list(pageLength=10,scrollX=T))
@@ -418,11 +480,12 @@ Average correlations across all 83 volumes:
 
   - Mean *Age* correlation = `r round(mean(assoc$age_cor), digit=2)`; SD = `r round(sd(assoc$age_cor), digit=2)`
   - Mean *Sex* correlation = `r round(mean(assoc$sex_cor), digit=2)`; SD = `r round(sd(assoc$sex_cor), digit=2)`
-  - Mean *Site* correlation = `r round(mean(assoc$site_cor), digit=2)`; SD = `r round(sd(assoc$site_cor), digit=2)`
   - Mean *Time of year* correlation = `r round(mean(assoc$time_of_year_cor), digit=3)`; SD = `r round(sd(assoc$time_of_year_cor), digit=3)`
   - Mean *X coordinate* (head positioning) = `r round(mean(assoc$x_coordinate_cor), digit=3)`; SD = `r round(sd(assoc$x_coordinate_cor), digit=2)`
   - Mean *Y coordinate* correlation = `r round(mean(assoc$y_coordinate_cor), digit=2)`; SD = `r round(sd(assoc$y_coordinate_cor), digit=2)`
   - Mean *Z coordinate* correlation = `r round(mean(assoc$z_coordinate_cor), digit=2)`; SD = `r round(sd(assoc$z_coordinate_cor), digit=2)`
+  - Mean *Site* correlation = `r round(mean(site$site), digit=2)`; SD = `r round(sd(site$site), digit=2)`
+
 
 As stated in the pre-registration, we planned to include covariates with correlations above .10 as an arbitrary cut-off which is why we will include age and sex (but not site, time of year or the x, y, z coordinates), alongside genetic genotyping batch and 40 genetic principal components. 
 
