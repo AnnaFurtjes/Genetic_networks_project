@@ -469,8 +469,10 @@ site<-fread("site_corr_volumes_12072021.txt",header=T,data.table = F)
 names(site)<-c("site_r2","site","Region")
 
 assoc_display<-merge(assoc_display,site[,c("Region","site")],by="Region")
-assoc_display$site<-round(assoc_display$site,digits = 2)
+assoc_display$site<-round(assoc_display$site,digits = 3)
 
+# write out for manuscript
+#fwrite(assoc_display, file="all_covar_corr_volumes_12072021.txt",col.names = T, row.names = F, sep = "\t")
 
 library(DT)
 datatable(assoc_display,rownames=FALSE, options= list(pageLength=10,scrollX=T))
