@@ -489,7 +489,7 @@ Average correlations across all 83 volumes:
   - Mean *Site* correlation = `r round(mean(site$site), digit=2)`; SD = `r round(sd(site$site), digit=2)`
 
 
-As stated in the pre-registration, we planned to include covariates with correlations above .10 as an arbitrary cut-off which is why we will include age and sex (but not site, time of year or the x, y, z coordinates), alongside genetic genotyping batch and 40 genetic principal components. 
+As stated in the pre-registration, we planned to include covariates with correlations above .10 as an arbitrary cut-off which is why we included age and sex, alongside genetic genotyping batch and 40 genetic principal components. The variables site, time of year and x, y, z scanner coordinates were excluded because with this arbitrary cut-off they explained less than 1% of the variance in the brain volumes. 
 
 <br/>
 <br/>
