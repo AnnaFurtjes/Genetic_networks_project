@@ -535,7 +535,7 @@ The genetic correlations between the networks range from `r max(only_networks$va
 
 Here we assess the genetic correlations between network morphology and a factor of general cognitive ability *g* which is modeled from seven cognitive trait GWAS.
 
-```{r calculate_corr, eval=T,warning=F,message=F,results='hide'}
+```{r calculate_corr, eval=T,warning=F,message=F,results='hide', error=TRUE}
 #load dependencies
 
 library(stringr)
@@ -670,7 +670,7 @@ We do this for raw correlations displayed above, but also for correlations adjus
 ```{r compare_raw, eval=T,warning=F,message=F,results='hide'}
 library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
@@ -783,7 +783,7 @@ To account for different sizes of the networks (i.e. different number of include
 ```{r compare_adjust, eval=T,warning=F,message=F,results='hide'}
 library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
@@ -916,7 +916,7 @@ kable(display_fit_other,caption = "Other fit indices of constrained vs. freely v
 ```{r indiv_results, eval=T,warning=F,message=F,results='hide'}
 library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
@@ -1016,6 +1016,94 @@ kable(non_sig_models,row.names = F,caption = "Genetic correlations that were non
 <br>
 <br>
 
+## Qtrait
+
+The analyses above, aiming to determine contributions of specific cognitive abilities to the genetic associations between general cognitive ability and networks, are somewhat inclusive. Most traits were significantly associated with the networks. We employ a technique called [Qtrait](https://www.medrxiv.org/content/10.1101/2020.09.22.20196089v1.full.pdf) to disentangle whether model fit significantly declines, if the model described above allows for direct correlations between the networks and specific cognitive abilities. A significant Qtrait statistic would suggest that model fit significantly declined and that the association of interest is likely driven by specific cognitive abilities, rather than going through the general cognitive ability factor.
+
+In the following, we fit two models as displayed in the figure below, through which we obtain chi-squared fit statistics for each model. The Qtrait statistic is calculated as the difference between the two fit statistics, and we test whether this difference significantly differs from zero. We repeat this procedure 10 times, once for each network. Qtraits statistics with p-values below 0.05/10 indicate that genetic associations between general cognitive ability and brain networks probably don't go through the cognitive ability factor, but are driven by variation in specific cognitive traits. 
+
+
+![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_Qtrait.jpg)
+
+
+```{r qtrait, eval=T,warning=F,message=F,results='hide'}
+#load dependencies
+
+library(stringr)
+library(data.table)
+#library(devtools)
+library(GenomicSEM)
+
+# load correlation matrix
+temporarywd<-paste0(workingd,"/data_my_own/ldsc_networks/")
+setwd(temporarywd)
+
+load("all_networks_cognitive.RData")
+ldscoutput<-LDSCoutput
+
+trait_names<-dimnames(ldscoutput$S)[[2]]
+
+dimnames(ldscoutput$S)[[1]]<-trait_names
+dimnames(ldscoutput$S)[[2]]<-trait_names
+
+# list all networks names
+network_names<-c("central_exec","cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain")
+
+
+# build dataframe to hold the Qtrait results
+table <- as.data.frame(matrix(nrow = 10, ncol = 4))
+names(table)<-c("network","Qtrait","df","pval")
+
+#### genomic SEM
+
+for (i in network_names){
+            
+            # specify covariance structure of interest
+            covstruc <- ldscoutput
+
+            #specify estimation method
+            estimation<- "DWLS"
+
+            ### specify your model that assumes all associations go through genetic g factor
+            #PC_model<- 'G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+            #           G ~~ 1*G 
+            #           G ~ central_exec'
+            
+            factor_model<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\n\t\t\t\t\t\tG ~~ 1*G \n\t\t\t\t\t\tG ~ ",network_name)
+
+            # run your model    
+            factor_model<-usermodel(covstruc=covstruc, model=factor_model, estimation=estimation, imp_cov=T)
+            
+            
+            ### specify your model that allows specific cognitive traits to be directly associated with network
+            indep_model<- paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                      ",i," ~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                       G ~~ 1*G")
+            # run model    
+            indep_model<-usermodel(covstruc=covstruc, model=indep_model, estimation=estimation, imp_cov=T)
+            
+            diff_chisq <- as.numeric(factor_model$modelfit[3] - indep_model$modelfit[3])
+            diff_df <- as.numeric(factor_model$modelfit[2] - indep_model$modelfit[2])
+            qtrait_pval <- 1-pchisq(diff_chisq, diff_df)
+            
+            # save qtrait results in table
+            table$network[which(network_names == i)] <- i
+            table$Qtrait[which(network_names == i)] <- diff_chisq
+            table$df[which(network_names == i)] <- diff_df
+            table$pval[which(network_names == i)] <- qtrait_pval
+}
+
+table$Qtrait <- signif(table$Qtrait, digits = 2)
+```
+
+```{r displayQtrait}
+kable(table,row.names = FALSE,caption = "Qtrait statistics", digits = 24)
+```
+
+
+
+
+This indicates that genetic correlations between general cognitive ability and brain networks are unlikely driven by specific cognitive traits. Allowing the specific traits to directly correlate with a brain network (i.e. not where the correlation goes through the factor) did not increase the model fit. It seems that  these associations are not limited to a single measures and are much more general. 
 
 
 ***
@@ -1032,7 +1120,7 @@ To test this theory, we calculated genetic correlations between shared morpholog
 # unzipped using gunzip Brainage_GWAS_sumstat_final.gz
 
 # load dependencies
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 library(data.table)
 

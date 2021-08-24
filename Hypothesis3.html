@@ -13,13 +13,22 @@
 
 <title>Hypothesis 3</title>
 
-<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
-<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -27,14 +36,14 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
 <script src="site_libs/datatables-binding-0.15/datatables.js"></script>
 <link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
-<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -48,11 +57,6 @@
     </style>
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -65,32 +69,6 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
 
 
 
@@ -101,10 +79,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -121,40 +95,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 66px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h2 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h3 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h4 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h5 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h6 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -182,7 +129,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -194,7 +141,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -205,10 +152,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -220,7 +180,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -349,7 +308,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -374,7 +333,7 @@ div.tocify {
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
     Home
   </a>
@@ -383,7 +342,7 @@ div.tocify {
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://osf.io/7n4qj">
-    <span class="fas fa-hand-spock-o"></span>
+    <span class="fa fa-hand-spock-o"></span>
      
   </a>
 </li>
@@ -392,11 +351,11 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
 </ul>
@@ -832,8 +791,8 @@ only_networks&lt;-only_networks[which(!is.na(only_networks$value)),]
 
 library(DT)
 datatable(only_networks, caption = &quot;Genetic correlations among genetic networks&quot;,colnames = c(&quot;Network 1&quot;,&quot;Network 2&quot;,&quot;rg&quot;), rownames=FALSE,options = list(pageLength=5, scrollX=T))</code></pre>
-<div id="htmlwidget-44cd96f9ee7a975e960a" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-44cd96f9ee7a975e960a">{"x":{"filter":"none","caption":"<caption>Genetic correlations among genetic networks<\/caption>","data":[["cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","multiple","p_fit","salience","sensori","temporo","whole_brain","p_fit","salience","sensori","temporo","whole_brain","salience","sensori","temporo","whole_brain","sensori","temporo","whole_brain","temporo","whole_brain","whole_brain"],["central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","default_mode","default_mode","default_mode","default_mode","default_mode","default_mode","default_mode","hippocampal","hippocampal","hippocampal","hippocampal","hippocampal","hippocampal","multiple","multiple","multiple","multiple","multiple","p_fit","p_fit","p_fit","p_fit","salience","salience","salience","sensori","sensori","temporo"],[0.88,0.92,0.66,0.94,0.95,0.69,0.82,0.85,0.91,0.86,0.68,0.87,0.89,0.84,0.82,0.86,0.91,0.75,0.89,0.95,0.71,0.82,0.93,0.95,0.63,0.71,0.79,0.69,0.77,0.81,0.92,0.69,0.88,0.83,0.9,0.73,0.85,0.94,0.97,0.76,0.77,0.83,0.8,0.89,0.95]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Network 1<\/th>\n      <th>Network 2<\/th>\n      <th>rg<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-e73b303199dcc7362d2f" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e73b303199dcc7362d2f">{"x":{"filter":"none","caption":"<caption>Genetic correlations among genetic networks<\/caption>","data":[["cingulo","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","default_mode","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","hippocampal","multiple","p_fit","salience","sensori","temporo","whole_brain","multiple","p_fit","salience","sensori","temporo","whole_brain","p_fit","salience","sensori","temporo","whole_brain","salience","sensori","temporo","whole_brain","sensori","temporo","whole_brain","temporo","whole_brain","whole_brain"],["central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","central_exec","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","cingulo","default_mode","default_mode","default_mode","default_mode","default_mode","default_mode","default_mode","hippocampal","hippocampal","hippocampal","hippocampal","hippocampal","hippocampal","multiple","multiple","multiple","multiple","multiple","p_fit","p_fit","p_fit","p_fit","salience","salience","salience","sensori","sensori","temporo"],[0.88,0.92,0.66,0.94,0.95,0.69,0.82,0.85,0.91,0.86,0.68,0.87,0.89,0.84,0.82,0.86,0.91,0.75,0.89,0.95,0.71,0.82,0.93,0.95,0.63,0.71,0.79,0.69,0.77,0.81,0.92,0.69,0.88,0.83,0.9,0.73,0.85,0.94,0.97,0.76,0.77,0.83,0.8,0.89,0.95]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Network 1<\/th>\n      <th>Network 2<\/th>\n      <th>rg<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 <p>The genetic correlations between the networks range from 0.97 to 0.63 (mean rg 0.83; SD = 0.09). This indicates that the different networks index very similar polygenic signal. The largest genetic correlation of 0.97 was between whole_brain and p_fit. The smallest genetic correlation of 0.63 was between multiple and hippocampal.</p>
 <p><br> <br></p>
 </div>
@@ -845,8 +804,10 @@ datatable(only_networks, caption = &quot;Genetic correlations among genetic netw
 
 library(stringr)
 library(data.table)
-library(devtools)
-library(GenomicSEM)
+library(devtools)</code></pre>
+<pre><code>## Error: package or namespace load failed for &#39;devtools&#39; in loadNamespace(j &lt;- i[[1L]], c(lib.loc, .libPaths()), versionCheck = vI[[j]]):
+##  namespace &#39;pkgload&#39; 1.1.0 is being loaded, but &gt;= 1.2.1 is required</code></pre>
+<pre class="r"><code>library(GenomicSEM)
 
 # load correlation matrix
 temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
@@ -1153,7 +1114,7 @@ kable(genetic_cor,caption=&quot;Genetic correlations between PC sumstats and gen
 <h2>Raw correlations</h2>
 <pre class="r"><code>library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
@@ -1435,7 +1396,7 @@ kable(display_chi,caption=&quot;Significance test of difference in chi-squared v
 <p>To account for different sizes of the networks (i.e. different number of included brain volumes), we compare whether associations with <em>g</em> differ between networks, when the associations have been divided by their number of included volumes.</p>
 <pre class="r"><code>library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
@@ -1742,7 +1703,7 @@ kable(display_chi,caption=&quot;Significance test of difference in chi-squared v
 <h2>Calculate genetic correlations between central executive network and specific cognitive abilities</h2>
 <pre class="r"><code>library(stringr)
 library(data.table)
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 
 temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
@@ -1811,8 +1772,8 @@ names(table)&lt;-c(&quot;model&quot;,&quot;rg&quot;,&quot;SE&quot;,&quot;CI&quot
 
 library(DT)
 datatable(table, caption = &quot;Genetic correlations between individual networks and specific cognitive abilities&quot;, rownames=FALSE,options = list(pageLength=5, scrollX=T))</code></pre>
-<div id="htmlwidget-8e80a5bb0833c2f21e6d" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8e80a5bb0833c2f21e6d">{"x":{"filter":"none","caption":"<caption>Genetic correlations between individual networks and specific cognitive abilities<\/caption>","data":[["central_exec_Matrix","central_exec_Memory","central_exec_Symbol Digit","cingulo_Matrix","cingulo_Memory","cingulo_Symbol Digit","default_mode_Matrix","default_mode_Memory","default_mode_Symbol Digit","hippocampal_Matrix","hippocampal_Memory","hippocampal_Symbol Digit","multiple_Matrix","multiple_Memory","multiple_Symbol Digit","p_fit_Matrix","p_fit_Memory","p_fit_Symbol Digit","salience_Matrix","salience_Memory","salience_Symbol Digit","sensori_Matrix","sensori_Memory","sensori_Symbol Digit","temporo_Matrix","temporo_Memory","temporo_Symbol Digit","whole_brain_Matrix","whole_brain_Memory","whole_brain_Symbol Digit"],[0.2013,0.1168,0.1403,0.1907,0.0915,0.1209,0.2219,0.1082,0.1387,0.185,0.0278,0.1263,0.1675,0.111,0.11,0.227,0.1139,0.1204,0.1276,0.0498,0.1285,0.1111,0.0888,0.1198,0.2416,0.0967,0.1087,0.2287,0.0991,0.1365],[0.0884,0.0384,0.0463,0.095,0.0369,0.0458,0.0913,0.0405,0.0446,0.094,0.04,0.0452,0.0888,0.0393,0.0465,0.0865,0.0382,0.0456,0.0912,0.0354,0.047,0.0877,0.0401,0.0468,0.0881,0.039,0.0461,0.0875,0.0384,0.0469],["0.0281 - 0.3745","0.0415 - 0.1921","0.0495 - 0.2311","0.0046 - 0.3768","0.0192 - 0.1638","0.0311 - 0.2107","0.043 - 0.4008","0.0288 - 0.1876","0.0513 - 0.2261","7e-04 - 0.3693","-0.0505 - 0.1061","0.0376 - 0.2149","-0.0066 - 0.3416","0.0339 - 0.188","0.0189 - 0.2011","0.0575 - 0.3964","0.039 - 0.1887","0.031 - 0.2097","-0.0512 - 0.3065","-0.0197 - 0.1192","0.0363 - 0.2207","-0.0608 - 0.283","0.0103 - 0.1673","0.0282 - 0.2115","0.069 - 0.4143","0.0202 - 0.1732","0.0184 - 0.199","0.0571 - 0.4002","0.0238 - 0.1745","0.0446 - 0.2284"],[0.0227,0.0024,0.0024,0.0446,0.0131,0.0083,0.0151,0.0075,0.0019,0.0491,0.4866,0.0052,0.0593,0.0048,0.018,0.0087,0.0029,0.0083,0.1619,0.16,0.0063,0.2053,0.0267,0.0104,0.0061,0.0133,0.0182,0.009,0.0099,0.0036],[0.031,0.0193,0.0193,0.0558,0.0221,0.0193,0.0238,0.0193,0.0193,0.0589,0.4866,0.0193,0.0684,0.0193,0.0261,0.0193,0.0193,0.0193,0.1735,0.1735,0.0193,0.2124,0.0348,0.0195,0.0193,0.0221,0.0261,0.0193,0.0195,0.0193]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>model<\/th>\n      <th>rg<\/th>\n      <th>SE<\/th>\n      <th>CI<\/th>\n      <th>p_value<\/th>\n      <th>p_adjust<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,4,5]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f00216ad642ffa53e24f" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f00216ad642ffa53e24f">{"x":{"filter":"none","caption":"<caption>Genetic correlations between individual networks and specific cognitive abilities<\/caption>","data":[["central_exec_Matrix","central_exec_Memory","central_exec_Symbol Digit","cingulo_Matrix","cingulo_Memory","cingulo_Symbol Digit","default_mode_Matrix","default_mode_Memory","default_mode_Symbol Digit","hippocampal_Matrix","hippocampal_Memory","hippocampal_Symbol Digit","multiple_Matrix","multiple_Memory","multiple_Symbol Digit","p_fit_Matrix","p_fit_Memory","p_fit_Symbol Digit","salience_Matrix","salience_Memory","salience_Symbol Digit","sensori_Matrix","sensori_Memory","sensori_Symbol Digit","temporo_Matrix","temporo_Memory","temporo_Symbol Digit","whole_brain_Matrix","whole_brain_Memory","whole_brain_Symbol Digit"],[0.2013,0.1168,0.1403,0.1907,0.0915,0.1209,0.2219,0.1082,0.1387,0.185,0.0278,0.1263,0.1675,0.111,0.11,0.227,0.1139,0.1204,0.1276,0.0498,0.1285,0.1111,0.0888,0.1198,0.2416,0.0967,0.1087,0.2287,0.0991,0.1365],[0.0884,0.0384,0.0463,0.095,0.0369,0.0458,0.0913,0.0405,0.0446,0.094,0.04,0.0452,0.0888,0.0393,0.0465,0.0865,0.0382,0.0456,0.0912,0.0354,0.047,0.0877,0.0401,0.0468,0.0881,0.039,0.0461,0.0875,0.0384,0.0469],["0.0281 - 0.3745","0.0415 - 0.1921","0.0495 - 0.2311","0.0046 - 0.3768","0.0192 - 0.1638","0.0311 - 0.2107","0.043 - 0.4008","0.0288 - 0.1876","0.0513 - 0.2261","7e-04 - 0.3693","-0.0505 - 0.1061","0.0376 - 0.2149","-0.0066 - 0.3416","0.0339 - 0.188","0.0189 - 0.2011","0.0575 - 0.3964","0.039 - 0.1887","0.031 - 0.2097","-0.0512 - 0.3065","-0.0197 - 0.1192","0.0363 - 0.2207","-0.0608 - 0.283","0.0103 - 0.1673","0.0282 - 0.2115","0.069 - 0.4143","0.0202 - 0.1732","0.0184 - 0.199","0.0571 - 0.4002","0.0238 - 0.1745","0.0446 - 0.2284"],[0.0227,0.0024,0.0024,0.0446,0.0131,0.0083,0.0151,0.0075,0.0019,0.0491,0.4866,0.0052,0.0593,0.0048,0.018,0.0087,0.0029,0.0083,0.1619,0.16,0.0063,0.2053,0.0267,0.0104,0.0061,0.0133,0.0182,0.009,0.0099,0.0036],[0.031,0.0193,0.0193,0.0558,0.0221,0.0193,0.0238,0.0193,0.0193,0.0589,0.4866,0.0193,0.0684,0.0193,0.0261,0.0193,0.0193,0.0193,0.1735,0.1735,0.0193,0.2124,0.0348,0.0195,0.0193,0.0221,0.0261,0.0193,0.0195,0.0193]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>model<\/th>\n      <th>rg<\/th>\n      <th>SE<\/th>\n      <th>CI<\/th>\n      <th>p_value<\/th>\n      <th>p_adjust<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,4,5]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 <p><strong>Most genetic associations between the networks and individual cognitive traits were significant.</strong></p>
 <p><br></p>
 <p><strong>The following table lists the traits that were non-significantly associated:</strong></p>
@@ -1904,6 +1865,154 @@ kable(non_sig_models,row.names = F,caption = &quot;Genetic correlations that wer
 </tbody>
 </table>
 <p><br> <br></p>
+</div>
+<div id="qtrait" class="section level2">
+<h2>Qtrait</h2>
+<p>The analyses above, aiming to determine contributions of specific cognitive abilities to the genetic associations between general cognitive ability and networks, are somewhat inclusive. Most traits were significantly associated with the networks. We employ a technique called <a href="https://www.medrxiv.org/content/10.1101/2020.09.22.20196089v1.full.pdf">Qtrait</a> to disentangle whether model fit significantly declines, if the model described above allows for direct correlations between the networks and specific cognitive abilities. A significant Qtrait statistic would suggest that model fit significantly declined and that the association of interest is likely driven by specific cognitive abilities, rather than going through the general cognitive ability factor.</p>
+<p>In the following, we fit two models as displayed in the figure below, through which we obtain chi-squared fit statistics for each model. The Qtrait statistic is calculated as the difference between the two fit statistics, and we test whether this difference significantly differs from zero. We repeat this procedure 10 times, once for each network. Qtraits statistics with p-values below 0.05/10 indicate that genetic associations between general cognitive ability and brain networks probably don’t go through the cognitive ability factor, but are driven by variation in specific cognitive traits.</p>
+<p><img src="Path_diagram_Qtrait.jpg" /></p>
+<pre class="r"><code>#load dependencies
+
+library(stringr)
+library(data.table)
+#library(devtools)
+library(GenomicSEM)
+
+# load correlation matrix
+temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc_networks/&quot;)
+setwd(temporarywd)
+
+load(&quot;all_networks_cognitive.RData&quot;)
+ldscoutput&lt;-LDSCoutput
+
+trait_names&lt;-dimnames(ldscoutput$S)[[2]]
+
+dimnames(ldscoutput$S)[[1]]&lt;-trait_names
+dimnames(ldscoutput$S)[[2]]&lt;-trait_names
+
+# list all networks names
+network_names&lt;-c(&quot;central_exec&quot;,&quot;cingulo&quot;,&quot;default_mode&quot;,&quot;hippocampal&quot;,&quot;multiple&quot;,&quot;p_fit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
+
+
+# build dataframe to hold the Qtrait results
+table &lt;- as.data.frame(matrix(nrow = 10, ncol = 4))
+names(table)&lt;-c(&quot;network&quot;,&quot;Qtrait&quot;,&quot;df&quot;,&quot;pval&quot;)
+
+#### genomic SEM
+
+for (i in network_names){
+            
+            # specify covariance structure of interest
+            covstruc &lt;- ldscoutput
+
+            #specify estimation method
+            estimation&lt;- &quot;DWLS&quot;
+
+            ### specify your model that assumes all associations go through genetic g factor
+            #PC_model&lt;- &#39;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+            #           G ~~ 1*G 
+            #           G ~ central_exec&#39;
+            
+            factor_model&lt;-paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\n\t\t\t\t\t\tG ~~ 1*G \n\t\t\t\t\t\tG ~ &quot;,network_name)
+
+            # run your model    
+            factor_model&lt;-usermodel(covstruc=covstruc, model=factor_model, estimation=estimation, imp_cov=T)
+            
+            
+            ### specify your model that allows specific cognitive traits to be directly associated with network
+            indep_model&lt;- paste0(&quot;G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                      &quot;,i,&quot; ~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                       G ~~ 1*G&quot;)
+            # run model    
+            indep_model&lt;-usermodel(covstruc=covstruc, model=indep_model, estimation=estimation, imp_cov=T)
+            
+            diff_chisq &lt;- as.numeric(factor_model$modelfit[3] - indep_model$modelfit[3])
+            diff_df &lt;- as.numeric(factor_model$modelfit[2] - indep_model$modelfit[2])
+            qtrait_pval &lt;- 1-pchisq(diff_chisq, diff_df)
+            
+            # save qtrait results in table
+            table$network[which(network_names == i)] &lt;- i
+            table$Qtrait[which(network_names == i)] &lt;- diff_chisq
+            table$df[which(network_names == i)] &lt;- diff_df
+            table$pval[which(network_names == i)] &lt;- qtrait_pval
+}
+
+table$Qtrait &lt;- signif(table$Qtrait, digits = 2)</code></pre>
+<pre class="r"><code>kable(table,row.names = FALSE,caption = &quot;Qtrait statistics&quot;, digits = 24)</code></pre>
+<table>
+<caption>Qtrait statistics</caption>
+<thead>
+<tr class="header">
+<th align="left">network</th>
+<th align="right">Qtrait</th>
+<th align="right">df</th>
+<th align="right">pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">central_exec</td>
+<td align="right">-2.1e-19</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">cingulo</td>
+<td align="right">-4.7e-20</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">default_mode</td>
+<td align="right">-1.8e-19</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">hippocampal</td>
+<td align="right">-1.5e-19</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">multiple</td>
+<td align="right">-4.9e-20</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">p_fit</td>
+<td align="right">-5.9e-20</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">salience</td>
+<td align="right">-4.5e-19</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">sensori</td>
+<td align="right">-6.0e-20</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">temporo</td>
+<td align="right">-5.5e-20</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">whole_brain</td>
+<td align="right">-1.0e-19</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>This indicates that genetic correlations between general cognitive ability and brain networks are unlikely driven by specific cognitive traits. Allowing the specific traits to directly correlate with a brain network (i.e. not where the correlation goes through the factor) did not increase the model fit. It seems that these associations are not limited to a single measures and are much more general.</p>
 <hr />
 </div>
 </div>
@@ -1916,7 +2025,7 @@ kable(non_sig_models,row.names = F,caption = &quot;Genetic correlations that wer
 # unzipped using gunzip Brainage_GWAS_sumstat_final.gz
 
 # load dependencies
-library(devtools)
+#library(devtools)
 library(GenomicSEM)
 library(data.table)
 
@@ -2031,7 +2140,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -2045,6 +2154,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
