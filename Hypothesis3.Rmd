@@ -261,7 +261,7 @@ for (i in loadings_all_traits){
 	name<-str_replace(network_name,pattern=".RData",replacement="")
 	print(name)
 	
-	# multiply the loadings with -1 for all networks apart from salience and sensori (they have positive loadings already)
+	# multiply the loadings with -1 for all networks if the median value of the loadings is below 0
 	median_loadings<-median(stand_loadings)
 	mean_direction<-sign(median_loadings)
 	if(mean_direction == -1){

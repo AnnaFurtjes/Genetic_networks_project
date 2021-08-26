@@ -134,6 +134,8 @@ plot_corr<- plot_corr+xlab("Genetic correlations")+ ylab("Phenotypic correlation
         axis.title.x = element_text(face="bold", colour='black', size=17,family="Arial Narrow"))
 plot_corr
 
+
+summary(lm(gen_pheno$phenotypic_cor~gen_pheno$genetic_cor,na.action = "na.omit"))
 ```
 
 **The red line is the line of identity.**
