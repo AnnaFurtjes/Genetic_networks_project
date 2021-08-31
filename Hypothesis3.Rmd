@@ -553,7 +553,7 @@ The genetic correlations between the networks range from `r max(only_networks$va
 
 Here we assess the genetic correlations between network morphology and a factor of general cognitive ability *g* which is modeled from seven cognitive trait GWAS.
 
-```{r calculate_corr, eval=T,warning=F,message=F,results='hide', error=TRUE}
+```{r calculate_corr, eval=T,warning=F, message=F,results='hide', error=TRUE}
 #load dependencies
 
 library(stringr)
