@@ -35,8 +35,26 @@ correlate with genetic g. Additionally, we hypothesise, on the basis of previous
 phenotypic findings, that the central executive network shows a stronger genetic
 correlation than other networks, when accounting for the number of included nodes.
 
+
+<br>
+<br>
+
 # Calculate PC sumstats
+
+![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/methods_visualisation.png)
+
+<br>
+<br>
+
+
+***
+
+
+
 ## 1. Format GWAS as expected by GWAMA software
+
+The following code relates to step 4 in the illustration above. 
+
 ```{r format_files_hapmap, eval=F,echo=T}
 ##### format GWAS files for GWAMA
 # documentation of the Baselman function
@@ -1018,9 +1036,9 @@ kable(non_sig_models,row.names = F,caption = "Genetic correlations that were non
 
 ## Qtrait
 
-The analyses above, aiming to determine contributions of specific cognitive abilities to the genetic associations between general cognitive ability and networks, are somewhat inclusive. Most traits were significantly associated with the networks. We employ a technique called [Qtrait](https://www.medrxiv.org/content/10.1101/2020.09.22.20196089v1.full.pdf) to disentangle whether model fit significantly declines, if the model described above allows for direct correlations between the networks and specific cognitive abilities. A significant Qtrait statistic would suggest that model fit significantly declined and that the association of interest is likely driven by specific cognitive abilities, rather than going through the general cognitive ability factor.
+The analyses above, aiming to determine contributions of specific cognitive abilities to the genetic associations between general cognitive ability and networks, are somewhat inclusive. Most traits were significantly associated with the networks. We employ a technique called [Qtrait heterogeneity index](https://www.medrxiv.org/content/10.1101/2020.09.22.20196089v1.full.pdf) to disentangle whether model fit significantly declines, if the model described above allows for direct associations between the networks and specific cognitive abilities. A significant Qtrait statistic would suggest that model fit significantly declined and that the association of interest is likely driven by specific cognitive abilities, rather than going through the general cognitive ability factor.
 
-In the following, we fit two models as displayed in the figure below, through which we obtain chi-squared fit statistics for each model. The Qtrait statistic is calculated as the difference between the two fit statistics, and we test whether this difference significantly differs from zero. We repeat this procedure 10 times, once for each network. Qtraits statistics with p-values below 0.05/10 indicate that genetic associations between general cognitive ability and brain networks probably don't go through the cognitive ability factor, but are driven by variation in specific cognitive traits. 
+In the following, we fit two models as displayed in the figure below, through which we obtain chi-squared fit statistics for each model. The Qtrait heterogeneity index is calculated as the difference between the two fit statistics, and we test whether this difference significantly differs from zero. We repeat this procedure 10 times, once for each network. Qtraits statistics with p-values below 0.05/10 indicate that genetic associations between general cognitive ability and brain networks probably don't go through the cognitive ability factor, but are driven by variation in specific cognitive traits. 
 
 
 ![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/Path_diagram_Qtrait.jpg)
@@ -1069,16 +1087,15 @@ for (i in network_names){
             #           G ~~ 1*G 
             #           G ~ central_exec'
             
-            factor_model<-paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\n\t\t\t\t\t\tG ~~ 1*G \n\t\t\t\t\t\tG ~ ",network_name)
+            factor_model<-paste0("G =~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR\n\t\t\t\t\t\tG ~ ",network_name)
 
             # run your model    
             factor_model<-usermodel(covstruc=covstruc, model=factor_model, estimation=estimation, imp_cov=T)
             
             
             ### specify your model that allows specific cognitive traits to be directly associated with network
-            indep_model<- paste0("G =~ NA*Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
-                      ",i," ~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
-                       G ~~ 1*G")
+            indep_model<- paste0("G =~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR
+                      ",i," ~ Matrix+Memory+RT+Symbol Digit+TMTB+Tower+VNR")
             # run model    
             indep_model<-usermodel(covstruc=covstruc, model=indep_model, estimation=estimation, imp_cov=T)
             
