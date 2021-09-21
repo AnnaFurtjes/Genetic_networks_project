@@ -42,6 +42,8 @@ correlation than other networks, when accounting for the number of included node
 # Calculate PC sumstats
 
 ![](C:/Users/k1894405/Documents/GitHub/GenomicPCA project/Genetic_networks_project/methods_visualisation.png)
+URLs: [1 GWAMA software package by Baselmans](https://github.com/baselmans/multivariate_GWAMA/), [2 our modified GWAMA function](https://github.com/AnnaFurtjes/Genetic_networks_project/blob/main/my_GWAMA_26032020.R), [3 Step-by-step demonstration of Genomic PCA](https://annafurtjes.github.io/genomicPCA/)
+
 
 <br>
 <br>
