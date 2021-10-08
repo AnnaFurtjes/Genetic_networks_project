@@ -42,7 +42,6 @@ Authors:
 * Stuart J. Ritchie
 * Ryan Arathimos
 * Jonathan Coleman
-* Ken Hanscombe
 
 
 $$\\[0.05in]$$

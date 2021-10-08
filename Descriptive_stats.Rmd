@@ -216,9 +216,14 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
 loadings_pheno_plot
 
 #dev.off()
+
+# save network names and explained var in a new data.frame to plot further down
+descriptives_pheno <- descriptives_pheno_networks[,c("networks","R2")]
+names(descriptives_pheno)[which(names(descriptives_pheno) == "R2")] <- "pheno_R2"
 ```
 
 Note that the vertical lines indicate quantiles. 
+
 
 
 
@@ -232,12 +237,12 @@ Note that the vertical lines indicate quantiles.
 ## Eigendecomposition
 ```{r eigendecomp, warning=FALSE,message=F}
 ### eigen decomposition of networks
-rm(list=setdiff(ls(),"loadings_pheno_plot"))
+rm(list=setdiff(ls(),c("loadings_pheno_plot","descriptives_pheno")))
 library(stringr)
 library(data.table)
 
 # set wd where ldsc_output is saved
-#workingd<-getwd()
+workingd<-getwd()
 temporarywd<-paste0(workingd,"/data_my_own/ldsc/")
 setwd(temporarywd)
 
@@ -456,16 +461,87 @@ mycolors <- colorRampPalette(brewer.pal(8, "Pastel1"))(nb.cols)
 loadings_plot
 
 #dev.off()
+
+# save without y axis to merge with phenotypic loadings in one figure below
+loadings_plot <- loadings_plot + theme(axis.text.y = element_blank())
 ```
 
 Note that the vertical lines indicate quantiles. 
 
+
+<br>
+
+<br>
+
+## Plot explained variances
+
+```{r plot_R2, warning=F, message=F}
+# save genetic descriptives to be plotted in a new data.frame
+descriptives_geno <- table[,c("networks","explained")]
+names(descriptives_geno)[which(names(descriptives_geno) == "explained")] <- "geno_R2"
+
+# rename networks so they match phenotypic names
+descriptives_geno$networks[which(descriptives_geno$networks == "default_mode")]<-"default"
+descriptives_geno$networks[which(descriptives_geno$networks == "multiple")]<-"multiple_demand"
+
+
+# merge pheno and geno descriptive stats
+descriptives <- merge(descriptives_pheno, descriptives_geno, by = "networks")
+
+# re-name the networks with how you want it to appear in the plot
+descriptives$networks[which(descriptives$networks == "temporo")]<-"Temporo-amygdala-orbitofrontal"
+descriptives$networks[which(descriptives$networks == "sensori")]<-"Sensorimotor"
+descriptives$networks[which(descriptives$networks == "salience")]<-"Salience"
+descriptives$networks[which(descriptives$networks == "p_fit")]<-"P-FIT"
+descriptives$networks[which(descriptives$networks == "multiple_demand")]<-"Multiple demand"
+descriptives$networks[which(descriptives$networks == "hippocampal")]<-"Hippocampal-diencephalic"
+descriptives$networks[which(descriptives$networks == "default")]<-"Default mode"
+descriptives$networks[which(descriptives$networks == "cingulo")]<-"Cingulo-opercular"
+descriptives$networks[which(descriptives$networks == "central_exec")]<-"Central executive"
+descriptives$networks[which(descriptives$networks == "whole_brain")]<-"Whole brain"
+
+# round numbers for display
+descriptives$pheno_R2 <- round(descriptives$pheno_R2, digits = 1)
+descriptives$geno_R2 <- round(descriptives$geno_R2, digits = 1)
+
+# melt data frame to plot
+descriptives <- reshape2::melt(descriptives)
+names(descriptives) <- c("networks","Modality","R2")
+
+# choose  color
+mycolors <- c("#D81B60","#1E88E5")
+
+# create vector for labels
+library(dplyr)
+labels <- descriptives %>% group_by(Modality) %>% summarise(
+            label_x=R2,
+            label_y=networks)
+
+labels$label_position <- ifelse(labels$Modality == "pheno_R2", labels$label_x-13, labels$label_x+13)
+
+R2_plot <- ggplot(data=descriptives, aes(y=networks),shape=3)+
+                            xlim(0,100)+
+                            geom_point(aes(x=R2, col = Modality), shape = 4, size=4, stroke = 2)+
+                            labs(x = "% variance explained by 1st PC", y = "")+
+	                          theme_bw()+
+                            geom_text(data = labels, aes(x=label_position, y=label_y, label=label_x), hjust = 0.5, vjust = 0.5, colour = "gray")
+
+
+R2_plot
+
+# save without y axis
+R2_plot <- R2_plot + theme(axis.text.y = element_blank())
+
+```
+
+
+
 ```{r merge_plots, eval=FALSE}
 library(cowplot)
 
-tiff("loadings.tiff", width = 11, height = 6, units = 'in', res=1000)
+tiff("loadings_R2.tiff", width = 11, height = 6, units = 'in', res=1000)
 
-plot_grid(loadings_pheno_plot,loadings_plot,nrow = 1,ncol = 2,labels=c("A","B"),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85)
+plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c("A","B","C"),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
 
 dev.off()
 ```

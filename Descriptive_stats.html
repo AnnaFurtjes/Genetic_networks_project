@@ -13,13 +13,22 @@
 
 <title>Descriptive statistics</title>
 
-<script src="site_libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -40,11 +49,6 @@
     </style>
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -57,32 +61,6 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
 
 
 
@@ -93,10 +71,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -113,40 +87,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 66px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h2 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h3 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h4 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h5 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h6 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -174,7 +121,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -186,7 +133,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -197,10 +144,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -212,7 +172,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -341,7 +300,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -366,7 +325,7 @@ div.tocify {
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
     Home
   </a>
@@ -375,7 +334,7 @@ div.tocify {
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://osf.io/7n4qj">
-    <span class="fas fa-hand-spock-o"></span>
+    <span class="fa fa-hand-spock-o"></span>
      
   </a>
 </li>
@@ -384,11 +343,11 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
 </ul>
@@ -697,15 +656,19 @@ mycolors &lt;- colorRampPalette(brewer.pal(8, &quot;Pastel1&quot;))(nb.cols)
               scale_x_continuous(n.breaks = 5)+
               xlab(&quot;Phenotypic PC loadings&quot;)+ylab(&quot;&quot;)+
               theme(legend.position = &quot;none&quot;,
-                    axis.text.x = element_text(size=24),
-                    axis.text.y = element_text(size=24),
-                    axis.title.x = element_text(size=26),
+                    axis.text.x = element_text(size=26),
+                    axis.text.y = element_text(size=26),
+                    axis.title.x = element_text(face=&quot;bold&quot;,size=30),
                     panel.background = element_blank(), 
                     axis.line = element_line(color=&quot;black&quot;), 
                     axis.line.x = element_line(color=&quot;black&quot;))+theme_bw() 
 loadings_pheno_plot</code></pre>
 <p><img src="Descriptive_stats_files/figure-html/pheno_PC_plot-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>#dev.off()</code></pre>
+<pre class="r"><code>#dev.off()
+
+# save network names and explained var in a new data.frame to plot further down
+descriptives_pheno &lt;- descriptives_pheno_networks[,c(&quot;networks&quot;,&quot;R2&quot;)]
+names(descriptives_pheno)[which(names(descriptives_pheno) == &quot;R2&quot;)] &lt;- &quot;pheno_R2&quot;</code></pre>
 <p>Note that the vertical lines indicate quantiles.</p>
 <hr />
 <p><br> <br></p>
@@ -716,7 +679,7 @@ loadings_pheno_plot</code></pre>
 <div id="eigendecomposition-1" class="section level2">
 <h2>Eigendecomposition</h2>
 <pre class="r"><code>### eigen decomposition of networks
-rm(list=ls())
+rm(list=setdiff(ls(),c(&quot;loadings_pheno_plot&quot;,&quot;descriptives_pheno&quot;)))
 library(stringr)
 library(data.table)
 
@@ -1044,16 +1007,86 @@ mycolors &lt;- colorRampPalette(brewer.pal(8, &quot;Pastel1&quot;))(nb.cols)
               scale_x_continuous(n.breaks = 5)+
               xlab(&quot;Genetic PC loadings&quot;)+ylab(&quot;&quot;)+
               theme(legend.position = &quot;none&quot;,
-                    axis.text.x = element_text(size=24),
-                    axis.text.y = element_text(size=24),
-                    axis.title.x = element_text(size=26),
+                    axis.text.x = element_text(size=26),
+                    axis.text.y = element_text(size=26),
+                    axis.title.x = element_text(face=&quot;bold&quot;,size=30),
                     panel.background = element_blank(), 
                     axis.line = element_line(color=&quot;black&quot;), 
                     axis.line.x = element_line(color=&quot;black&quot;))+theme_bw() 
 loadings_plot</code></pre>
 <p><img src="Descriptive_stats_files/figure-html/plot_density_stand_loadings-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>#dev.off()</code></pre>
+<pre class="r"><code>#dev.off()
+
+# save without y axis to merge with phenotypic loadings in one figure below
+loadings_plot &lt;- loadings_plot + theme(axis.text.y = element_blank())</code></pre>
 <p>Note that the vertical lines indicate quantiles.</p>
+<p><br></p>
+<p><br></p>
+</div>
+<div id="plot-explained-variances" class="section level2">
+<h2>Plot explained variances</h2>
+<pre class="r"><code># save genetic descriptives to be plotted in a new data.frame
+descriptives_geno &lt;- table[,c(&quot;networks&quot;,&quot;explained&quot;)]
+names(descriptives_geno)[which(names(descriptives_geno) == &quot;explained&quot;)] &lt;- &quot;geno_R2&quot;
+
+# rename networks so they match phenotypic names
+descriptives_geno$networks[which(descriptives_geno$networks == &quot;default_mode&quot;)]&lt;-&quot;default&quot;
+descriptives_geno$networks[which(descriptives_geno$networks == &quot;multiple&quot;)]&lt;-&quot;multiple_demand&quot;
+
+
+# merge pheno and geno descriptive stats
+descriptives &lt;- merge(descriptives_pheno, descriptives_geno, by = &quot;networks&quot;)
+
+# re-name the networks with how you want it to appear in the plot
+descriptives$networks[which(descriptives$networks == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-orbitofrontal&quot;
+descriptives$networks[which(descriptives$networks == &quot;sensori&quot;)]&lt;-&quot;Sensorimotor&quot;
+descriptives$networks[which(descriptives$networks == &quot;salience&quot;)]&lt;-&quot;Salience&quot;
+descriptives$networks[which(descriptives$networks == &quot;p_fit&quot;)]&lt;-&quot;P-FIT&quot;
+descriptives$networks[which(descriptives$networks == &quot;multiple_demand&quot;)]&lt;-&quot;Multiple demand&quot;
+descriptives$networks[which(descriptives$networks == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic&quot;
+descriptives$networks[which(descriptives$networks == &quot;default&quot;)]&lt;-&quot;Default mode&quot;
+descriptives$networks[which(descriptives$networks == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular&quot;
+descriptives$networks[which(descriptives$networks == &quot;central_exec&quot;)]&lt;-&quot;Central executive&quot;
+descriptives$networks[which(descriptives$networks == &quot;whole_brain&quot;)]&lt;-&quot;Whole brain&quot;
+
+# round numbers for display
+descriptives$pheno_R2 &lt;- round(descriptives$pheno_R2, digits = 1)
+descriptives$geno_R2 &lt;- round(descriptives$geno_R2, digits = 1)
+
+# melt data frame to plot
+descriptives &lt;- reshape2::melt(descriptives)
+names(descriptives) &lt;- c(&quot;networks&quot;,&quot;Modality&quot;,&quot;R2&quot;)
+
+# choose  color
+mycolors &lt;- c(&quot;#D81B60&quot;,&quot;#1E88E5&quot;)
+
+# create vector for labels
+library(dplyr)
+labels &lt;- descriptives %&gt;% group_by(Modality) %&gt;% summarise(
+            label_x=R2,
+            label_y=networks)
+
+labels$label_position &lt;- ifelse(labels$Modality == &quot;pheno_R2&quot;, labels$label_x-13, labels$label_x+13)
+
+R2_plot &lt;- ggplot(data=descriptives, aes(y=networks),shape=3)+
+                            xlim(0,100)+
+                            geom_point(aes(x=R2, col = Modality), shape = 4, size=4, stroke = 2)+
+                            labs(x = &quot;% variance explained by 1st PC&quot;, y = &quot;&quot;)+
+                              theme_bw()+
+                            geom_text(data = labels, aes(x=label_position, y=label_y, label=label_x), hjust = 0.5, vjust = 0.5, colour = &quot;gray&quot;)
+
+
+R2_plot</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/plot_R2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># save without y axis
+R2_plot &lt;- R2_plot + theme(axis.text.y = element_blank())</code></pre>
+<pre class="r"><code>library(cowplot)
+
+tiff(&quot;loadings_R2.tiff&quot;, width = 11, height = 6, units = &#39;in&#39;, res=1000)
+
+plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
+
+dev.off()</code></pre>
 <hr />
 <p><br> <br></p>
 </div>
@@ -1388,7 +1421,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -1402,6 +1435,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
