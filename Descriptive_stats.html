@@ -621,16 +621,16 @@ for(i in loadings_pheno){
 data_pheno&lt;-data_pheno[-1,]
 
 # print full names for networks
-data_pheno$network[which(data_pheno$network == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-orbitofrontal&quot;
-data_pheno$network[which(data_pheno$network == &quot;sensori&quot;)]&lt;-&quot;Sensorimotor&quot;
-data_pheno$network[which(data_pheno$network == &quot;salience&quot;)]&lt;-&quot;Salience&quot;
-data_pheno$network[which(data_pheno$network == &quot;p_fit&quot;)]&lt;-&quot;P-FIT&quot;
-data_pheno$network[which(data_pheno$network == &quot;multiple_demand&quot;)]&lt;-&quot;Multiple demand&quot;
-data_pheno$network[which(data_pheno$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic&quot;
-data_pheno$network[which(data_pheno$network == &quot;default&quot;)]&lt;-&quot;Default mode&quot;
-data_pheno$network[which(data_pheno$network == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular&quot;
-data_pheno$network[which(data_pheno$network == &quot;central_exec&quot;)]&lt;-&quot;Central executive&quot;
-data_pheno$network[which(data_pheno$network == &quot;whole_brain&quot;)]&lt;-&quot;Whole brain&quot;
+data_pheno$network[which(data_pheno$network == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-\norbitofrontal (30)&quot;
+data_pheno$network[which(data_pheno$network == &quot;sensori&quot;)]&lt;-&quot;Sensorimotor (12)&quot;
+data_pheno$network[which(data_pheno$network == &quot;salience&quot;)]&lt;-&quot;Salience (10)&quot;
+data_pheno$network[which(data_pheno$network == &quot;p_fit&quot;)]&lt;-&quot;P-FIT (36)&quot;
+data_pheno$network[which(data_pheno$network == &quot;multiple_demand&quot;)]&lt;-&quot;Multiple demand (12)&quot;
+data_pheno$network[which(data_pheno$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic (12)&quot;
+data_pheno$network[which(data_pheno$network == &quot;default&quot;)]&lt;-&quot;Default mode (16)&quot;
+data_pheno$network[which(data_pheno$network == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular (10)&quot;
+data_pheno$network[which(data_pheno$network == &quot;central_exec&quot;)]&lt;-&quot;Central executive (8)&quot;
+data_pheno$network[which(data_pheno$network == &quot;whole_brain&quot;)]&lt;-&quot;Whole brain (83 regions)&quot;
 
 # adjust data structure
 data_pheno$network&lt;-as.factor(data_pheno$network)
@@ -1027,7 +1027,7 @@ loadings_plot &lt;- loadings_plot + theme(axis.text.y = element_blank())</code><
 <h2>Plot explained variances</h2>
 <pre class="r"><code># save genetic descriptives to be plotted in a new data.frame
 descriptives_geno &lt;- table[,c(&quot;networks&quot;,&quot;explained&quot;)]
-names(descriptives_geno)[which(names(descriptives_geno) == &quot;explained&quot;)] &lt;- &quot;geno_R2&quot;
+names(descriptives_geno)[which(names(descriptives_geno) == &quot;explained&quot;)] &lt;- &quot;Genotype&quot;
 
 # rename networks so they match phenotypic names
 descriptives_geno$networks[which(descriptives_geno$networks == &quot;default_mode&quot;)]&lt;-&quot;default&quot;
@@ -1036,6 +1036,8 @@ descriptives_geno$networks[which(descriptives_geno$networks == &quot;multiple&qu
 
 # merge pheno and geno descriptive stats
 descriptives &lt;- merge(descriptives_pheno, descriptives_geno, by = &quot;networks&quot;)
+names(descriptives)[which(names(descriptives) == &quot;pheno_R2&quot;)] &lt;- &quot;Phenotype&quot;
+
 
 # re-name the networks with how you want it to appear in the plot
 descriptives$networks[which(descriptives$networks == &quot;temporo&quot;)]&lt;-&quot;Temporo-amygdala-orbitofrontal&quot;
@@ -1050,15 +1052,16 @@ descriptives$networks[which(descriptives$networks == &quot;central_exec&quot;)]&
 descriptives$networks[which(descriptives$networks == &quot;whole_brain&quot;)]&lt;-&quot;Whole brain&quot;
 
 # round numbers for display
-descriptives$pheno_R2 &lt;- round(descriptives$pheno_R2, digits = 1)
-descriptives$geno_R2 &lt;- round(descriptives$geno_R2, digits = 1)
+descriptives$Phenotype &lt;- round(descriptives$Phenotype, digits = 1)
+descriptives$Genotype &lt;- round(descriptives$Genotype, digits = 1)
 
 # melt data frame to plot
 descriptives &lt;- reshape2::melt(descriptives)
 names(descriptives) &lt;- c(&quot;networks&quot;,&quot;Modality&quot;,&quot;R2&quot;)
 
 # choose  color
-mycolors &lt;- c(&quot;#D81B60&quot;,&quot;#1E88E5&quot;)
+mycolors &lt;- ifelse(descriptives$Modality == &quot;Phenotype&quot;, &quot;#ffd1dc&quot;,&quot;#77dd77&quot;)
+                   
 
 # create vector for labels
 library(dplyr)
@@ -1066,11 +1069,12 @@ labels &lt;- descriptives %&gt;% group_by(Modality) %&gt;% summarise(
             label_x=R2,
             label_y=networks)
 
-labels$label_position &lt;- ifelse(labels$Modality == &quot;pheno_R2&quot;, labels$label_x-13, labels$label_x+13)
+labels$label_position &lt;- ifelse(labels$Modality == &quot;Phenotype&quot;, labels$label_x-13, labels$label_x+13)
+
 
 R2_plot &lt;- ggplot(data=descriptives, aes(y=networks),shape=3)+
                             xlim(0,100)+
-                            geom_point(aes(x=R2, col = Modality), shape = 4, size=4, stroke = 2)+
+                            geom_point(aes(x=R2, fill = Modality), shape = 21, size=2, stroke = 1)+
                             labs(x = &quot;% variance explained by 1st PC&quot;, y = &quot;&quot;)+
                               theme_bw()+
                             geom_text(data = labels, aes(x=label_position, y=label_y, label=label_x), hjust = 0.5, vjust = 0.5, colour = &quot;gray&quot;)

@@ -172,16 +172,16 @@ for(i in loadings_pheno){
 data_pheno<-data_pheno[-1,]
 
 # print full names for networks
-data_pheno$network[which(data_pheno$network == "temporo")]<-"Temporo-amygdala-orbitofrontal"
-data_pheno$network[which(data_pheno$network == "sensori")]<-"Sensorimotor"
-data_pheno$network[which(data_pheno$network == "salience")]<-"Salience"
-data_pheno$network[which(data_pheno$network == "p_fit")]<-"P-FIT"
-data_pheno$network[which(data_pheno$network == "multiple_demand")]<-"Multiple demand"
-data_pheno$network[which(data_pheno$network == "hippocampal")]<-"Hippocampal-diencephalic"
-data_pheno$network[which(data_pheno$network == "default")]<-"Default mode"
-data_pheno$network[which(data_pheno$network == "cingulo")]<-"Cingulo-opercular"
-data_pheno$network[which(data_pheno$network == "central_exec")]<-"Central executive"
-data_pheno$network[which(data_pheno$network == "whole_brain")]<-"Whole brain"
+data_pheno$network[which(data_pheno$network == "temporo")]<-"Temporo-amygdala-\norbitofrontal (30)"
+data_pheno$network[which(data_pheno$network == "sensori")]<-"Sensorimotor (12)"
+data_pheno$network[which(data_pheno$network == "salience")]<-"Salience (10)"
+data_pheno$network[which(data_pheno$network == "p_fit")]<-"P-FIT (36)"
+data_pheno$network[which(data_pheno$network == "multiple_demand")]<-"Multiple demand (12)"
+data_pheno$network[which(data_pheno$network == "hippocampal")]<-"Hippocampal-diencephalic (12)"
+data_pheno$network[which(data_pheno$network == "default")]<-"Default mode (16)"
+data_pheno$network[which(data_pheno$network == "cingulo")]<-"Cingulo-opercular (10)"
+data_pheno$network[which(data_pheno$network == "central_exec")]<-"Central executive (8)"
+data_pheno$network[which(data_pheno$network == "whole_brain")]<-"Whole brain (83 regions)"
 
 # adjust data structure
 data_pheno$network<-as.factor(data_pheno$network)
@@ -478,7 +478,7 @@ Note that the vertical lines indicate quantiles.
 ```{r plot_R2, warning=F, message=F}
 # save genetic descriptives to be plotted in a new data.frame
 descriptives_geno <- table[,c("networks","explained")]
-names(descriptives_geno)[which(names(descriptives_geno) == "explained")] <- "geno_R2"
+names(descriptives_geno)[which(names(descriptives_geno) == "explained")] <- "Genotype"
 
 # rename networks so they match phenotypic names
 descriptives_geno$networks[which(descriptives_geno$networks == "default_mode")]<-"default"
@@ -487,6 +487,8 @@ descriptives_geno$networks[which(descriptives_geno$networks == "multiple")]<-"mu
 
 # merge pheno and geno descriptive stats
 descriptives <- merge(descriptives_pheno, descriptives_geno, by = "networks")
+names(descriptives)[which(names(descriptives) == "pheno_R2")] <- "Phenotype"
+
 
 # re-name the networks with how you want it to appear in the plot
 descriptives$networks[which(descriptives$networks == "temporo")]<-"Temporo-amygdala-orbitofrontal"
@@ -501,15 +503,16 @@ descriptives$networks[which(descriptives$networks == "central_exec")]<-"Central 
 descriptives$networks[which(descriptives$networks == "whole_brain")]<-"Whole brain"
 
 # round numbers for display
-descriptives$pheno_R2 <- round(descriptives$pheno_R2, digits = 1)
-descriptives$geno_R2 <- round(descriptives$geno_R2, digits = 1)
+descriptives$Phenotype <- round(descriptives$Phenotype, digits = 1)
+descriptives$Genotype <- round(descriptives$Genotype, digits = 1)
 
 # melt data frame to plot
 descriptives <- reshape2::melt(descriptives)
 names(descriptives) <- c("networks","Modality","R2")
 
 # choose  color
-mycolors <- c("#D81B60","#1E88E5")
+mycolors <- ifelse(descriptives$Modality == "Phenotype", "#ffd1dc","#77dd77")
+                   
 
 # create vector for labels
 library(dplyr)
@@ -517,11 +520,12 @@ labels <- descriptives %>% group_by(Modality) %>% summarise(
             label_x=R2,
             label_y=networks)
 
-labels$label_position <- ifelse(labels$Modality == "pheno_R2", labels$label_x-13, labels$label_x+13)
+labels$label_position <- ifelse(labels$Modality == "Phenotype", labels$label_x-13, labels$label_x+13)
+
 
 R2_plot <- ggplot(data=descriptives, aes(y=networks),shape=3)+
                             xlim(0,100)+
-                            geom_point(aes(x=R2, col = Modality), shape = 4, size=4, stroke = 2)+
+                            geom_point(aes(x=R2, fill = Modality), shape = 21, size=2, stroke = 1)+
                             labs(x = "% variance explained by 1st PC", y = "")+
 	                          theme_bw()+
                             geom_text(data = labels, aes(x=label_position, y=label_y, label=label_x), hjust = 0.5, vjust = 0.5, colour = "gray")
