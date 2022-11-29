@@ -177,7 +177,7 @@ data_pheno$network[which(data_pheno$network == "sensori")]<-"Sensorimotor (12)"
 data_pheno$network[which(data_pheno$network == "salience")]<-"Salience (10)"
 data_pheno$network[which(data_pheno$network == "p_fit")]<-"P-FIT (36)"
 data_pheno$network[which(data_pheno$network == "multiple_demand")]<-"Multiple demand (12)"
-data_pheno$network[which(data_pheno$network == "hippocampal")]<-"Hippocampal-diencephalic (12)"
+data_pheno$network[which(data_pheno$network == "hippocampal")]<-"Hippocampal-\ndiencephalic (12)"
 data_pheno$network[which(data_pheno$network == "default")]<-"Default mode (16)"
 data_pheno$network[which(data_pheno$network == "cingulo")]<-"Cingulo-opercular (10)"
 data_pheno$network[which(data_pheno$network == "central_exec")]<-"Central executive (8)"
@@ -520,6 +520,8 @@ labels <- descriptives %>% group_by(Modality) %>% summarise(
             label_x=R2,
             label_y=networks)
 
+#labels <- descriptives
+
 labels$label_position <- ifelse(labels$Modality == "Phenotype", labels$label_x-13, labels$label_x+13)
 
 
@@ -545,7 +547,7 @@ library(cowplot)
 
 tiff("loadings_R2.tiff", width = 11, height = 6, units = 'in', res=1000)
 
-plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c("A","B","C"),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
+plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c("D","E","F"),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
 
 dev.off()
 ```
@@ -756,3 +758,174 @@ kable(random_empirical,digits = 2,caption="Mean explained variance and 95% confi
 
 
 All nine *a priori* networks explain more variance than networks with randomly selected volumes. Comparisons must be made for matching numbers of included volumes (i.e. the 39% explained variance by the central executive network should be compared with the mean explained variance for networks with 8 randomly selected regional volumes).
+
+
+
+
+***
+
+# Plot PC1 loadings
+
+```{r, message=FALSE, warning=FALSE, fig.dim = c(11, 11)}
+rm(list=ls())
+library(ggseg)
+library(dplyr)
+library(ggpubr)
+#####################################################################################
+### Read in data 
+#####################################################################################
+
+# load data and name it according to network
+workingwd<-getwd()
+temporarywd<-paste0(workingwd,"/data_my_own/standardised_loadings/")
+setwd(temporarywd)
+
+networks<-list.files(pattern=".txt")
+network_names<-str_replace(networks,pattern=".txt",replacement = "")
+network_names<-str_replace(network_names,pattern="stand_loadings_",replacement = "")
+
+# save region names that ggseg understands/ frame dk will be available as soon as ggseg library was loaded 
+Regions = as.data.frame(cbind(dk$data$region, dk$data$hemi))
+names(Regions)=c("region","hemi")
+# remove NAs
+Regions <- Regions[-which(is.na(Regions$region)),]
+
+# save subcortical region names that ggseg understands
+Regions_sub <- as.data.frame(aseg$data[,c("hemi","region","side")])
+# remove missing names
+Regions_sub <- Regions_sub[which(!is.na(Regions_sub$region)),]
+
+# make object to store plots
+plots <- list()
+
+# read in standardised loadings & rename according to ggseg convention
+for(i in 1:length(networks)){
+  # read in standardised loadings
+  load <- read.table(networks[i], header = TRUE)
+  
+  ### harmonise names to match ggseg naming
+  names(load)[which(names(load) == "Regions")] <- "region"
+  # determine hemi
+  load$hemi <- "right"
+  load$hemi[grep("Left_", load$region)] <- "left"
+
+  
+  # adjust region names to match ggseg naming
+  # remove "Left_" from region name
+  load$region = str_remove(pattern = "Left_", load$region)
+  # remove "Right_" from region name
+  load$region = str_remove(pattern = "Right_", load$region)
+  # replace _ with space
+  load$region = str_replace_all(load$region, pattern="_", replacement = " ")
+  
+  # remove subcortical regions
+  load_cort = load[load$region %in% Regions$region,]
+
+
+  # plot PC loadings and save 
+  plot_cortical <-
+    load_cort %>%
+    ggplot() +
+    geom_brain(atlas = dk, 
+               position = position_brain(hemi ~ side),
+               aes(fill = stand_loadings)) +
+    labs(fill = "PC1\nloadings")+
+    theme_bw()+
+    scale_fill_continuous(limits = c(0, 1), type = "viridis")+
+    #scale_color_gradient(low = "red", high = "blue")+
+    theme(text = element_text(size=15),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.title.y = element_text(face="bold", colour='#1A1A1A', size=20),
+          axis.title.x = element_blank(),
+          axis.line.x = element_blank(),
+          axis.line.y = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          panel.border = element_blank())
+  
+  # add title
+  if(network_names[i] == "central_exec"){
+      name <- "Central executive"
+  }else if(network_names[i] == "cingulo"){
+      name <- "Cingulo-opercular"
+  }else if(network_names[i] == "default_mode"){
+      name <- "Default mode"
+  }else if(network_names[i] == "hippocampal"){
+      name <- "Hippocampal"
+  }else if(network_names[i] == "multiple"){
+      name <- "Multiple demand"
+  }else if(network_names[i] == "p_fit"){
+      name <- "P-FIT"
+  }else if(network_names[i] == "salience"){
+      name <- "Salience"
+  }else if(network_names[i] == "sensori"){
+      name <- "Sensorimotor"
+  }else if(network_names[i] == "temporo"){
+      name <- "Temporo-amygdala-\norbitofrontal"
+  }else if(network_names[i] == "whole_brain"){
+      name <- "Whole brain"
+  }
+  
+  plot_cortical <- plot_cortical + ggtitle(name)
+  
+  # pick name
+  name2<-network_names[i]
+  
+  # store plot
+  plots[[name2]]<-plot_cortical
+
+  
+  
+  
+  ##### plot subcortical
+  # brain stem has capital letter
+  load$region <- tolower(load$region)
+  # keep subcortcal regions only
+  load_sub <-  load[load$region %in% Regions_sub$region,]
+  
+  # only plot if there are subcortical regions
+  if(nrow(load_sub) != 0){
+
+        
+      # add side as in ggseg
+      load_sub$side <- "coronal"
+      load_sub$side <- ifelse(load_sub$region == "brain stem", "sagittal", "coronal")
+      # brain stem is on midline
+      load_sub$hemi[which(load_sub$region == "brain stem")] <- "midline"
+      
+      plot_sub <-
+          load_sub %>%
+          ggplot() +
+          geom_brain(atlas = aseg,
+                     aes(fill = stand_loadings)) +
+          labs(fill = "PC1\nloadings")+
+          theme_bw()+
+          scale_fill_continuous(limits = c(0, 1), type = "viridis")+
+          theme(text = element_text(size=15),
+                axis.text.x = element_blank(),
+                axis.text.y = element_blank(),
+                axis.title.y = element_text(face="bold", colour='#1A1A1A', size=20),
+                axis.title.x = element_blank(),
+                axis.line.x = element_blank(),
+                axis.line.y = element_blank(),
+                axis.ticks.x = element_blank(),
+                axis.ticks.y = element_blank(),
+                panel.border = element_blank())+
+        ggtitle(name)
+      
+      # pick name
+      name<-paste0("sub_",network_names[i])
+      # store plot
+      plots[[name]]<-plot_sub
+      
+  }
+}
+
+ggarrange(plotlist = plots, common.legend = TRUE, legend = "right")
+
+# tiff("C:/Users/k1894405/OneDrive - King's College London/PhD/Projects/Genomic SEM project/Revisions HBM/images/PC1loadings.tiff", width = 11, height = 11, units = 'in', res=1000)
+# ggarrange(plotlist = plots, common.legend = TRUE, legend = "right")
+# dev.off()
+```
+

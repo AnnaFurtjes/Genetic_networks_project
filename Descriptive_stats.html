@@ -13,8 +13,8 @@
 
 <title>Descriptive statistics</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.17/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -66,6 +66,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -86,6 +87,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -143,11 +147,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -176,8 +184,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -185,16 +193,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -314,7 +315,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -346,7 +347,7 @@ div.tocify {
 <div id="header">
 
 <div class="btn-group pull-right float-right">
-<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
 <ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
@@ -368,7 +369,8 @@ body{
 }
 </style>
 <p><span class="math display">\[\\[0.5in]\]</span></p>
-<p><em>Here we calculate descriptive statistics for the brain networks.</em></p>
+<p><em>Here we calculate descriptive statistics for the brain
+networks.</em></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 <hr />
 <p><br> <br></p>
@@ -594,7 +596,8 @@ kable(descriptives_pheno_networks, digits = 2)</code></pre>
 </table>
 <p><br></p>
 </div>
-<div id="plot-density-distribution-of-standardised-loadings" class="section level2">
+<div id="plot-density-distribution-of-standardised-loadings"
+class="section level2">
 <h2>Plot density distribution of standardised loadings</h2>
 <pre class="r"><code>data_pheno&lt;-data.frame(matrix(ncol=2))
 colnames(data_pheno)&lt;-c(&quot;stand_loadings&quot;,&quot;network&quot;)
@@ -626,7 +629,7 @@ data_pheno$network[which(data_pheno$network == &quot;sensori&quot;)]&lt;-&quot;S
 data_pheno$network[which(data_pheno$network == &quot;salience&quot;)]&lt;-&quot;Salience (10)&quot;
 data_pheno$network[which(data_pheno$network == &quot;p_fit&quot;)]&lt;-&quot;P-FIT (36)&quot;
 data_pheno$network[which(data_pheno$network == &quot;multiple_demand&quot;)]&lt;-&quot;Multiple demand (12)&quot;
-data_pheno$network[which(data_pheno$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-diencephalic (12)&quot;
+data_pheno$network[which(data_pheno$network == &quot;hippocampal&quot;)]&lt;-&quot;Hippocampal-\ndiencephalic (12)&quot;
 data_pheno$network[which(data_pheno$network == &quot;default&quot;)]&lt;-&quot;Default mode (16)&quot;
 data_pheno$network[which(data_pheno$network == &quot;cingulo&quot;)]&lt;-&quot;Cingulo-opercular (10)&quot;
 data_pheno$network[which(data_pheno$network == &quot;central_exec&quot;)]&lt;-&quot;Central executive (8)&quot;
@@ -781,7 +784,10 @@ rm(&quot;explained_variance&quot;)
 explained_all_traits&lt;-ls(pattern=&quot;explained_var&quot;)</code></pre>
 <div id="save-pc-loadings-in-separate-files" class="section level4">
 <h4>Save PC loadings in separate files</h4>
-<p>PC loadings are saved in a separate file to be able to create the network specific summary statistics in a <a href="Hypothesis3.html">later step</a>, in which multiple regions are combined and weighted according to their PC loadings.</p>
+<p>PC loadings are saved in a separate file to be able to create the
+network specific summary statistics in a <a
+href="Hypothesis3.html">later step</a>, in which multiple regions are
+combined and weighted according to their PC loadings.</p>
 <pre class="r"><code>setwd(paste0(workingd,&quot;/data_my_own/standardised_loadings/&quot;))
 
 for (i in loadings_all_traits){
@@ -824,6 +830,17 @@ table$number_included&lt;-c(8,10,16,12,12,36,10,12,30,83)
 kable(table,caption=&quot;Explained variance and loadings on first PC&quot;,format=&quot;markdown&quot;,digits=2,row.names = F)</code></pre>
 <table>
 <caption>Explained variance and loadings on first PC</caption>
+<colgroup>
+<col width="18%" />
+<col width="14%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="7%" />
+<col width="22%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">networks</th>
@@ -952,7 +969,8 @@ kable(table,caption=&quot;Explained variance and loadings on first PC&quot;,form
 </table>
 </div>
 </div>
-<div id="plot-density-distribution-of-standardised-loadings-1" class="section level2">
+<div id="plot-density-distribution-of-standardised-loadings-1"
+class="section level2">
 <h2>Plot density distribution of standardised loadings</h2>
 <pre class="r"><code># all networks are saved in loadings_all_traits
 
@@ -1069,6 +1087,8 @@ labels &lt;- descriptives %&gt;% group_by(Modality) %&gt;% summarise(
             label_x=R2,
             label_y=networks)
 
+#labels &lt;- descriptives
+
 labels$label_position &lt;- ifelse(labels$Modality == &quot;Phenotype&quot;, labels$label_x-13, labels$label_x+13)
 
 
@@ -1088,7 +1108,7 @@ R2_plot &lt;- R2_plot + theme(axis.text.y = element_blank())</code></pre>
 
 tiff(&quot;loadings_R2.tiff&quot;, width = 11, height = 6, units = &#39;in&#39;, res=1000)
 
-plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
+plot_grid(loadings_pheno_plot,loadings_plot, R2_plot, nrow = 1,ncol = 3,labels=c(&quot;D&quot;,&quot;E&quot;,&quot;F&quot;),width=1,height=1, label_size = 18,hjust = 0.07,scale = 0.85, rel_widths = c(1.5,1,1.5))
 
 dev.off()</code></pre>
 <hr />
@@ -1096,7 +1116,20 @@ dev.off()</code></pre>
 </div>
 <div id="parallel-analysis-for-genetic-networks" class="section level2">
 <h2>Parallel analysis for genetic networks</h2>
-<p>We test whether genetic PCs explain more variance than 95% of the corresponding PCs generated under a null model in a parallel analysis. We developed a version of parallel analysis to generate null distributions of eigenvalues by simulating null correlation matrices sampled from a diagonal population matrix, where the multivariate sampling distribution is specified to take the form of the sampling distribution of the standardized empirical genetic correlation matrix (V_Stand = sampling correlation matrix; S_Stand = genetic correlation matrix, as estimated using the ldsc function in GenomicSEM). This sampling correlation matrix (V_stand) serves as an index of the precision of and dependencies among genetic correlations when generating the random null data sets. We specify 1,000 replications to simulate the null correlation matrices and use a 95% threshold for distinguishing true eigenvalues from noise.</p>
+<p>We test whether genetic PCs explain more variance than 95% of the
+corresponding PCs generated under a null model in a parallel analysis.
+We developed a version of parallel analysis to generate null
+distributions of eigenvalues by simulating null correlation matrices
+sampled from a diagonal population matrix, where the multivariate
+sampling distribution is specified to take the form of the sampling
+distribution of the standardized empirical genetic correlation matrix
+(V_Stand = sampling correlation matrix; S_Stand = genetic correlation
+matrix, as estimated using the ldsc function in GenomicSEM). This
+sampling correlation matrix (V_stand) serves as an index of the
+precision of and dependencies among genetic correlations when generating
+the random null data sets. We specify 1,000 replications to simulate the
+null correlation matrices and use a 95% threshold for distinguishing
+true eigenvalues from noise.</p>
 <pre class="r"><code># load dependencies
 library(stringr)
 
@@ -1148,15 +1181,19 @@ for(i in network_names){
 <p><br/></p>
 <div class="figure">
 <img src="Whole_brain_PA.PNG" alt="" />
-<p class="caption">Parallel analysis: Whole-brain network (suggesting to extract 14 components)</p>
+<p class="caption">Parallel analysis: Whole-brain network (suggesting to
+extract 14 components)</p>
 </div>
 <p><br/></p>
 </div>
 </div>
 <div id="exploratory-analyses" class="section level1">
 <h1>Exploratory analyses</h1>
-<div id="the-first-pc-of-larger-networks-explains-less-variance-than-the-pc-of-smaller-networks" class="section level3">
-<h3>The first PC of larger networks explains less variance than the PC of smaller networks</h3>
+<div
+id="the-first-pc-of-larger-networks-explains-less-variance-than-the-pc-of-smaller-networks"
+class="section level3">
+<h3>The first PC of larger networks explains less variance than the PC
+of smaller networks</h3>
 <pre class="r"><code>volumes&lt;-table$number_included
 explained_var&lt;-table$explained
 
@@ -1177,8 +1214,11 @@ cor.test(volumes,explained_var)</code></pre>
 abline(lm(explained_var~volumes),col=&quot;red&quot;)</code></pre>
 <p><img src="Descriptive_stats_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="parallel-analysis-suggests-to-extract-more-pcs-for-larger-networks" class="section level3">
-<h3>Parallel analysis suggests to extract more PCs for larger networks</h3>
+<div
+id="parallel-analysis-suggests-to-extract-more-pcs-for-larger-networks"
+class="section level3">
+<h3>Parallel analysis suggests to extract more PCs for larger
+networks</h3>
 <pre class="r"><code>networks&lt;-c(&quot;central&quot;,&quot;cingulo&quot;,&quot;default&quot;,&quot;hippo&quot;,&quot;multiple&quot;,&quot;pfit&quot;,&quot;salience&quot;,&quot;sensori&quot;,&quot;temporo&quot;,&quot;whole_brain&quot;)
 volumes&lt;-table$number_included
 components&lt;-c(2,2,3,4,2,7,2,2,7,14)
@@ -1201,10 +1241,20 @@ cor.test(volumes,components,data=test)</code></pre>
 abline(lm(components~volumes),col=&quot;red&quot;)</code></pre>
 <p><img src="Descriptive_stats_files/figure-html/pa-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="a-priori-networks-explain-more-variance-than-networks-with-randomly-included-volumes" class="section level2">
-<h2>A priori networks explain more variance than networks with randomly included volumes</h2>
-<p>We added this analysis to formally test whether explained variances by the first underlying PC were larger for a priori networks than they were for networks including random volumes. The simulations are repeated for different amounts of randomly included volumes (800 times each), as the first PC of a network with fewer volumes generally explains less variance compared with networks including more volumes.</p>
-<p>We ask this question, because it may invalidate a priori network characterisations if we obtain the same amounts of explained variances for random network characterisations.</p>
+<div
+id="a-priori-networks-explain-more-variance-than-networks-with-randomly-included-volumes"
+class="section level2">
+<h2>A priori networks explain more variance than networks with randomly
+included volumes</h2>
+<p>We added this analysis to formally test whether explained variances
+by the first underlying PC were larger for a priori networks than they
+were for networks including random volumes. The simulations are repeated
+for different amounts of randomly included volumes (800 times each), as
+the first PC of a network with fewer volumes generally explains less
+variance compared with networks including more volumes.</p>
+<p>We ask this question, because it may invalidate a priori network
+characterisations if we obtain the same amounts of explained variances
+for random network characterisations.</p>
 <pre class="r"><code># read in genetic correlation matrix - whole brain 
 workingd&lt;-getwd()
 temporarywd&lt;-paste0(workingd,&quot;/data_my_own/ldsc/&quot;)
@@ -1296,7 +1346,15 @@ random_empirical&lt;-merge(results[,c(&quot;number_included&quot;,&quot;random_R
 
 kable(random_empirical,digits = 2,caption=&quot;Mean explained variance and 95% confidence intervals for networks with randomly included volumes&quot;)</code></pre>
 <table>
-<caption>Mean explained variance and 95% confidence intervals for networks with randomly included volumes</caption>
+<caption>Mean explained variance and 95% confidence intervals for
+networks with randomly included volumes</caption>
+<colgroup>
+<col width="23%" />
+<col width="22%" />
+<col width="20%" />
+<col width="19%" />
+<col width="14%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="right">number_included</th>
@@ -1372,8 +1430,176 @@ kable(random_empirical,digits = 2,caption=&quot;Mean explained variance and 95% 
 </tr>
 </tbody>
 </table>
-<p>All nine <em>a priori</em> networks explain more variance than networks with randomly selected volumes. Comparisons must be made for matching numbers of included volumes (i.e. the 39% explained variance by the central executive network should be compared with the mean explained variance for networks with 8 randomly selected regional volumes).</p>
+<p>All nine <em>a priori</em> networks explain more variance than
+networks with randomly selected volumes. Comparisons must be made for
+matching numbers of included volumes (i.e. the 39% explained variance by
+the central executive network should be compared with the mean explained
+variance for networks with 8 randomly selected regional volumes).</p>
+<hr />
 </div>
+</div>
+<div id="plot-pc1-loadings" class="section level1">
+<h1>Plot PC1 loadings</h1>
+<pre class="r"><code>rm(list=ls())
+library(ggseg)
+library(dplyr)
+library(ggpubr)
+#####################################################################################
+### Read in data 
+#####################################################################################
+
+# load data and name it according to network
+workingwd&lt;-getwd()
+temporarywd&lt;-paste0(workingwd,&quot;/data_my_own/standardised_loadings/&quot;)
+setwd(temporarywd)
+
+networks&lt;-list.files(pattern=&quot;.txt&quot;)
+network_names&lt;-str_replace(networks,pattern=&quot;.txt&quot;,replacement = &quot;&quot;)
+network_names&lt;-str_replace(network_names,pattern=&quot;stand_loadings_&quot;,replacement = &quot;&quot;)
+
+# save region names that ggseg understands/ frame dk will be available as soon as ggseg library was loaded 
+Regions = as.data.frame(cbind(dk$data$region, dk$data$hemi))
+names(Regions)=c(&quot;region&quot;,&quot;hemi&quot;)
+# remove NAs
+Regions &lt;- Regions[-which(is.na(Regions$region)),]
+
+# save subcortical region names that ggseg understands
+Regions_sub &lt;- as.data.frame(aseg$data[,c(&quot;hemi&quot;,&quot;region&quot;,&quot;side&quot;)])
+# remove missing names
+Regions_sub &lt;- Regions_sub[which(!is.na(Regions_sub$region)),]
+
+# make object to store plots
+plots &lt;- list()
+
+# read in standardised loadings &amp; rename according to ggseg convention
+for(i in 1:length(networks)){
+  # read in standardised loadings
+  load &lt;- read.table(networks[i], header = TRUE)
+  
+  ### harmonise names to match ggseg naming
+  names(load)[which(names(load) == &quot;Regions&quot;)] &lt;- &quot;region&quot;
+  # determine hemi
+  load$hemi &lt;- &quot;right&quot;
+  load$hemi[grep(&quot;Left_&quot;, load$region)] &lt;- &quot;left&quot;
+
+  
+  # adjust region names to match ggseg naming
+  # remove &quot;Left_&quot; from region name
+  load$region = str_remove(pattern = &quot;Left_&quot;, load$region)
+  # remove &quot;Right_&quot; from region name
+  load$region = str_remove(pattern = &quot;Right_&quot;, load$region)
+  # replace _ with space
+  load$region = str_replace_all(load$region, pattern=&quot;_&quot;, replacement = &quot; &quot;)
+  
+  # remove subcortical regions
+  load_cort = load[load$region %in% Regions$region,]
+
+
+  # plot PC loadings and save 
+  plot_cortical &lt;-
+    load_cort %&gt;%
+    ggplot() +
+    geom_brain(atlas = dk, 
+               position = position_brain(hemi ~ side),
+               aes(fill = stand_loadings)) +
+    labs(fill = &quot;PC1\nloadings&quot;)+
+    theme_bw()+
+    scale_fill_continuous(limits = c(0, 1), type = &quot;viridis&quot;)+
+    #scale_color_gradient(low = &quot;red&quot;, high = &quot;blue&quot;)+
+    theme(text = element_text(size=15),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.title.y = element_text(face=&quot;bold&quot;, colour=&#39;#1A1A1A&#39;, size=20),
+          axis.title.x = element_blank(),
+          axis.line.x = element_blank(),
+          axis.line.y = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          panel.border = element_blank())
+  
+  # add title
+  if(network_names[i] == &quot;central_exec&quot;){
+      name &lt;- &quot;Central executive&quot;
+  }else if(network_names[i] == &quot;cingulo&quot;){
+      name &lt;- &quot;Cingulo-opercular&quot;
+  }else if(network_names[i] == &quot;default_mode&quot;){
+      name &lt;- &quot;Default mode&quot;
+  }else if(network_names[i] == &quot;hippocampal&quot;){
+      name &lt;- &quot;Hippocampal&quot;
+  }else if(network_names[i] == &quot;multiple&quot;){
+      name &lt;- &quot;Multiple demand&quot;
+  }else if(network_names[i] == &quot;p_fit&quot;){
+      name &lt;- &quot;P-FIT&quot;
+  }else if(network_names[i] == &quot;salience&quot;){
+      name &lt;- &quot;Salience&quot;
+  }else if(network_names[i] == &quot;sensori&quot;){
+      name &lt;- &quot;Sensorimotor&quot;
+  }else if(network_names[i] == &quot;temporo&quot;){
+      name &lt;- &quot;Temporo-amygdala-\norbitofrontal&quot;
+  }else if(network_names[i] == &quot;whole_brain&quot;){
+      name &lt;- &quot;Whole brain&quot;
+  }
+  
+  plot_cortical &lt;- plot_cortical + ggtitle(name)
+  
+  # pick name
+  name2&lt;-network_names[i]
+  
+  # store plot
+  plots[[name2]]&lt;-plot_cortical
+
+  
+  
+  
+  ##### plot subcortical
+  # brain stem has capital letter
+  load$region &lt;- tolower(load$region)
+  # keep subcortcal regions only
+  load_sub &lt;-  load[load$region %in% Regions_sub$region,]
+  
+  # only plot if there are subcortical regions
+  if(nrow(load_sub) != 0){
+
+        
+      # add side as in ggseg
+      load_sub$side &lt;- &quot;coronal&quot;
+      load_sub$side &lt;- ifelse(load_sub$region == &quot;brain stem&quot;, &quot;sagittal&quot;, &quot;coronal&quot;)
+      # brain stem is on midline
+      load_sub$hemi[which(load_sub$region == &quot;brain stem&quot;)] &lt;- &quot;midline&quot;
+      
+      plot_sub &lt;-
+          load_sub %&gt;%
+          ggplot() +
+          geom_brain(atlas = aseg,
+                     aes(fill = stand_loadings)) +
+          labs(fill = &quot;PC1\nloadings&quot;)+
+          theme_bw()+
+          scale_fill_continuous(limits = c(0, 1), type = &quot;viridis&quot;)+
+          theme(text = element_text(size=15),
+                axis.text.x = element_blank(),
+                axis.text.y = element_blank(),
+                axis.title.y = element_text(face=&quot;bold&quot;, colour=&#39;#1A1A1A&#39;, size=20),
+                axis.title.x = element_blank(),
+                axis.line.x = element_blank(),
+                axis.line.y = element_blank(),
+                axis.ticks.x = element_blank(),
+                axis.ticks.y = element_blank(),
+                panel.border = element_blank())+
+        ggtitle(name)
+      
+      # pick name
+      name&lt;-paste0(&quot;sub_&quot;,network_names[i])
+      # store plot
+      plots[[name]]&lt;-plot_sub
+      
+  }
+}
+
+ggarrange(plotlist = plots, common.legend = TRUE, legend = &quot;right&quot;)</code></pre>
+<p><img src="Descriptive_stats_files/figure-html/unnamed-chunk-2-1.png" width="1056" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># tiff(&quot;C:/Users/k1894405/OneDrive - King&#39;s College London/PhD/Projects/Genomic SEM project/Revisions HBM/images/PC1loadings.tiff&quot;, width = 11, height = 11, units = &#39;in&#39;, res=1000)
+# ggarrange(plotlist = plots, common.legend = TRUE, legend = &quot;right&quot;)
+# dev.off()</code></pre>
 </div>
 
 &nbsp;
